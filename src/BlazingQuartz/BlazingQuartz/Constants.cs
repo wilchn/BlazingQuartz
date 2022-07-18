@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace BlazingQuartzUI
+namespace BlazingQuartz
 {
     public enum BasePage
     {

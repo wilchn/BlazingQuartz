@@ -1,8 +1,8 @@
 ﻿using System;
-using BlazingQuartzUI.Services;
+using BlazingQuartz.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace BlazingQuartzUI.Shared;
+namespace BlazingQuartz.Shared;
 
 public partial class MainLayout
 {

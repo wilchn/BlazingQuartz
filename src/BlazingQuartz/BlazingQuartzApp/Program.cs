@@ -27,7 +27,7 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapBlazorHub();
-app.MapFallbackToPage("/BlazingQuartz/_Host");
+app.MapFallbackToPage("/BlazingQuartzUI/_Host");
 
 app.Run();
 

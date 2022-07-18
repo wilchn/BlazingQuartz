@@ -5,7 +5,7 @@ VisualStudioVersion = 25.0.1700.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingQuartzApp", "BlazingQuartzApp\BlazingQuartzApp.csproj", "{26FD050B-4DF1-40BA-AEF6-30932705FC47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingQuartzUI", "BlazingQuartzUI\BlazingQuartzUI.csproj", "{86467004-39D1-4C08-BCF1-9C20A39B4BAD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingQuartz", "BlazingQuartz\BlazingQuartz.csproj", "{86467004-39D1-4C08-BCF1-9C20A39B4BAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

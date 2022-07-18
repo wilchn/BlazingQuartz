@@ -31,7 +31,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\" />
-    <Folder Include="Pages\BlazingQuartz\" />
     <Folder Include="Shared\" />
     <Folder Include="wwwroot\css\" />
     <Folder Include="Extensions\" />

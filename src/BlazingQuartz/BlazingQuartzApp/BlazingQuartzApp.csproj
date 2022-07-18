@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BlazingQuartzUI\BlazingQuartzUI.csproj">
+    <ProjectReference Include="..\BlazingQuartz\BlazingQuartz.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
   </ItemGroup>

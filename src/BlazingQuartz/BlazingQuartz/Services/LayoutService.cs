@@ -1,5 +1,5 @@
 ﻿using System;
-namespace BlazingQuartzUI.Services
+namespace BlazingQuartz.Services
 {
     public class LayoutService
     {

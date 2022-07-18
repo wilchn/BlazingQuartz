@@ -1,5 +1,5 @@
 ﻿using System;
-using BlazingQuartzUI.Services;
+using BlazingQuartz.Services;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 
