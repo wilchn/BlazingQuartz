@@ -17,19 +17,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.7" />
+    <PackageReference Include="MudBlazor" Version="6.0.11" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Pages\" />
     <None Remove="Pages\BlazingQuartzUI\" />
     <None Remove="Shared\" />
+    <None Remove="MudBlazor" />
+    <None Remove="Extensions\" />
+    <None Remove="Services\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\" />
     <Folder Include="Pages\BlazingQuartz\" />
     <Folder Include="Shared\" />
     <Folder Include="wwwroot\css\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\css\" />

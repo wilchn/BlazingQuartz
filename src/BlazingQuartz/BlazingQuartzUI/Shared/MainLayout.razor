@@ -2,18 +2,24 @@
 
 <PageTitle>BlazingQuartz</PageTitle>
 
-<div class="page">
-    <div class="sidebar">
-    </div>
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+<MudLayout>
+    <MudAppBar Elevation="1" Style="@($"background:{Colors.LightBlue.Darken4};")">
+        <MudText Typo="Typo.h5" Class="ml-3">BlazingQuartzNet</MudText>
+        <MudButton Href="overview" Color="Color.Inherit" Variant="Variant.Text" Class="@GetActiveClass(BasePage.Overview)">Overview</MudButton>
+        <MudButton Href="schedules" Color="Color.Inherit" Variant="Variant.Text" Class="@GetActiveClass(BasePage.Schedules)">Schedules</MudButton>
+        <MudButton Href="triggers" Color="Color.Inherit" Variant="Variant.Text" Class="@GetActiveClass(BasePage.Triggers)">Triggers</MudButton>
+        <MudButton Href="history" Color="Color.Inherit" Variant="Variant.Text" Class="@GetActiveClass(BasePage.History)">History</MudButton>
+        <MudButton Href="calendars" Color="Color.Inherit" Variant="Variant.Text" Class="@GetActiveClass(BasePage.Calendars)">Calendars</MudButton>
+        <MudSpacer />
+        @*<LoginDisplay />*@
+    </MudAppBar>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
 
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
