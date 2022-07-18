@@ -28,6 +28,11 @@
     <None Remove="MudBlazor" />
     <None Remove="Extensions\" />
     <None Remove="Services\" />
+    <None Remove="Pages\BlazingQuartzUI\Calendars\" />
+    <None Remove="Pages\BlazingQuartzUI\History\" />
+    <None Remove="Pages\BlazingQuartzUI\Schedules\" />
+    <None Remove="Pages\BlazingQuartzUI\Triggers\" />
+    <None Remove="Pages\BlazingQuartzUI\Overview\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\" />
@@ -35,6 +40,11 @@
     <Folder Include="wwwroot\css\" />
     <Folder Include="Extensions\" />
     <Folder Include="Services\" />
+    <Folder Include="Pages\BlazingQuartzUI\Calendars\" />
+    <Folder Include="Pages\BlazingQuartzUI\History\" />
+    <Folder Include="Pages\BlazingQuartzUI\Schedules\" />
+    <Folder Include="Pages\BlazingQuartzUI\Triggers\" />
+    <Folder Include="Pages\BlazingQuartzUI\Overview\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\css\" />
