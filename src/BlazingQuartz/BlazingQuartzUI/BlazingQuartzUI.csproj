@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
 
@@ -12,7 +13,25 @@
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Pages\" />
+    <None Remove="Pages\BlazingQuartzUI\" />
+    <None Remove="Shared\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Pages\" />
+    <Folder Include="Pages\BlazingQuartz\" />
+    <Folder Include="Shared\" />
+    <Folder Include="wwwroot\css\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\css\" />
+  </ItemGroup>
 </Project>

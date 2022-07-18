@@ -2,6 +2,7 @@
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 
 var app = builder.Build();
 
@@ -14,13 +15,16 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UsePathBase("/BlazingQuartzUI");
 app.UseStaticFiles();
 
 app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapRazorPages();
+app.MapBlazorHub();
+app.MapFallbackToPage("/BlazingQuartz/_Host");
 
 app.Run();
 

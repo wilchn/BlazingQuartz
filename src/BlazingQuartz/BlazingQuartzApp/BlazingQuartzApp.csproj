@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BlazingQuartzUI\BlazingQuartzUI.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
