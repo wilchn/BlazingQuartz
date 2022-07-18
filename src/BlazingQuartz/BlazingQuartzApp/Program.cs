@@ -1,6 +1,41 @@
 ﻿using BlazingQuartz;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
+
+#region Configure Quartz3
+// base configuration from appsettings.json
+builder.Services.Configure<QuartzOptions>(builder.Configuration.GetSection("Quartz"));
+
+// if you are using persistent job store, you might want to alter some options
+builder.Services.Configure<QuartzOptions>(options =>
+{
+    var jobStoreType = options["quartz.jobStore.type"];
+    if ((jobStoreType ?? string.Empty) == "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz")
+    {
+        options.Scheduling.IgnoreDuplicates = true; // default: false
+        options.Scheduling.OverWriteExistingData = true; // default: true
+    }
+
+    var dataSource = options["quartz.jobStore.dataSource"];
+    if (!string.IsNullOrEmpty(dataSource))
+    {
+        var connectionStringName = options[$"quartz.dataSource.{dataSource}.connectionStringName"];
+        var connStr = builder.Configuration.GetConnectionString(connectionStringName);
+        options[$"quartz.dataSource.{dataSource}.connectionString"] = connStr;
+    }
+});
+// Add the required Quartz.NET services
+builder.Services.AddQuartz(q =>
+{
+    // Use a Scoped container to create jobs. I'll touch on this later
+    q.UseMicrosoftDependencyInjectionJobFactory();
+
+});
+// Add the Quartz.NET hosted service
+builder.Services.AddQuartzHostedService(
+    q => q.WaitForJobsToComplete = true);
+#endregion Configure Quartz3
 
 // Add services to the container.
 builder.Services.AddRazorPages();
