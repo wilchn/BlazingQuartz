@@ -12,14 +12,21 @@
     <None Remove="Quartz" />
     <None Remove="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <None Remove="Microsoft.Extensions.Configuration.Abstractions" />
+    <None Remove="Models\" />
+    <None Remove="Extensions\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
     <Folder Include="Events\" />
+    <Folder Include="Models\" />
+    <Folder Include="Extensions\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Quartz" Version="3.4.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BlazingQuartz.Jobs\BlazingQuartz.Jobs.csproj" />
   </ItemGroup>
 </Project>

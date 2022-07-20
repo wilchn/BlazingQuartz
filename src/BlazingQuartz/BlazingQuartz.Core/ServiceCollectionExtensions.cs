@@ -11,6 +11,7 @@ namespace BlazingQuartz.Core
 		public static IServiceCollection AddBlazingQuartz(this IServiceCollection services)
 		{
 			services.AddTransient<ISchedulerDefinitionService, SchedulerDefinitionService>();
+			services.AddTransient<ISchedulerService, SchedulerService>();
 
             var schListenerSvc = new SchedulerListenerService();
             services.TryAddSingleton<ISchedulerListenerService>(schListenerSvc);
