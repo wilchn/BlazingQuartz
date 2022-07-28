@@ -1,0 +1,37 @@
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_isValid">
+            <MudTextField @bind-Value="DataMapItem.Key"
+                ReadOnly="IsEditMode"
+                Required="true"
+                Label="Key"
+                Margin="Margin.Dense"
+                Variant="Variant.Outlined"
+                Validation="@(new Func<string, string?>(ValidateKey))"
+                Class="mb-3" />
+            <MudSelect T="DataMapType?" Label="Type" Variant="Variant.Outlined"
+                Class="mb-3"
+                Required="true"
+                RequiredError="Type is required"
+                @bind-Value="DataMapItem.Type"
+                Margin="Margin.Dense" AnchorOrigin="Origin.BottomCenter">
+                @foreach (var typ in AvailableDataMapTypes)
+                {
+                    <MudSelectItem T="DataMapType?" Value="typ.Key">@typ.Value</MudSelectItem>
+                }
+            </MudSelect>
+            <MudTextField @bind-Value="Value"
+                Label="Value"
+                Required="true"
+                RequiredError="Value is required"
+                Lines="3"
+                Margin="Margin.Dense"
+                Variant="Variant.Outlined"/>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="OnCancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="OnSave">Save</MudButton>
+    </DialogActions>
+</MudDialog>

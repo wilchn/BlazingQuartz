@@ -69,6 +69,18 @@ namespace BlazingQuartz.Core.Services
             }
         }
 
+        public async Task<IReadOnlyCollection<string>> GetJobGroups()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            return await scheduler.GetJobGroupNames();
+        }
+
+        public async Task<IReadOnlyCollection<string>> GetTriggerGroups()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            return await scheduler.GetTriggerGroupNames();
+        }
+
         public ScheduleModel CreateScheduleModel(IJobDetail? jobDetail, ITrigger trigger)
         {
             return new ScheduleModel
@@ -88,36 +100,35 @@ namespace BlazingQuartz.Core.Services
             };
         }
 
-        static int count = 0;
-        public async Task CreateSchedule(ScheduleModel model)
+        public async Task CreateSchedule(JobDetailModel jobDetailModel, TriggerDetailModel triggerDetailModel)
         {
-            // define the job and tie it to our HelloJob class
-            IJobDetail job = JobBuilder.Create<HelloJob>()
-                .WithIdentity("myJob" + count++, "group" + Random.Shared.Next(500)) // name "myJob", group "group1"
-                .WithDescription("This is generated job")
-                .Build();
+            //// define the job and tie it to our HelloJob class
+            //IJobDetail job = JobBuilder.Create<HelloJob>()
+            //    .WithIdentity("myJob" + count++, "group" + Random.Shared.Next(50)) // name "myJob", group "group1"
+            //    .WithDescription("This is generated job")
+            //    .Build();
 
-            // Trigger the job to run now, and then every 40 seconds
-            ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity("myTrigger" + count, "group1" + Random.Shared.Next(500))
-                .StartNow()
-                .WithCalendarIntervalSchedule(x => x
-                    .WithIntervalInDays(1))
-                // .WithDailyTimeIntervalSchedule(x => x
-                //     .WithIntervalInSeconds(5)
-                //     .WithIntervalInMinutes(1)
+            //// Trigger the job to run now, and then every 40 seconds
+            //ITrigger trigger = TriggerBuilder.Create()
+            //    .WithIdentity("myTrigger" + count, "group1" + Random.Shared.Next(50))
+            //    .StartNow()
+            //    .WithCalendarIntervalSchedule(x => x
+            //        .WithIntervalInSeconds(40))
+            //    // .WithDailyTimeIntervalSchedule(x => x
+            //    //     .WithIntervalInSeconds(5)
+            //    //     .WithIntervalInMinutes(1)
 
-                //     .StartingDailyAt(new TimeOfDay(10, 16, 0))
-                //     .EndingDailyAt(new TimeOfDay(10, 17, 0))
-                //     )
-                // .WithSimpleSchedule(x => x
-                //     .WithIntervalInSeconds(40)
-                //     .RepeatForever())
-                .Build();
+            //    //     .StartingDailyAt(new TimeOfDay(10, 16, 0))
+            //    //     .EndingDailyAt(new TimeOfDay(10, 17, 0))
+            //    //     )
+            //    // .WithSimpleSchedule(x => x
+            //    //     .WithIntervalInSeconds(40)
+            //    //     .RepeatForever())
+            //    .Build();
 
             var scheduler = await _schedulerFactory.GetScheduler();
             // Tell quartz to schedule the job using our trigger
-            await scheduler.ScheduleJob(job, trigger);
+            //await scheduler.ScheduleJob(job, trigger);
         }
     }
 }

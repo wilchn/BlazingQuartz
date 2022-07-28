@@ -43,6 +43,32 @@ namespace BlazingQuartz.Core
         [Description("Instruct to fire now")]
         FireOnceNow
     }
+
+    public enum IntervalUnit
+    {
+        Millisecond,
+        Second,
+        Minute,
+        Hour,
+        Day,
+        Week,
+        Month,
+        Year
+    }
+
+    public enum DataMapType
+    {
+        Bool,
+        String,
+        Integer,
+        Float,
+        Double,
+        Decimal,
+        Long,
+        Short,
+        Char,
+        Object
+    }
 }
 
 

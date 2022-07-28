@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Options;
 using BlazingQuartz.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -9,19 +10,9 @@ namespace BlazingQuartz.Core
 	public static class ServiceCollectionExtensions
 	{
 		public static IServiceCollection AddBlazingQuartz(this IServiceCollection services,
-			Action<BlazingQuartzCoreOptions>? options = null)
+			Action<BlazingQuartzCoreOptions> options)
 		{
-			if (options == null)
-            {
-				services.AddOptions<BlazingQuartzCoreOptions>()
-					.Configure(opt =>
-					{
-					});
-			}
-			else
-            {
-				services.Configure(options);
-			}
+			services.Configure(options);
 
 			services.TryAddSingleton<ISchedulerDefinitionService, SchedulerDefinitionService>();
 			services.AddTransient<ISchedulerService, SchedulerService>();
@@ -33,6 +24,19 @@ namespace BlazingQuartz.Core
             services.AddSingleton<ISchedulerListener>(schListenerSvc);
 
             return services;
+		}
+
+		public static IServiceCollection AddBlazingQuartz(this IServiceCollection services,
+			BlazingQuartzCoreOptions? options = null)
+        {
+			options ??= new();
+			services.AddBlazingQuartz(o =>
+			{
+				o.AllowedJobAssemblyFiles = options.AllowedJobAssemblyFiles;
+				o.DisallowedJobTypes = options.DisallowedJobTypes;
+			});
+
+			return services;
 		}
 	}
 }

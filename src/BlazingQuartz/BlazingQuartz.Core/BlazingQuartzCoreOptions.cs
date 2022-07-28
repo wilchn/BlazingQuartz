@@ -16,4 +16,3 @@ namespace BlazingQuartz.Core
         public string[]? DisallowedJobTypes { get; set; }
     }
 }
-
