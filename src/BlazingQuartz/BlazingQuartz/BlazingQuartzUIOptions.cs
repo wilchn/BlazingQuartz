@@ -1,11 +1,10 @@
 ﻿using System;
+using BlazingQuartz.Core;
+
 namespace BlazingQuartz
 {
-    public class BlazingQuartzUIOptions
+    public class BlazingQuartzUIOptions : BlazingQuartzCoreOptions
     {
-        public BlazingQuartzUIOptions()
-        {
-        }
     }
 }
 

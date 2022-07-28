@@ -1,0 +1,47 @@
+﻿@typeparam T where T : Enum
+
+<MudButtonGroup OverrideStyles="false">
+    @foreach (int value in Enum.GetValues(Type))
+    {
+        if (ExcludedValues.Contains((T)Enum.ToObject(Type, value)))
+            continue;
+        <MudButton Color="Color.Primary" Size="Size" DisableElevation="true"
+                   StartIcon="@GetIcon(value)"
+                   Variant="@(value == Convert.ToInt32(Value) ? Variant.Filled : Variant.Outlined)"
+                   OnClick="() => Value = (T)Enum.ToObject(Type, value)">@Enum.GetName(Type, value)</MudButton>
+     }
+</MudButtonGroup>
+
+@code {
+    private T _value = default!;
+
+    [Parameter]
+    public Size Size { get; set; } = Size.Medium;
+
+    [Parameter]
+    public ISet<T> ExcludedValues { get; set; } = default!;
+
+    [Parameter]
+    public IDictionary<T, string> ValueIcons { get; set; } = new Dictionary<T, string>();
+
+    [Parameter]
+    public T Value
+    {
+        get => _value;
+        set
+        {
+            if (_value.Equals(value)) return;
+            _value = value;
+            ValueChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter] public EventCallback<T> ValueChanged { get; set; }
+
+    private Type Type => typeof(T);
+
+    private string GetIcon(int intEnum)
+    {
+        return ValueIcons[(T)Enum.ToObject(Type, intEnum)];
+    }
+}

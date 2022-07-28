@@ -350,3 +350,5 @@ MigrationBackup/
 .ionide/
 
 .DS_Store
+
+**/BlazingQuartz/**/*.css

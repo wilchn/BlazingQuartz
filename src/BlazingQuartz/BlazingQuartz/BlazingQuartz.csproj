@@ -19,6 +19,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.7" />
     <PackageReference Include="MudBlazor" Version="6.0.12" />
+    <PackageReference Include="CronExpressionDescriptor" Version="2.16.0" />
+    <PackageReference Include="LibSassBuilder" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +36,9 @@
     <None Remove="Pages\BlazingQuartzUI\Triggers\" />
     <None Remove="Pages\BlazingQuartzUI\Overview\" />
     <None Remove="System.Linq.Async" />
+    <None Remove="Components\" />
+    <None Remove="CronExpressionDescriptor" />
+    <None Remove="LibSassBuilder" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\" />
@@ -46,6 +51,7 @@
     <Folder Include="Pages\BlazingQuartzUI\Schedules\" />
     <Folder Include="Pages\BlazingQuartzUI\Triggers\" />
     <Folder Include="Pages\BlazingQuartzUI\Overview\" />
+    <Folder Include="Components\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\css\" />

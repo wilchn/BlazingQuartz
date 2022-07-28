@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using BlazingQuartz.Components;
 using BlazingQuartz.Core;
 using BlazingQuartz.Core.Events;
 using BlazingQuartz.Core.Models;
@@ -15,6 +16,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
     {
         [Inject] private ISchedulerService SchedulerSvc { get; set; } = null!;
         [Inject] private ISchedulerListenerService SchedulerListenerSvc { get; set; } = null!;
+        [Inject] private IDialogService DialogSvc { get; set; } = null!;
 
         private ObservableCollection<ScheduleModel> ScheduledJobs { get; set; } = new();
         private string? SearchJobKeyword;
@@ -115,7 +117,20 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
 
         private async Task OnNewSchedule()
         {
-            await Task.CompletedTask;
+            var options = new DialogOptions {
+                CloseOnEscapeKey = true,
+                FullWidth = true,
+                MaxWidth = MaxWidth.Medium
+            };
+            var dlg = DialogSvc.Show<ScheduleDialog>("Create Schedule Job", options);
+            var result = await dlg.Result;
+
+            if (result == null || result.Cancelled)
+                return;
+
+            // create schedule
+            (JobDetailModel jobDetail, TriggerDetailModel triggerDetail) = ((JobDetailModel, TriggerDetailModel))result.Data;
+            await SchedulerSvc.CreateSchedule(jobDetail, triggerDetail);
         }
 
         public void Dispose()
