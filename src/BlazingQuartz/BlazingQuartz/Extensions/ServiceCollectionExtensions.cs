@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 using BlazingQuartz.Core;
 using BlazingQuartz.Services;
+using BlazingQuartz.Models;
 
 namespace BlazingQuartz
 {
@@ -29,6 +30,7 @@ namespace BlazingQuartz
 			services.AddMudServices();
 
 			services.AddScoped<LayoutService>();
+			services.AddTransient<ITriggerDetailModelValidator, TriggerDetailModelValidator>();
 			services.AddBlazingQuartz(coreConfig);
 
             return services;

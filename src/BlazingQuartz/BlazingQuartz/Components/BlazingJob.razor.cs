@@ -25,6 +25,8 @@ namespace BlazingQuartz.Components
 
         [Parameter] public EventCallback<bool> IsValidChanged { get; set; }
 
+        private (string, string) OriginalJobKey = (string.Empty, "No Group");
+
         private IEnumerable<Type> AvailableJobTypes = Enumerable.Empty<Type>();
         private IEnumerable<string>? ExistingJobGroups;
         private MudForm _form = null!;
@@ -36,6 +38,8 @@ namespace BlazingQuartz.Components
             if (JobDetail.JobClass != null)
                 typeList.Add(JobDetail.JobClass);
             AvailableJobTypes = typeList;
+
+            OriginalJobKey = (JobDetail.Name, JobDetail.Group);
         }
 
         async Task<IEnumerable<string>> SearchJobGroup(string value)
@@ -180,6 +184,23 @@ namespace BlazingQuartz.Components
         public Task Validate()
         {
             return _form.Validate();
+        }
+
+        private async Task<string?> ValidateJobName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return "Job name is required";
+
+            // accept if same as original
+            if (OriginalJobKey.Item1 == name && OriginalJobKey.Item2 == JobDetail.Group)
+                return null;
+
+            var detail = await SchedulerSvc.GetJobDetail(name, JobDetail.Group);
+
+            if (detail != null)
+                return "Job name already in used. Please choose another name or group.";
+
+            return null;
         }
     }
 }

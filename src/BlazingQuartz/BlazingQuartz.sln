@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingQuartz.Core", "Blazi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingQuartz.Jobs", "BlazingQuartz.Jobs\BlazingQuartz.Jobs.csproj", "{6B1C4C3F-B14A-4D9C-922B-55C0F407E16D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{9F56BDA4-D8E7-48D9-937E-2EC2AB0C6D9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingQuartz.Core.Test", "test\BlazingQuartz.Core.Test\BlazingQuartz.Core.Test.csproj", "{8003BC40-EFD6-46CC-AF86-589D3F8FEFE4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,11 +37,18 @@ Global
 		{6B1C4C3F-B14A-4D9C-922B-55C0F407E16D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B1C4C3F-B14A-4D9C-922B-55C0F407E16D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B1C4C3F-B14A-4D9C-922B-55C0F407E16D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8003BC40-EFD6-46CC-AF86-589D3F8FEFE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8003BC40-EFD6-46CC-AF86-589D3F8FEFE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8003BC40-EFD6-46CC-AF86-589D3F8FEFE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8003BC40-EFD6-46CC-AF86-589D3F8FEFE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E9CED0FB-6635-467E-A3BD-AF48BDD48348}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8003BC40-EFD6-46CC-AF86-589D3F8FEFE4} = {9F56BDA4-D8E7-48D9-937E-2EC2AB0C6D9A}
 	EndGlobalSection
 EndGlobal

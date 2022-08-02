@@ -6,12 +6,13 @@
                     ValueIcons="TriggerTypeIcons" />
     </div>
 
-    <MudStack Spacing="1" Style="height:60vh; overflow: auto;" Class="pt-3 px-2">
-        <div class="d-flex flex-grow-1 gap-2">
+    <div class="triggerform">
+        <div class="triggerform__2col">
             <MudTextField @bind-Value="TriggerDetail.Name"
                           For="@(() => TriggerDetail.Name)"
                           Required="true"
                           RequiredError="Trigger name is required"
+                          Validation="@(async (string name) => await Validator.ValidateTriggerName(name, TriggerDetail))"
                           Immediate="true"
                           Variant="Variant.Outlined"
                           Margin="Margin.Dense"
@@ -34,56 +35,88 @@
                       Variant="Variant.Outlined"
                       Label="Description" />
 
-        <div class="d-flex flex-grow-1 gap-2">
+        <div class="triggerform__2col">
             <MudDatePicker Label="Start Date"
                            Variant="Variant.Outlined"
                            Margin="Margin.Dense"
                            Editable="true"
-                           @bind-Date="TriggerDetail.StartDate" DisableToolbar="true" />
+                           Date="TriggerDetail.StartDate"
+                           DateChanged="OnStartDateChanged"
+                           DisableToolbar="true" />
             <MudTimePicker Label="Start Time" AmPm="true" Editable="true"
-                        @bind-Time="TriggerDetail.StartTimeSpan"
-                        Variant="Variant.Outlined"
-                        Margin="Margin.Dense" />
+                           Time="TriggerDetail.StartTimeSpan"
+                           TimeChanged="OnStartTimeChanged"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense" />
         </div>
 
-        <div class="d-flex flex-grow-1 gap-2">
+        <div class="triggerform__2col">
             <MudDatePicker Label="End Date"
+                           @ref="_endDatePicker"
                            Variant="Variant.Outlined"
                            Editable="true"
                            Margin="Margin.Dense"
+                           Validation="@((DateTime? time) => Validator.ValidateFirstLastDateTime(TriggerDetail, "End date should be later than start date"))"
                            @bind-Date="TriggerDetail.EndDate" DisableToolbar="true" />
             <MudTimePicker Label="End Time" AmPm="true" Editable="true"
-                        @bind-Time="TriggerDetail.EndTimeSpan"
-                        Variant="Variant.Outlined"
-                        Margin="Margin.Dense" />
+                           Validation="@((TimeSpan? time) => Validator.ValidateFirstLastDateTime(TriggerDetail, "End time should be later than start time"))"
+                           @bind-Time="TriggerDetail.EndTimeSpan"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense" />
         </div>
 
-        <MudSelect T="TimeZoneInfo" Label="Timezone" Variant="Variant.Outlined"
-            @bind-Value="TriggerDetail.Timezone"
-            Required="true"
-            RequiredError="Timezone is required"
-            Margin="Margin.Dense" AnchorOrigin="Origin.BottomCenter">
-            <MudSelectItem T="TimeZoneInfo" Value="@(TimeZoneInfo.Utc)" />
-            <MudSelectItem T="TimeZoneInfo" Value="@(TimeZoneInfo.Local)" />
-        </MudSelect>
+        @if (TriggerDetail.TriggerType == TriggerType.Calendar)
+        {
+            <MudAutocomplete T="TimeZoneInfo" Label="Timezone"
+                                Required="true"
+                                RequiredError="Timezone is required"
+                                @bind-Value="TriggerDetail.InTimeZone"
+                                Variant="Variant.Outlined"
+                                Margin="Margin.Dense"
+                                SearchFunc="@SearchTimeZoneInfo"
+                                MaxItems="20"
+                                ResetValueOnEmptyText="true"
+                                ToStringFunc="@(e=> e==null ? null : e.DisplayName)"
+                                CoerceText="true" />
+        }
+        else
+        {
+            <MudSelect T="TimeZoneInfo" Label="Start & End Time Timezone" Variant="Variant.Outlined"
+                    @bind-Value="TriggerDetail.StartTimezone"
+                    Required="true"
+                    RequiredError="Timezone is required"
+                    Margin="Margin.Dense" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem T="TimeZoneInfo" Value="@(TimeZoneInfo.Utc)" />
+                <MudSelectItem T="TimeZoneInfo" Value="@(TimeZoneInfo.Local)" />
+            </MudSelect>
+        }
 
         <MudNumericField @bind-Value="TriggerDetail.Priority" Label="Priority (larger value has higher priority)"
                          Margin="Margin.Dense"
                          Variant="Variant.Outlined" Step="1" />
 
         <MudSelect T="MisfireAction" Label="Misfire Instruction" Variant="Variant.Outlined"
-                @bind-Value="TriggerDetail.MisfireAction"
-                Margin="Margin.Dense" AnchorOrigin="Origin.BottomCenter">
+                   @bind-Value="TriggerDetail.MisfireAction"
+                   Margin="Margin.Dense" AnchorOrigin="Origin.BottomCenter">
             @foreach (var action in SchedulerDefSvc.GetMisfireActions(TriggerDetail.TriggerType))
             {
                 <MudSelectItem T="MisfireAction" Value="action" />
             }
         </MudSelect>
 
-        <MudSelect T="string" Label="Calendar" Variant="Variant.Outlined"
-                Disabled="true"
-                Margin="Margin.Dense" AnchorOrigin="Origin.BottomCenter">
-        </MudSelect>
+        <div class="d-flex gap-2">
+            <MudAutocomplete T="string" Label="Calendar" @bind-Value="TriggerDetail.ModifiedByCalendar"
+                             SearchFunc="SearchCalendars"
+                             ResetValueOnEmptyText="true"
+                             Clearable="true"
+                             Dense="true"
+                             Margin="Margin.Dense"
+                             Variant="Variant.Outlined"
+                             CoerceText="true" />
+            <MudIconButton Size="Size.Medium"
+                       Class="align-self-center"
+                       Icon="@Icons.Filled.Add" Title="Create Calendar"/>
+        </div>
 
         @if (TriggerDetail.TriggerType == TriggerType.Cron)
         {
@@ -93,9 +126,20 @@
                           For="@(() => TriggerDetail.CronExpression)"
                           Required="true"
                           Margin="Margin.Dense"
-                          HelperText="@CronDescription" 
+                          HelperText="@CronDescription"
                           Label="Cron Expression (Format: seconds minutes hours day-of-month month day-of-week year)"
                           Variant="Variant.Outlined" Adornment="Adornment.End" />
+            <MudAutocomplete T="TimeZoneInfo" Label="Timezone"
+                             Required="true"
+                             RequiredError="Timezone is required"
+                             @bind-Value="TriggerDetail.InTimeZone"
+                             Variant="Variant.Outlined"
+                             Margin="Margin.Dense"
+                             SearchFunc="@SearchTimeZoneInfo"
+                             MaxItems="20"
+                             ResetValueOnEmptyText="true"
+                             ToStringFunc="@(e=> e==null ? null : e.DisplayName)"
+                             CoerceText="true" />
         }
         else
         {
@@ -104,52 +148,58 @@
                 @* Daily Trigger *@
                 <div class="d-flex flex-grow-1 gap-2">
                     <MudTimePicker Label="Daily Run Time" AmPm="true" Editable="true"
-                        @bind-Time="TriggerDetail.StartDailyTime"
-                        Required="true"
-                        RequiredError="Daily run time is required"
-                        Variant="Variant.Outlined"
-                        Margin="Margin.Dense" />
-                    <MudTimePicker Label="Daily Last Run Time" AmPm="true" Editable="true" 
-                        @bind-Time="TriggerDetail.EndDailyTime"
-                        Variant="Variant.Outlined"
-                        Margin="Margin.Dense" />
-                    <MudAutocomplete T="TimeZoneInfo" Label="Timezone" 
-                        Required="true"
-                        RequiredError="Timezone is required"
-                        @bind-Value="TriggerDetail.DailyTimeZone"
-                        Variant="Variant.Outlined"
-                        Margin="Margin.Dense"
-                        SearchFunc="@SearchTimeZoneInfo"
-                        MaxItems="20"
-                        ResetValueOnEmptyText="true"
-                        ToStringFunc="@(e=> e==null ? null : e.DisplayName)"
-                        CoerceText="true" />
+                                   Time="TriggerDetail.StartDailyTime"
+                                   TimeChanged="OnStartDailyTimeChanged"
+                                   Required="true"
+                                   RequiredError="Daily run time is required"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense" />
+                    <MudTimePicker Label="Daily Last Run Time" AmPm="true" Editable="true"
+                                   @ref="_endDailyTimePicker"
+                                   @bind-Time="TriggerDetail.EndDailyTime"
+                                   Validation="@((TimeSpan? time) => Validator.ValidateTime(TriggerDetail.StartDailyTime, time, "End time should be later than start time"))"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense" />
+                    <MudAutocomplete T="TimeZoneInfo" Label="Timezone"
+                                     Required="true"
+                                     RequiredError="Timezone is required"
+                                     @bind-Value="TriggerDetail.InTimeZone"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     SearchFunc="@SearchTimeZoneInfo"
+                                     MaxItems="20"
+                                     ResetValueOnEmptyText="true"
+                                     ToStringFunc="@(e=> e==null ? null : e.DisplayName)"
+                                     CoerceText="true" />
                 </div>
-                <MudField Label="Day of Week" Variant="Variant.Outlined"
+                <MudField Label="Day of Week*" Variant="Variant.Outlined"
+                          Error="@(!_isDaysOfWeekValid)"
+                          ErrorText="Select days to trigger this job"
                           InnerPadding="false">
                     <div class="d-flex">
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Monday]" 
-                            Label="@(DayOfWeek.Monday.ToString())" ></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Tuesday]" 
-                            Label="@(DayOfWeek.Tuesday.ToString())"></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Wednesday]" 
-                            Label="@(DayOfWeek.Wednesday.ToString())"></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Thursday]" 
-                            Label="@(DayOfWeek.Thursday.ToString())"></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Friday]" 
-                            Label="@(DayOfWeek.Friday.ToString())"></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Saturday]" 
-                            Label="@(DayOfWeek.Saturday.ToString())"></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Sunday]" 
-                            Label="@(DayOfWeek.Sunday.ToString())"></MudCheckBox>
+                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Monday]"
+                                     Label="@(DayOfWeek.Monday.ToString())"></MudCheckBox>
+                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Tuesday]"
+                                     Label="@(DayOfWeek.Tuesday.ToString())"></MudCheckBox>
+                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Wednesday]"
+                                     Label="@(DayOfWeek.Wednesday.ToString())"></MudCheckBox>
+                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Thursday]"
+                                     Label="@(DayOfWeek.Thursday.ToString())"></MudCheckBox>
+                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Friday]"
+                                     Label="@(DayOfWeek.Friday.ToString())"></MudCheckBox>
+                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Saturday]"
+                                     Label="@(DayOfWeek.Saturday.ToString())"></MudCheckBox>
+                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Sunday]"
+                                     Label="@(DayOfWeek.Sunday.ToString())"></MudCheckBox>
                     </div>
                 </MudField>
             }
 
             @* Simple Trigger/Daily Trigger *@
-            <div class="d-flex gap-2">
+            <div class="triggerform__2col">
                 <MudNumericField @bind-Value="TriggerDetail.TriggerInterval" Label="Repeat Interval"
                                  Margin="Margin.Dense"
+                                 Min="1"
                                  Required="@(TriggerDetail.TriggerType == TriggerType.Simple || TriggerDetail.TriggerType == TriggerType.Calendar)"
                                  Variant="Variant.Outlined" Step="1" />
                 <MudSelect T="IntervalUnit?" Label="Unit" Variant="Variant.Outlined"
@@ -165,10 +215,16 @@
             </div>
             if (TriggerDetail.TriggerType == TriggerType.Simple)
             {
-                <div>
-                    <MudCheckBox @bind-Checked="TriggerDetail.RepeatForever" Label="Repeat Forever"></MudCheckBox>
+                <div class="triggerform__2col">
+                    <MudNumericField @bind-Value="TriggerDetail.RepeatCount" Label="Repeat Count"
+                                     Margin="Margin.Dense"
+                                     Min="0"
+                                     Disabled="TriggerDetail.RepeatForever"
+                                     Variant="Variant.Outlined" Step="1" />
+                    <MudCheckBox @bind-Checked="TriggerDetail.RepeatForever"
+                                 Label="Repeat Forever"></MudCheckBox>
                 </div>
             }
         }
-    </MudStack>
+    </div>
 </MudForm>

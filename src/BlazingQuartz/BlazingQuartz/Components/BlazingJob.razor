@@ -4,6 +4,7 @@
             <MudTextField @bind-Value="JobDetail.Name"
                         For="@(() => JobDetail.Name)"
                         Required="true"
+                        Validation="@(async (string name) => await ValidateJobName(name))"
                         RequiredError="Job name is required"
                         Immediate="true"
                         Variant="Variant.Outlined"

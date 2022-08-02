@@ -5,17 +5,17 @@ using BlazingQuartz.Core.Services;
 using Microsoft.AspNetCore.Components;
 using BlazingQuartz.Extensions;
 using MudBlazor;
+using BlazingQuartz.Models;
 
 namespace BlazingQuartz.Components
 {
     public partial class BlazingTrigger : ComponentBase
     {
-		[Inject]
-		private ISchedulerDefinitionService SchedulerDefSvc { get; set; } = null!;
-        [Inject]
-        private ISchedulerService SchedulerSvc { get; set; } = null!;
+		[Inject] private ISchedulerDefinitionService SchedulerDefSvc { get; set; } = null!;
+        [Inject] private ISchedulerService SchedulerSvc { get; set; } = null!;
+        [Inject] private ITriggerDetailModelValidator Validator { get; set; } = null!;
 
-		[Parameter]
+        [Parameter]
 		[EditorRequired]
 		public TriggerDetailModel TriggerDetail { get; set; } = new();
 
@@ -29,6 +29,10 @@ namespace BlazingQuartz.Components
 
 		private string? CronDescription;
 		private MudForm _form = null!;
+        private bool _isDaysOfWeekValid = true;
+        private IReadOnlyCollection<string>? _calendars;
+        private MudTimePicker _endDailyTimePicker = null!;
+        private MudDatePicker _endDatePicker = null!;
 
 		private Dictionary<TriggerType, string> TriggerTypeIcons = new()
 		{
@@ -78,6 +82,16 @@ namespace BlazingQuartz.Components
             return tzList.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
         }
 
+        async Task<IEnumerable<string>> SearchCalendars(string value)
+        {
+            if (_calendars == null)
+            {
+                _calendars = await SchedulerSvc.GetCalendarNames();
+            }
+
+            return _calendars.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        }
+
         private void OnSetIsValid(bool value)
         {
             if (IsValid == value)
@@ -86,11 +100,32 @@ namespace BlazingQuartz.Components
             IsValidChanged.InvokeAsync(value).AndForget();
         }
 
-		public Task Validate()
+		public async Task Validate()
 		{
-			return _form.Validate();
+            await _form.Validate();
+
+            _isDaysOfWeekValid = Validator.ValidateDaysOfWeek(TriggerDetail);
+            if (_form.IsValid)
+                OnSetIsValid(_isDaysOfWeekValid);
 		}
 
+        async Task OnStartDailyTimeChanged(TimeSpan? time)
+        {
+            TriggerDetail.StartDailyTime = time;
+            await _endDailyTimePicker.Validate();
+        }
+
+        async Task OnStartTimeChanged(TimeSpan? time)
+        {
+            TriggerDetail.StartTimeSpan = time;
+            await _endDatePicker.Validate();
+        }
+
+        async Task OnStartDateChanged(DateTime? time)
+        {
+            TriggerDetail.StartDate = time;
+            await _endDatePicker.Validate();
+        }
 	}
 }
 
