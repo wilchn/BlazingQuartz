@@ -27,6 +27,21 @@ namespace BlazingQuartz.Core
 
 			return TriggerType.Unknown;
 		}
+
+		public static TimeOfDay ToTimeOfDay(this TimeSpan timeSpan)
+        {
+			return new TimeOfDay(timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
+        }
+
+		public static Quartz.IntervalUnit ToQuartzIntervalUnit(this IntervalUnit value)
+        {
+			return Enum.Parse<Quartz.IntervalUnit>(value.ToString());
+        }
+
+		public static IntervalUnit ToBlazingQuartzIntervalUnit(this Quartz.IntervalUnit value)
+        {
+			return Enum.Parse<IntervalUnit>(value.ToString());
+		}
 	}
 }
 
