@@ -61,7 +61,7 @@ namespace BlazingQuartz.Components
                 MaxWidth = MaxWidth.Small
             };
             var parameters = new DialogParameters { 
-                ["JobDataMap"] = new Dictionary<string, object>(JobDetail.JobDataMap, StringComparer.OrdinalIgnoreCase)
+                ["ExistingDataMap"] = new Dictionary<string, object>(JobDetail.JobDataMap, StringComparer.OrdinalIgnoreCase)
             };
 
             var dialog = DialogSvc.Show<JobDataMapDialog>("Add Data Map", parameters, options);
@@ -90,7 +90,7 @@ namespace BlazingQuartz.Components
             };
             var parameters = new DialogParameters
             {
-                ["JobDataMap"] = JobDetail.JobDataMap,
+                ["ExistingDataMap"] = JobDetail.JobDataMap,
                 ["DataMapItem"] = new DataMapItemModel(item),
                 ["IsEditMode"] = true
             };
@@ -137,7 +137,7 @@ namespace BlazingQuartz.Components
             var clonedItem = new KeyValuePair<string, object>(key, item.Value);
             var parameters = new DialogParameters
             {
-                ["JobDataMap"] = new Dictionary<string, object>(JobDetail.JobDataMap, StringComparer.OrdinalIgnoreCase),
+                ["ExistingDataMap"] = new Dictionary<string, object>(JobDetail.JobDataMap, StringComparer.OrdinalIgnoreCase),
                 ["DataMapItem"] = new DataMapItemModel(clonedItem)
             };
 

@@ -114,6 +114,7 @@ namespace BlazingQuartz.Core.Services
                 .WithIdentity(triggerDetailModel.Name, triggerDetailModel.Group)
                 .WithDescription(triggerDetailModel.Description)
                 .WithPriority(triggerDetailModel.Priority)
+                .UsingJobData(new JobDataMap(triggerDetailModel.TriggerDataMap))
                 .ModifiedByCalendar(triggerDetailModel.ModifiedByCalendar);
 
             if (triggerDetailModel.StartDate.HasValue)

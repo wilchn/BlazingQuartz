@@ -168,5 +168,53 @@ public class SchedulerService_ScheduleTest
         jobResult.Should().BeEquivalentTo(job);
         triggerResult.Should().BeEquivalentTo(trigger);
     }
+
+    [Fact]
+    public async Task ScheduleJobAndGetDetail_CronTriggerWithDataMap()
+    {
+        var fixture = new Fixture();
+        var job = fixture.Build<JobDetailModel>()
+            .With(j => j.JobClass, typeof(TestJob))
+            .With(j => j.JobDataMap, new Dictionary<string, object>
+            {
+                { fixture.Create<string>(), fixture.Create<int>() },
+                { fixture.Create<string>(), fixture.Create<string>() },
+                { fixture.Create<string>(), fixture.Create<decimal>() },
+                { fixture.Create<string>(), fixture.Create<bool>() },
+            })
+            .Create();
+        var trigger = new TriggerDetailModel
+        {
+            TriggerType = TriggerType.Cron,
+            Name = fixture.Create<string>(),
+            Group = fixture.Create<string>(),
+            StartTimeSpan = new TimeSpan(5, 10, 15),
+            StartDate = new DateTime(2022, 7, 1),
+            EndTimeSpan = new TimeSpan(10, 5, 0),
+            EndDate = new DateTime(2022, 7, 10),
+            MisfireAction = MisfireAction.FireOnceNow,
+            Priority = 6,
+            Description = fixture.Create<string>(),
+            InTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time"),
+            CronExpression = "0 0 03-07 ? * MON-FRI",
+            TriggerDataMap = new Dictionary<string, object>
+            {
+                { fixture.Create<string>(), fixture.Create<int>() },
+                { fixture.Create<string>(), fixture.Create<string>() },
+                { fixture.Create<string>(), fixture.Create<decimal>() },
+                { fixture.Create<string>(), fixture.Create<bool>() },
+            }
+            //TODO calendar name
+        };
+
+        await _schedulerSvc.CreateSchedule(job, trigger);
+        var jobResult = await _schedulerSvc.GetJobDetail(job.Name, job.Group);
+        var triggerResult = await _schedulerSvc.GetTriggerDetail(trigger.Name, trigger.Group);
+
+        await (await _factory.GetScheduler()).Shutdown();
+
+        jobResult.Should().BeEquivalentTo(job);
+        triggerResult.Should().BeEquivalentTo(trigger);
+    }
 }
 
