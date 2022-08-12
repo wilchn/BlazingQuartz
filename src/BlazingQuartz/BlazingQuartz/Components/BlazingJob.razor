@@ -22,14 +22,6 @@
                             ReadOnly="IsReadOnly"
                             CoerceValue="true" />
         </div>
-        <MudTextField @bind-Value="JobDetail.Description"
-                    For="@(() => JobDetail.Description)"
-                    Lines="2"
-                    Immediate="true"
-                    Margin="Margin.Dense"
-                    Variant="Variant.Outlined"
-                    ReadOnly="IsReadOnly"
-                    Label="Description" />
 
         <MudSelect T="Type" Label="Job Class" Variant="Variant.Outlined"
                 Required="true"
@@ -42,6 +34,15 @@
                 <MudSelectItem T="Type" Value="cls">@cls.FullName</MudSelectItem>
             }
         </MudSelect>
+
+        <MudTextField @bind-Value="JobDetail.Description"
+                    For="@(() => JobDetail.Description)"
+                    Lines="2"
+                    Immediate="true"
+                    Margin="Margin.Dense"
+                    Variant="Variant.Outlined"
+                    ReadOnly="IsReadOnly"
+                    Label="Description" />
 
         <div class="d-flex justify-space-between mt-3 mb-2">
             <MudText Typo="Typo.h6">Job Data Map</MudText>
