@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Quartz;
 
 namespace BlazingQuartz.Core.Models
@@ -6,7 +7,7 @@ namespace BlazingQuartz.Core.Models
     public class TriggerDetailModel
     {
         public string Name { get; set; } = string.Empty;
-        public string Group { get; set; } = "No Group";
+        public string Group { get; set; } = Constants.DEFAULT_GROUP;
         public TriggerType TriggerType { get; set; }
         public string? Description { get; set; }
         public TimeSpan? StartTimeSpan { get; set; }
@@ -51,6 +52,44 @@ namespace BlazingQuartz.Core.Models
             }
 
             return list;
+        }
+
+        public string ToSummaryString()
+        {
+            var bldr = new StringBuilder();
+            switch (TriggerType)
+            {
+                case TriggerType.Cron:
+                    bldr.AppendLine(CronExpressionDescriptor.ExpressionDescriptor.GetDescription(CronExpression));
+                    break;
+                case TriggerType.Daily:
+                    bldr.AppendJoin(", ", DailyDayOfWeek.Where(f => f).Select((f, i) => (DayOfWeek)i));
+                    if (EndDailyTime.HasValue)
+                    {
+                        bldr.AppendLine($" from {StartDailyTime.ToString()} to {EndDailyTime.ToString()} {InTimeZone.DisplayName}");
+                    }
+                    else
+                    {
+                        bldr.AppendLine($" at {StartDailyTime.ToString()} {InTimeZone.DisplayName}");
+                    }
+                    break;
+                case TriggerType.Simple:
+                    bldr.Append($"Every {TriggerInterval} {TriggerIntervalUnit?.ToString()}.");
+                    if (RepeatForever)
+                    {
+                        bldr.AppendLine(" Repeat forever.");
+                    }
+                    else if (RepeatCount > 0)
+                    {
+                        bldr.AppendLine($" Repeat {RepeatCount} time(s).");
+                    }
+                    break;
+                case TriggerType.Calendar:
+                    bldr.Append($"{ModifiedByCalendar} calendar. Start at {StartDate} {StartTimeSpan} {InTimeZone}. Repeat every {TriggerInterval} {TriggerIntervalUnit?.ToString()}");
+                    break;
+            }
+
+            return bldr.ToString();
         }
     }
 }
