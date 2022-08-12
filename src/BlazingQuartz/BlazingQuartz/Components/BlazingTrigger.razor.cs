@@ -24,7 +24,7 @@ namespace BlazingQuartz.Components
 
 		[Parameter] public EventCallback<bool> IsValidChanged { get; set; }
 
-		private ISet<TriggerType> ExcludedTriggerTypeChoices = new HashSet<TriggerType> { TriggerType.Unknown };
+		private ISet<TriggerType> ExcludedTriggerTypeChoices = new HashSet<TriggerType> { TriggerType.Unknown, TriggerType.Calendar };
 
         private IEnumerable<string>? ExistingTriggerGroups;
 

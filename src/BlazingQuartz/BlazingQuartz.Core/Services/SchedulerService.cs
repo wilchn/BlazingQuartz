@@ -576,7 +576,7 @@ namespace BlazingQuartz.Core.Services
                                 break;
                         }
 
-                        x.InTimeZone(triggerDetailModel.InTimeZone); // not implemented in UI. confusing with start timezone
+                        x.InTimeZone(triggerDetailModel.InTimeZone);
                         if (triggerDetailModel.TriggerInterval > 0 && triggerDetailModel.TriggerIntervalUnit.HasValue)
                         {
                             x.WithInterval(triggerDetailModel.TriggerInterval,
