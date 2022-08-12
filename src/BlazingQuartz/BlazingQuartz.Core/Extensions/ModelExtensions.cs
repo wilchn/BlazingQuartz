@@ -6,12 +6,36 @@ namespace BlazingQuartz.Core
 {
 	public static class ModelExtensions
 	{
-		public static bool Equal(this ScheduleModel model, JobKey jobKey, TriggerKey triggerKey)
-		{
-			return model.JobName == jobKey.Name &&
-				model.JobGroup == jobKey.Group &&
-				model.TriggerName == triggerKey.Name &&
+		public static bool EqualsTriggerKey(this ScheduleModel model, TriggerKey triggerKey)
+        {
+			return model.TriggerName == triggerKey.Name &&
 				model.TriggerGroup == triggerKey.Group;
+		}
+
+		public static bool Equals(this ScheduleModel model, JobKey? jobKey, TriggerKey? triggerKey)
+		{
+			if (jobKey != null && triggerKey != null)
+				return model.JobName == jobKey.Name &&
+					model.JobGroup == jobKey.Group &&
+					model.TriggerName == triggerKey.Name &&
+					model.TriggerGroup == triggerKey.Group;
+
+			if (jobKey != null && triggerKey == null)
+				return model.JobName == jobKey.Name &&
+					model.JobGroup == jobKey.Group &&
+					model.TriggerName == null &&
+					model.TriggerGroup == null;
+
+			// less possible
+			if (jobKey == null && triggerKey != null)
+				return model.TriggerName == triggerKey.Name &&
+					model.TriggerGroup == triggerKey.Group &&
+					model.JobName == null &&
+					model.JobGroup == Constants.DEFAULT_GROUP;
+
+			return model.JobName == null &&
+				model.TriggerName == null &&
+				model.TriggerGroup == null;
 		}
 
 		public static TriggerType GetTriggerType(this ITrigger trigger)
@@ -41,6 +65,20 @@ namespace BlazingQuartz.Core
 		public static IntervalUnit ToBlazingQuartzIntervalUnit(this Quartz.IntervalUnit value)
         {
 			return Enum.Parse<IntervalUnit>(value.ToString());
+		}
+
+		public static JobKey ToJobKey(this Key key)
+        {
+			return key.Group == null ?
+				new JobKey(key.Name) :
+				new JobKey(key.Name, key.Group);
+        }
+
+		public static TriggerKey ToTriggerKey(this Key key)
+		{
+			return key.Group == null ?
+				new TriggerKey(key.Name) :
+				new TriggerKey(key.Name, key.Group);
 		}
 	}
 }

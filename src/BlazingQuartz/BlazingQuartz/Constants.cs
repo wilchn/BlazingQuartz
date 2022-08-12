@@ -10,5 +10,11 @@ namespace BlazingQuartz
         Calendars,
         None
     }
+
+    public enum ScheduleDialogTab
+    {
+        Job,
+        Trigger
+    }
 }
 

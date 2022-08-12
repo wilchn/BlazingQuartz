@@ -4,28 +4,28 @@ using BlazingQuartz.Core.Models;
 using BlazingQuartz.Core.Services;
 using BlazingQuartz.Models;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using MudBlazor;
 
 namespace BlazingQuartz.Components
 {
     public partial class BlazingJob : ComponentBase
     {
-        [Inject]
-        private ISchedulerDefinitionService SchedulerDefSvc { get; set; } = null!;
-        [Inject]
-        private ISchedulerService SchedulerSvc { get; set; } = null!;
-        [Inject]
-        private IDialogService DialogSvc { get; set; } = null!;
+        [Inject] private ISchedulerDefinitionService SchedulerDefSvc { get; set; } = null!;
+        [Inject] private ISchedulerService SchedulerSvc { get; set; } = null!;
+        [Inject] private IDialogService DialogSvc { get; set; } = null!;
+        [Inject] private ILogger<BlazingJob> Logger { get; set; } = null!;
 
         [Parameter]
         [EditorRequired]
         public JobDetailModel JobDetail { get; set; } = new();
+        [Parameter] public bool IsReadOnly { get; set; } = false;
 
         [Parameter] public bool IsValid { get; set; }
 
         [Parameter] public EventCallback<bool> IsValidChanged { get; set; }
 
-        private (string, string) OriginalJobKey = (string.Empty, "No Group");
+        private Key OriginalJobKey = new(string.Empty, "No Group");
 
         private IEnumerable<Type> AvailableJobTypes = Enumerable.Empty<Type>();
         private IEnumerable<string>? ExistingJobGroups;
@@ -39,7 +39,7 @@ namespace BlazingQuartz.Components
                 typeList.Add(JobDetail.JobClass);
             AvailableJobTypes = typeList;
 
-            OriginalJobKey = (JobDetail.Name, JobDetail.Group);
+            OriginalJobKey = new(JobDetail.Name, JobDetail.Group);
         }
 
         async Task<IEnumerable<string>> SearchJobGroup(string value)
@@ -61,7 +61,7 @@ namespace BlazingQuartz.Components
                 MaxWidth = MaxWidth.Small
             };
             var parameters = new DialogParameters { 
-                ["ExistingDataMap"] = new Dictionary<string, object>(JobDetail.JobDataMap, StringComparer.OrdinalIgnoreCase)
+                ["JobDataMap"] = new Dictionary<string, object>(JobDetail.JobDataMap, StringComparer.OrdinalIgnoreCase)
             };
 
             var dialog = DialogSvc.Show<JobDataMapDialog>("Add Data Map", parameters, options);
@@ -90,7 +90,7 @@ namespace BlazingQuartz.Components
             };
             var parameters = new DialogParameters
             {
-                ["ExistingDataMap"] = JobDetail.JobDataMap,
+                ["JobDataMap"] = JobDetail.JobDataMap,
                 ["DataMapItem"] = new DataMapItemModel(item),
                 ["IsEditMode"] = true
             };
@@ -137,7 +137,7 @@ namespace BlazingQuartz.Components
             var clonedItem = new KeyValuePair<string, object>(key, item.Value);
             var parameters = new DialogParameters
             {
-                ["ExistingDataMap"] = new Dictionary<string, object>(JobDetail.JobDataMap, StringComparer.OrdinalIgnoreCase),
+                ["JobDataMap"] = new Dictionary<string, object>(JobDetail.JobDataMap, StringComparer.OrdinalIgnoreCase),
                 ["DataMapItem"] = new DataMapItemModel(clonedItem)
             };
 
@@ -192,8 +192,14 @@ namespace BlazingQuartz.Components
                 return "Job name is required";
 
             // accept if same as original
-            if (OriginalJobKey.Item1 == name && OriginalJobKey.Item2 == JobDetail.Group)
+            if (OriginalJobKey.Equals(name, JobDetail.Group))
                 return null;
+
+            if (IsReadOnly)
+            {
+                Logger.LogDebug("Skip checking of job name uniqueness if in readonly mode");
+                return null;
+            }
 
             var detail = await SchedulerSvc.GetJobDetail(name, JobDetail.Group);
 

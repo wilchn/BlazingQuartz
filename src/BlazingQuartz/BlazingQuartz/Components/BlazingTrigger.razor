@@ -12,7 +12,7 @@
                           For="@(() => TriggerDetail.Name)"
                           Required="true"
                           RequiredError="Trigger name is required"
-                          Validation="@(async (string name) => await Validator.ValidateTriggerName(name, TriggerDetail))"
+                          Validation="@(async (string name) => await Validator.ValidateTriggerName(name, TriggerDetail, OriginalTriggerKey))"
                           Immediate="true"
                           Variant="Variant.Outlined"
                           Margin="Margin.Dense"

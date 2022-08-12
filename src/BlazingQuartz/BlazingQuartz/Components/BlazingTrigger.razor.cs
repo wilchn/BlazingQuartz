@@ -34,6 +34,7 @@ namespace BlazingQuartz.Components
         private IReadOnlyCollection<string>? _calendars;
         private MudTimePicker _endDailyTimePicker = null!;
         private MudDatePicker _endDatePicker = null!;
+        private Key? OriginalTriggerKey { get; set; }
 
 		private Dictionary<TriggerType, string> TriggerTypeIcons = new()
 		{
@@ -45,7 +46,8 @@ namespace BlazingQuartz.Components
 
 		protected override void OnInitialized()
 		{
-		}
+            OriginalTriggerKey = new(TriggerDetail.Name, TriggerDetail.Group);
+        }
 
 		private void OnCronExpressionInputElapsed(string? cronExpression)
 		{

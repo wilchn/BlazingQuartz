@@ -1,6 +1,7 @@
 ﻿using System;
 using BlazingQuartz.Core.Models;
 using BlazingQuartz.Jobs;
+using Microsoft.Extensions.Logging;
 using Quartz;
 using Quartz.Impl.Matchers;
 
@@ -9,9 +10,11 @@ namespace BlazingQuartz.Core.Services
     public class SchedulerService : ISchedulerService
     {
         private readonly ISchedulerFactory _schedulerFactory;
+        private readonly ILogger<SchedulerService> _logger;
 
-        public SchedulerService(ISchedulerFactory schedulerFactory)
+        public SchedulerService(ILogger<SchedulerService> logger, ISchedulerFactory schedulerFactory)
         {
+            _logger = logger;
             _schedulerFactory = schedulerFactory;
         }
 
@@ -43,32 +46,6 @@ namespace BlazingQuartz.Core.Services
             return CreateScheduleModel(jobDetail, trigger);
         }
 
-        private async IAsyncEnumerable<ScheduleModel> GetScheduleModelsAsync(JobKey jobkey, TriggerKey? triggerKey = null)
-        {
-            var scheduler = await _schedulerFactory.GetScheduler();
-
-            var jobDetail = await scheduler.GetJobDetail(jobkey);
-            var jobTriggers = await scheduler.GetTriggersOfJob(jobkey);
-
-            if (!jobTriggers.Any())
-            {
-                yield return new ScheduleModel
-                {
-                    JobName = jobkey.Name,
-                    JobGroup = jobkey.Group,
-                    JobType = jobDetail?.JobType.ToString(),
-                    JobStatus = JobStatus.NoTrigger
-                };
-            }
-            else
-            {
-                foreach (var trigger in jobTriggers)
-                {
-                    yield return CreateScheduleModel(jobDetail, trigger);
-                }
-            }
-        }
-
         public async Task<IReadOnlyCollection<string>> GetJobGroups()
         {
             var scheduler = await _schedulerFactory.GetScheduler();
@@ -96,212 +73,71 @@ namespace BlazingQuartz.Core.Services
                 TriggerTypeClassName = trigger.GetType().Name,
                 NextTriggerTime = trigger.GetNextFireTimeUtc(),
                 PreviousTriggerTime = trigger.GetPreviousFireTimeUtc(),
-                JobStatus = JobStatus.Idle
+                JobStatus = JobStatus.Idle,
+                TriggerDetail = CreateTriggerDetailModel(trigger)
             };
         }
 
+
         public async Task CreateSchedule(JobDetailModel jobDetailModel, TriggerDetailModel triggerDetailModel)
         {
-            ArgumentNullException.ThrowIfNull(jobDetailModel.JobClass);
-
-            var job = JobBuilder.Create(jobDetailModel.JobClass)
-                .WithIdentity(jobDetailModel.Name, jobDetailModel.Group)
-                .WithDescription(jobDetailModel.Description)
-                .UsingJobData(new JobDataMap(jobDetailModel.JobDataMap))
-                .Build();
-
-            var tbldr = TriggerBuilder.Create()
-                .WithIdentity(triggerDetailModel.Name, triggerDetailModel.Group)
-                .WithDescription(triggerDetailModel.Description)
-                .WithPriority(triggerDetailModel.Priority)
-                .UsingJobData(new JobDataMap(triggerDetailModel.TriggerDataMap))
-                .ModifiedByCalendar(triggerDetailModel.ModifiedByCalendar);
-
-            if (triggerDetailModel.StartDate.HasValue)
-            {
-                DateTimeOffset startTime;
-
-                if (triggerDetailModel.StartTimeSpan.HasValue)
-                {
-                    var dt = triggerDetailModel.StartDate.Value.Add(triggerDetailModel.StartTimeSpan.Value);
-                    startTime = new DateTimeOffset(dt,
-                        triggerDetailModel.StartTimezone.BaseUtcOffset);
-                }
-                else
-                {
-                    startTime = new DateTimeOffset(triggerDetailModel.StartDate.Value,
-                        triggerDetailModel.StartTimezone.BaseUtcOffset);
-                }
-
-                tbldr = tbldr.StartAt(startTime);
-            }
-            else
-            {
-                tbldr = tbldr.StartNow();
-            }
-
-            if (triggerDetailModel.EndDate.HasValue)
-            {
-                DateTimeOffset endTime;
-
-                if (triggerDetailModel.EndTimeSpan.HasValue)
-                {
-                    var dt = triggerDetailModel.EndDate.Value.Add(triggerDetailModel.EndTimeSpan.Value);
-                    endTime = new DateTimeOffset(dt,
-                        triggerDetailModel.StartTimezone.BaseUtcOffset);
-                }
-                else
-                {
-                    endTime = new DateTimeOffset(triggerDetailModel.EndDate.Value,
-                        triggerDetailModel.StartTimezone.BaseUtcOffset);
-                }
-
-                tbldr = tbldr.EndAt(endTime);
-            }
-
-            switch (triggerDetailModel.TriggerType)
-            {
-                case TriggerType.Cron:
-                    ArgumentNullException.ThrowIfNull(triggerDetailModel.CronExpression);
-                    tbldr = tbldr.WithCronSchedule(triggerDetailModel.CronExpression,
-                        x =>
-                        {
-                            switch(triggerDetailModel.MisfireAction)
-                            {
-                                case MisfireAction.DoNothing:
-                                    x.WithMisfireHandlingInstructionDoNothing();
-                                    break;
-                                case MisfireAction.FireOnceNow:
-                                    x.WithMisfireHandlingInstructionFireAndProceed();
-                                    break;
-                                case MisfireAction.IgnoreMisfirePolicy:
-                                    x.WithMisfireHandlingInstructionIgnoreMisfires();
-                                    break;
-                            }
-                            x.InTimeZone(triggerDetailModel.InTimeZone);
-                        });
-                    break;
-                case TriggerType.Daily:
-                    tbldr = tbldr.WithDailyTimeIntervalSchedule(x =>
-                    {
-                        switch (triggerDetailModel.MisfireAction)
-                        {
-                            case MisfireAction.DoNothing:
-                                x.WithMisfireHandlingInstructionDoNothing();
-                                break;
-                            case MisfireAction.FireOnceNow:
-                                x.WithMisfireHandlingInstructionFireAndProceed();
-                                break;
-                            case MisfireAction.IgnoreMisfirePolicy:
-                                x.WithMisfireHandlingInstructionIgnoreMisfires();
-                                break;
-                        }
-                        x.OnDaysOfTheWeek(triggerDetailModel.GetDailyOnDaysOfWeek());
-                        if (triggerDetailModel.StartDailyTime.HasValue)
-                        {
-                            x.StartingDailyAt(triggerDetailModel.StartDailyTime.Value.ToTimeOfDay());
-                        }
-                        if (triggerDetailModel.EndDailyTime.HasValue)
-                        {
-                            x.EndingDailyAt(triggerDetailModel.EndDailyTime.Value.ToTimeOfDay());
-                        }
-                        x.InTimeZone(triggerDetailModel.InTimeZone);
-                        if (triggerDetailModel.TriggerInterval > 0 && triggerDetailModel.TriggerIntervalUnit.HasValue)
-                        {
-                            x.WithInterval(triggerDetailModel.TriggerInterval,
-                                triggerDetailModel.TriggerIntervalUnit.Value.ToQuartzIntervalUnit());
-                        }
-                        x.WithRepeatCount(triggerDetailModel.RepeatCount);
-                    });
-                    break;
-                case TriggerType.Simple:
-                    tbldr = tbldr.WithSimpleSchedule(x =>
-                    {
-                        switch (triggerDetailModel.MisfireAction)
-                        {
-                            case MisfireAction.FireNow:
-                                x.WithMisfireHandlingInstructionFireNow();
-                                break;
-                            case MisfireAction.RescheduleNextWithExistingCount:
-                                x.WithMisfireHandlingInstructionNextWithExistingCount();
-                                break;
-                            case MisfireAction.RescheduleNextWithRemainingCount:
-                                x.WithMisfireHandlingInstructionNextWithRemainingCount();
-                                break;
-                            case MisfireAction.RescheduleNowWithExistingRepeatCount:
-                                x.WithMisfireHandlingInstructionNowWithExistingCount();
-                                break;
-                            case MisfireAction.RescheduleNowWithRemainingRepeatCount:
-                                x.WithMisfireHandlingInstructionNowWithRemainingCount();
-                                break;
-                            case MisfireAction.IgnoreMisfirePolicy:
-                                x.WithMisfireHandlingInstructionIgnoreMisfires();
-                                break;
-                        }
-
-                        if (triggerDetailModel.TriggerInterval > 0 && triggerDetailModel.TriggerIntervalUnit.HasValue)
-                        {
-                            TimeSpan timeSpan;
-                            switch(triggerDetailModel.TriggerIntervalUnit.Value)
-                            {
-                                case IntervalUnit.Millisecond:
-                                    timeSpan = TimeSpan.FromMilliseconds(triggerDetailModel.TriggerInterval);
-                                    break;
-                                case IntervalUnit.Second:
-                                    timeSpan = TimeSpan.FromSeconds(triggerDetailModel.TriggerInterval);
-                                    break;
-                                case IntervalUnit.Minute:
-                                    timeSpan = TimeSpan.FromSeconds(triggerDetailModel.TriggerInterval);
-                                    break;
-                                case IntervalUnit.Hour:
-                                    timeSpan = TimeSpan.FromHours(triggerDetailModel.TriggerInterval);
-                                    break;
-                                case IntervalUnit.Day:
-                                    timeSpan = TimeSpan.FromDays(triggerDetailModel.TriggerInterval);
-                                    break;
-                                default:
-                                    throw new NotSupportedException(
-                                        $"Interval unit {triggerDetailModel.TriggerIntervalUnit} is not supported for SimpleTrigger.");
-                            }
-                            x.WithInterval(timeSpan);
-                        }
-
-                        if (triggerDetailModel.RepeatForever)
-                            x.RepeatForever();
-                        else
-                            x.WithRepeatCount(triggerDetailModel.RepeatCount);
-                    });
-                    break;
-                case TriggerType.Calendar:
-                    tbldr = tbldr.WithCalendarIntervalSchedule(x =>
-                    {
-                        switch (triggerDetailModel.MisfireAction)
-                        {
-                            case MisfireAction.DoNothing:
-                                x.WithMisfireHandlingInstructionDoNothing();
-                                break;
-                            case MisfireAction.FireOnceNow:
-                                x.WithMisfireHandlingInstructionFireAndProceed();
-                                break;
-                            case MisfireAction.IgnoreMisfirePolicy:
-                                x.WithMisfireHandlingInstructionIgnoreMisfires();
-                                break;
-                        }
-
-                        x.InTimeZone(triggerDetailModel.InTimeZone); // not implemented in UI. confusing with start timezone
-                        if (triggerDetailModel.TriggerInterval > 0 && triggerDetailModel.TriggerIntervalUnit.HasValue)
-                        {
-                            x.WithInterval(triggerDetailModel.TriggerInterval,
-                                triggerDetailModel.TriggerIntervalUnit.Value.ToQuartzIntervalUnit());
-                        }
-                    });
-                    break;
-            }
-
-            var trigger = tbldr.Build();
-
             var scheduler = await _schedulerFactory.GetScheduler();
+
+            var trigger = BuildTrigger(triggerDetailModel);
+
+            // Determine if job already exists
+            if (await ContainsJobKey(jobDetailModel.Name, jobDetailModel.Group))
+            {
+                var existingJob = await scheduler.GetJobDetail(new JobKey(jobDetailModel.Name, jobDetailModel.Group));
+                if (existingJob != null)
+                {
+                    //await scheduler.GetTriggersOfJob(job.Key)
+                    var jobTriggers = new List<ITrigger>(1);
+                    jobTriggers.Add(trigger);
+
+                    await scheduler.ScheduleJob(existingJob, jobTriggers.AsReadOnly(), true);
+                    return;
+                }
+            }
+
+            var job = CreateJobDetail(jobDetailModel);
+
             await scheduler.ScheduleJob(job, trigger);
+        }
+
+        public async Task UpdateSchedule(Key oldJobKey, Key? oldTriggerKey,
+            JobDetailModel newJobModel, TriggerDetailModel newTriggerModel)
+        {
+            var scheduler = await _schedulerFactory.GetScheduler().ConfigureAwait(false);
+            var oJobKey = oldJobKey.ToJobKey();
+
+            var newJob = CreateJobDetail(newJobModel);
+            var trigger = BuildTrigger(newTriggerModel, newJob.Key);
+            // determine if old triggerKey exists
+            if (oldTriggerKey != null &&
+                await scheduler.CheckExists(oldTriggerKey.ToTriggerKey()).ConfigureAwait(false))
+            {
+                await scheduler.UnscheduleJob(oldTriggerKey.ToTriggerKey())
+                    .ConfigureAwait(false);
+            }
+            
+            var existingTriggers = await scheduler.GetTriggersOfJob(oJobKey).ConfigureAwait(false);
+
+            // assign new job to all triggers
+            var triggers = existingTriggers.Select(t =>
+            {
+                var b = t.GetTriggerBuilder().ForJob(newJob.Key);
+                if (t.StartTimeUtc < DateTimeOffset.UtcNow)
+                    b.StartNow();
+                return b.Build();
+            }).ToList();
+            triggers.Add(trigger);
+
+            // delete old job
+            await scheduler.DeleteJob(oJobKey).ConfigureAwait(false);
+
+            // save new job with triggers
+            await scheduler.ScheduleJob(newJob, triggers, replace: true).ConfigureAwait(false);
         }
 
         public async Task<JobDetailModel?> GetJobDetail(string jobName, string groupName)
@@ -318,7 +154,8 @@ namespace BlazingQuartz.Core.Services
                 Group = jd.Key.Group,
                 Description = jd.Description,
                 JobDataMap = jd.JobDataMap,
-                JobClass = jd.JobType
+                JobClass = jd.JobType,
+                IsDurable = jd.Durable
             };
         }
 
@@ -330,8 +167,124 @@ namespace BlazingQuartz.Core.Services
             if (trigger == null)
                 return null;
 
-            var triggerType = trigger.GetTriggerType();
+            return CreateTriggerDetailModel(trigger);
+        }
 
+        public async Task<bool> ContainsTriggerKey(string triggerName, string triggerGroup)
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            return await scheduler.CheckExists(new TriggerKey(triggerName, triggerGroup));
+        }
+
+        public async Task<bool> ContainsJobKey(string jobName, string jobGroup)
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            return await scheduler.CheckExists(new JobKey(jobName, jobGroup));
+        }
+
+
+        public async Task<IReadOnlyCollection<string>> GetCalendarNames(CancellationToken cancelToken = default)
+        {
+            var scheduler = await _schedulerFactory.GetScheduler(cancelToken);
+
+            return await scheduler.GetCalendarNames(cancelToken);
+        }
+
+        public async Task PauseTrigger(string triggerName, string? triggerGroup)
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.PauseTrigger(triggerGroup == null ?
+                new TriggerKey(triggerName) :
+                new TriggerKey(triggerName, triggerGroup));
+        }
+
+        public async Task ResumeTrigger(string triggerName, string? triggerGroup)
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.ResumeTrigger(triggerGroup == null ?
+                new TriggerKey(triggerName) :
+                new TriggerKey(triggerName, triggerGroup));
+        }
+
+        public async Task<bool> DeleteSchedule(ScheduleModel model)
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+
+            if (model.JobName == null)
+                return false;
+
+            if (model.JobStatus == JobStatus.NoSchedule)
+                return true;
+
+            var jobKey = new JobKey(model.JobName, model.JobGroup);
+
+            if (model.JobStatus == JobStatus.NoTrigger)
+            {
+                var triggers = await scheduler.GetTriggersOfJob(jobKey);
+                if (!triggers.Any())
+                    await scheduler.DeleteJob(jobKey);
+                return true; // TODO after upgrade to Quartz 3.5.0
+            }
+
+            if (model.TriggerName == null)
+                return false;
+
+            var success = await scheduler.UnscheduleJob(model.TriggerGroup == null ?
+                new TriggerKey(model.TriggerName) :
+                new TriggerKey(model.TriggerName, model.TriggerGroup));
+
+            if (success)
+            {
+                var triggers = await scheduler.GetTriggersOfJob(jobKey);
+                if (!triggers.Any())
+                {
+                    _logger.LogInformation("UnscheduleJob [{jobGroup}.{jobName}] has no more triggers. " +
+                        "Determine if job was deleted.", jobKey.Group, jobKey.Name);
+                    var jd = await scheduler.GetJobDetail(jobKey);
+                    if (jd != null)
+                    {
+                        _logger.LogInformation("Manually delete job [{jobGroup}.{jobName}].", jobKey.Group, jobKey.Name);
+                        await scheduler.DeleteJob(jobKey);
+
+                        return true; // TODO after upgrade to Quartz 3.5.0
+                    }
+                }
+            }
+
+            return success;
+        }
+
+        #region Private methods
+
+        private async IAsyncEnumerable<ScheduleModel> GetScheduleModelsAsync(JobKey jobkey, TriggerKey? triggerKey = null)
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+
+            var jobDetail = await scheduler.GetJobDetail(jobkey);
+            var jobTriggers = await scheduler.GetTriggersOfJob(jobkey);
+
+            if (!jobTriggers.Any())
+            {
+                yield return new ScheduleModel
+                {
+                    JobName = jobkey.Name,
+                    JobGroup = jobkey.Group,
+                    JobType = jobDetail?.JobType.ToString(),
+                    JobStatus = JobStatus.NoTrigger
+                };
+            }
+            else
+            {
+                foreach (var trigger in jobTriggers)
+                {
+                    yield return CreateScheduleModel(jobDetail, trigger);
+                }
+            }
+        }
+
+        private TriggerDetailModel CreateTriggerDetailModel(ITrigger trigger)
+        {
+            var triggerType = trigger.GetTriggerType();
 
             var model = new TriggerDetailModel
             {
@@ -347,10 +300,10 @@ namespace BlazingQuartz.Core.Services
                 TriggerType = triggerType,
                 ModifiedByCalendar = trigger.CalendarName,
                 Priority = trigger.Priority,
-                
+
             };
 
-            switch(trigger.MisfireInstruction)
+            switch (trigger.MisfireInstruction)
             {
                 case MisfireInstruction.IgnoreMisfirePolicy:
                     model.MisfireAction = MisfireAction.IgnoreMisfirePolicy;
@@ -426,37 +379,215 @@ namespace BlazingQuartz.Core.Services
             return model;
         }
 
-        public async Task<bool> ContainsTriggerKey(string triggerName, string triggerGroup)
+        private IJobDetail CreateJobDetail(JobDetailModel jobDetailModel)
         {
-            var scheduler = await _schedulerFactory.GetScheduler();
-            var trigger = await scheduler.GetTrigger(new TriggerKey(triggerName, triggerGroup));
+            ArgumentNullException.ThrowIfNull(jobDetailModel.JobClass);
 
-            if (trigger == null)
-                return false;
-
-            return true;
+            return JobBuilder.Create(jobDetailModel.JobClass)
+                .WithIdentity(jobDetailModel.Name, jobDetailModel.Group)
+                .WithDescription(jobDetailModel.Description)
+                .UsingJobData(new JobDataMap(jobDetailModel.JobDataMap))
+                .StoreDurably(jobDetailModel.IsDurable)
+                .Build();
         }
 
-        public async Task<bool> ContainsJobKey(string jobName, string jobGroup)
+        private ITrigger BuildTrigger(TriggerDetailModel triggerDetailModel, JobKey? jobKey = null)
         {
-            var scheduler = await _schedulerFactory.GetScheduler();
-            var jd = await scheduler.GetJobDetail(new JobKey(jobName, jobGroup));
+            var tbldr = TriggerBuilder.Create()
+                .WithIdentity(triggerDetailModel.Name, triggerDetailModel.Group)
+                .WithDescription(triggerDetailModel.Description)
+                .WithPriority(triggerDetailModel.Priority)
+                .UsingJobData(new JobDataMap(triggerDetailModel.TriggerDataMap))
+                .ModifiedByCalendar(triggerDetailModel.ModifiedByCalendar);
 
-            if (jd == null)
-                return false;
+            if (jobKey != null)
+            {
+                tbldr.ForJob(jobKey);
+            }
 
-            return true;
+            if (triggerDetailModel.StartDate.HasValue)
+            {
+                DateTimeOffset startTime;
+
+                if (triggerDetailModel.StartTimeSpan.HasValue)
+                {
+                    var dt = triggerDetailModel.StartDate.Value.Add(triggerDetailModel.StartTimeSpan.Value);
+                    startTime = new DateTimeOffset(dt,
+                        triggerDetailModel.StartTimezone.BaseUtcOffset);
+                }
+                else
+                {
+                    startTime = new DateTimeOffset(triggerDetailModel.StartDate.Value,
+                        triggerDetailModel.StartTimezone.BaseUtcOffset);
+                }
+
+                tbldr = tbldr.StartAt(startTime);
+            }
+            else
+            {
+                tbldr = tbldr.StartNow();
+            }
+
+            if (triggerDetailModel.EndDate.HasValue)
+            {
+                DateTimeOffset endTime;
+
+                if (triggerDetailModel.EndTimeSpan.HasValue)
+                {
+                    var dt = triggerDetailModel.EndDate.Value.Add(triggerDetailModel.EndTimeSpan.Value);
+                    endTime = new DateTimeOffset(dt,
+                        triggerDetailModel.StartTimezone.BaseUtcOffset);
+                }
+                else
+                {
+                    endTime = new DateTimeOffset(triggerDetailModel.EndDate.Value,
+                        triggerDetailModel.StartTimezone.BaseUtcOffset);
+                }
+
+                tbldr = tbldr.EndAt(endTime);
+            }
+
+            switch (triggerDetailModel.TriggerType)
+            {
+                case TriggerType.Cron:
+                    ArgumentNullException.ThrowIfNull(triggerDetailModel.CronExpression);
+                    tbldr = tbldr.WithCronSchedule(triggerDetailModel.CronExpression,
+                        x =>
+                        {
+                            switch (triggerDetailModel.MisfireAction)
+                            {
+                                case MisfireAction.DoNothing:
+                                    x.WithMisfireHandlingInstructionDoNothing();
+                                    break;
+                                case MisfireAction.FireOnceNow:
+                                    x.WithMisfireHandlingInstructionFireAndProceed();
+                                    break;
+                                case MisfireAction.IgnoreMisfirePolicy:
+                                    x.WithMisfireHandlingInstructionIgnoreMisfires();
+                                    break;
+                            }
+                            x.InTimeZone(triggerDetailModel.InTimeZone);
+                        });
+                    break;
+                case TriggerType.Daily:
+                    tbldr = tbldr.WithDailyTimeIntervalSchedule(x =>
+                    {
+                        switch (triggerDetailModel.MisfireAction)
+                        {
+                            case MisfireAction.DoNothing:
+                                x.WithMisfireHandlingInstructionDoNothing();
+                                break;
+                            case MisfireAction.FireOnceNow:
+                                x.WithMisfireHandlingInstructionFireAndProceed();
+                                break;
+                            case MisfireAction.IgnoreMisfirePolicy:
+                                x.WithMisfireHandlingInstructionIgnoreMisfires();
+                                break;
+                        }
+                        x.OnDaysOfTheWeek(triggerDetailModel.GetDailyOnDaysOfWeek());
+                        if (triggerDetailModel.StartDailyTime.HasValue)
+                        {
+                            x.StartingDailyAt(triggerDetailModel.StartDailyTime.Value.ToTimeOfDay());
+                        }
+                        if (triggerDetailModel.EndDailyTime.HasValue)
+                        {
+                            x.EndingDailyAt(triggerDetailModel.EndDailyTime.Value.ToTimeOfDay());
+                        }
+                        x.InTimeZone(triggerDetailModel.InTimeZone);
+                        if (triggerDetailModel.TriggerInterval > 0 && triggerDetailModel.TriggerIntervalUnit.HasValue)
+                        {
+                            x.WithInterval(triggerDetailModel.TriggerInterval,
+                                triggerDetailModel.TriggerIntervalUnit.Value.ToQuartzIntervalUnit());
+                        }
+                        x.WithRepeatCount(triggerDetailModel.RepeatCount);
+                    });
+                    break;
+                case TriggerType.Simple:
+                    tbldr = tbldr.WithSimpleSchedule(x =>
+                    {
+                        switch (triggerDetailModel.MisfireAction)
+                        {
+                            case MisfireAction.FireNow:
+                                x.WithMisfireHandlingInstructionFireNow();
+                                break;
+                            case MisfireAction.RescheduleNextWithExistingCount:
+                                x.WithMisfireHandlingInstructionNextWithExistingCount();
+                                break;
+                            case MisfireAction.RescheduleNextWithRemainingCount:
+                                x.WithMisfireHandlingInstructionNextWithRemainingCount();
+                                break;
+                            case MisfireAction.RescheduleNowWithExistingRepeatCount:
+                                x.WithMisfireHandlingInstructionNowWithExistingCount();
+                                break;
+                            case MisfireAction.RescheduleNowWithRemainingRepeatCount:
+                                x.WithMisfireHandlingInstructionNowWithRemainingCount();
+                                break;
+                            case MisfireAction.IgnoreMisfirePolicy:
+                                x.WithMisfireHandlingInstructionIgnoreMisfires();
+                                break;
+                        }
+
+                        if (triggerDetailModel.TriggerInterval > 0 && triggerDetailModel.TriggerIntervalUnit.HasValue)
+                        {
+                            TimeSpan timeSpan;
+                            switch (triggerDetailModel.TriggerIntervalUnit.Value)
+                            {
+                                case IntervalUnit.Millisecond:
+                                    timeSpan = TimeSpan.FromMilliseconds(triggerDetailModel.TriggerInterval);
+                                    break;
+                                case IntervalUnit.Second:
+                                    timeSpan = TimeSpan.FromSeconds(triggerDetailModel.TriggerInterval);
+                                    break;
+                                case IntervalUnit.Minute:
+                                    timeSpan = TimeSpan.FromMinutes(triggerDetailModel.TriggerInterval);
+                                    break;
+                                case IntervalUnit.Hour:
+                                    timeSpan = TimeSpan.FromHours(triggerDetailModel.TriggerInterval);
+                                    break;
+                                case IntervalUnit.Day:
+                                    timeSpan = TimeSpan.FromDays(triggerDetailModel.TriggerInterval);
+                                    break;
+                                default:
+                                    throw new NotSupportedException(
+                                        $"Interval unit {triggerDetailModel.TriggerIntervalUnit} is not supported for SimpleTrigger.");
+                            }
+                            x.WithInterval(timeSpan);
+                        }
+
+                        if (triggerDetailModel.RepeatForever)
+                            x.RepeatForever();
+                        else
+                            x.WithRepeatCount(triggerDetailModel.RepeatCount);
+                    });
+                    break;
+                case TriggerType.Calendar:
+                    tbldr = tbldr.WithCalendarIntervalSchedule(x =>
+                    {
+                        switch (triggerDetailModel.MisfireAction)
+                        {
+                            case MisfireAction.DoNothing:
+                                x.WithMisfireHandlingInstructionDoNothing();
+                                break;
+                            case MisfireAction.FireOnceNow:
+                                x.WithMisfireHandlingInstructionFireAndProceed();
+                                break;
+                            case MisfireAction.IgnoreMisfirePolicy:
+                                x.WithMisfireHandlingInstructionIgnoreMisfires();
+                                break;
+                        }
+
+                        x.InTimeZone(triggerDetailModel.InTimeZone); // not implemented in UI. confusing with start timezone
+                        if (triggerDetailModel.TriggerInterval > 0 && triggerDetailModel.TriggerIntervalUnit.HasValue)
+                        {
+                            x.WithInterval(triggerDetailModel.TriggerInterval,
+                                triggerDetailModel.TriggerIntervalUnit.Value.ToQuartzIntervalUnit());
+                        }
+                    });
+                    break;
+            }
+
+            return tbldr.Build();
         }
-
-
-        public async Task<IReadOnlyCollection<string>> GetCalendarNames(CancellationToken cancelToken = default)
-        {
-            var scheduler = await _schedulerFactory.GetScheduler(cancelToken);
-
-            return await scheduler.GetCalendarNames(cancelToken);
-        }
-
-        #region Private methods
 
         private TriggerDetailModel PopulateSimpleTrigger(ISimpleTrigger simple, TriggerDetailModel model)
         {

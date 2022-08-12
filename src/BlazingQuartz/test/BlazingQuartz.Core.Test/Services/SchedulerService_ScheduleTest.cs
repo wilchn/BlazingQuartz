@@ -4,6 +4,8 @@ using AutoFixture;
 using BlazingQuartz.Core.Models;
 using BlazingQuartz.Core.Services;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Quartz;
 using Quartz.Impl;
 
@@ -20,7 +22,8 @@ public class SchedulerService_ScheduleTest
         properties["quartz.serializer.type"] = TestConstants.DefaultSerializerType;
         _factory = new StdSchedulerFactory(properties);
 
-        _schedulerSvc = new SchedulerService(_factory);
+        var loggerMock = new Mock<ILogger<SchedulerService>>();
+        _schedulerSvc = new SchedulerService(loggerMock.Object, _factory);
     }
 
     [Fact]
@@ -216,5 +219,6 @@ public class SchedulerService_ScheduleTest
         jobResult.Should().BeEquivalentTo(job);
         triggerResult.Should().BeEquivalentTo(trigger);
     }
+
 }
 

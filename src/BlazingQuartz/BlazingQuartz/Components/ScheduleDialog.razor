@@ -4,16 +4,17 @@
     <DialogContent>
         <MudButtonGroup OverrideStyles="false" Class="pb-4">
             <MudButton Color="Color.Default" Size="Size.Large" DisableElevation="true"
-                    Variant="@(_selectedIndex == TAB_JOB ? Variant.Filled : Variant.Text)"
-                    OnClick="() => OnSelectedTabChanged(TAB_JOB)">Job Details</MudButton>
+                    Variant="@(SelectedTab == ScheduleDialogTab.Job ? Variant.Filled : Variant.Text)"
+                    OnClick="() => OnSelectedTabChanged(ScheduleDialogTab.Job)">Job Details</MudButton>
             <MudButton Color="Color.Default" Size="Size.Large" DisableElevation="true"
-                    Variant="@(_selectedIndex == TAB_TRIGGER ? Variant.Filled : Variant.Text)"
-                    OnClick="() => OnSelectedTabChanged(TAB_TRIGGER)">Trigger Details</MudButton>
+                    Variant="@(SelectedTab == ScheduleDialogTab.Trigger ? Variant.Filled : Variant.Text)"
+                    OnClick="() => OnSelectedTabChanged(ScheduleDialogTab.Trigger)">Trigger Details</MudButton>
         </MudButtonGroup>
 
-        @if (_selectedIndex == TAB_JOB)
+        @if (SelectedTab == ScheduleDialogTab.Job)
         {
-            <BlazingJob @ref="_jobPanel" JobDetail="JobDetail" @bind-IsValid="_jobDetailIsValid" />
+            <BlazingJob @ref="_jobPanel" JobDetail="JobDetail" @bind-IsValid="_jobDetailIsValid"
+                        IsReadOnly="IsReadOnlyJobDetail"/>
         }
         else
         {
@@ -27,7 +28,7 @@
             <div class="d-flex gap-4">
                 <MudButton @ref="_backBtn" 
                     Style="width: 100px;"
-                    Disabled="@(_selectedIndex == TAB_JOB)"
+                    Disabled="@(SelectedTab == ScheduleDialogTab.Job)"
                     Color="Color.Secondary" 
                     StartIcon="@Icons.Filled.NavigateBefore"
                     Variant="Variant.Filled"
@@ -44,19 +45,15 @@
     </DialogActions>
 </MudDialog>
 @code {
-    const int TAB_JOB = 0;
-    const int TAB_TRIGGER = 1;
-
     [CascadingParameter] MudDialogInstance MudDialog { get; set; } = null!;
-    [Parameter]
-    public JobDetailModel JobDetail { get; set; } = new();
-    [Parameter]
-    public TriggerDetailModel TriggerDetail { get; set; } = new();
+    [Parameter] public JobDetailModel JobDetail { get; set; } = new();
+    [Parameter] public TriggerDetailModel TriggerDetail { get; set; } = new();
+    [Parameter] public bool IsReadOnlyJobDetail { get; set; } = false;
+    [Parameter] public ScheduleDialogTab SelectedTab { get; set; } = ScheduleDialogTab.Job;
 
     private bool _jobDetailIsValid;
     private bool _triggerDetailIsValid;
 
-    private int _selectedIndex = TAB_JOB;
     private MudButton _backBtn = null!;
     private string _nextText = "Next";
     private string? _nextIcon = Icons.Filled.NavigateNext;
@@ -64,28 +61,38 @@
     private BlazingJob _jobPanel = null!;
     private BlazingTrigger _triggerPanel = null!;
 
-    private async Task OnSelectedTabChanged(int index)
+    protected override void OnInitialized()
     {
-        if (_selectedIndex == index)
+        if (SelectedTab == ScheduleDialogTab.Trigger)
+        {
+            _jobDetailIsValid = true;
+            _nextText = "Save";
+            _nextIcon = null;
+        }
+    }
+
+    private async Task OnSelectedTabChanged(ScheduleDialogTab tab)
+    {
+        if (SelectedTab == tab)
             return;
 
         // validate before change tab
-        if (_selectedIndex == TAB_JOB)
+        if (SelectedTab == ScheduleDialogTab.Job)
         {
             await _jobPanel.Validate();
             if (!_jobDetailIsValid)
                 return;
         }
 
-        _selectedIndex = index;
+        SelectedTab = tab;
 
         // update text
-        if (_selectedIndex == TAB_JOB)
+        if (SelectedTab == ScheduleDialogTab.Job)
         {
             _nextText = "Next";
             _nextIcon = Icons.Filled.NavigateNext;
         }
-        else if (_selectedIndex == TAB_TRIGGER)
+        else if (SelectedTab == ScheduleDialogTab.Trigger)
         {
             _nextText = "Save";
             _nextIcon = null;
@@ -94,14 +101,14 @@
 
     async Task OnBack()
     {
-        await OnSelectedTabChanged(TAB_JOB);
+        await OnSelectedTabChanged(ScheduleDialogTab.Job);
     }
 
     async Task OnSubmit()
     {
-        if (_selectedIndex == TAB_JOB)
+        if (SelectedTab == ScheduleDialogTab.Job)
         {
-            await OnSelectedTabChanged(TAB_TRIGGER);
+            await OnSelectedTabChanged(ScheduleDialogTab.Trigger);
             return;
         }
 

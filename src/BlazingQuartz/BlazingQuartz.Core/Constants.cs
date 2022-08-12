@@ -3,12 +3,21 @@ using System.ComponentModel;
 
 namespace BlazingQuartz.Core
 {
+    public static class Constants
+    {
+        public const string DEFAULT_GROUP = "No Group";
+    }
+
     public enum JobStatus
     {
         Running,
         Idle,
         Paused,
-        NoTrigger
+        NoTrigger,
+        /// <summary>
+        /// Not scheduled in scheduler. This happens when job is not durable and triggers ended
+        /// </summary>
+        NoSchedule
     }
 
     public enum TriggerType

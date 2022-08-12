@@ -15,6 +15,7 @@
     <None Remove="Models\" />
     <None Remove="Extensions\" />
     <None Remove="Microsoft.Extensions.Options" />
+    <None Remove="CronExpressionDescriptor" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -27,6 +28,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <PackageReference Include="CronExpressionDescriptor" Version="2.16.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BlazingQuartz.Jobs\BlazingQuartz.Jobs.csproj" />

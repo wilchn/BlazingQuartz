@@ -36,10 +36,15 @@ namespace BlazingQuartz.Models
         }
 
 
-        public async Task<string?> ValidateTriggerName(string name, TriggerDetailModel triggerModel)
+        public async Task<string?> ValidateTriggerName(string name, TriggerDetailModel triggerModel,
+            Key? originalKey)
         {
             if (string.IsNullOrEmpty(name))
                 return "Trigger name is required";
+
+            if (originalKey != null &&
+                originalKey.Equals(name, triggerModel.Group))
+                return null;
 
             var exists = await _schedulerSvc.ContainsTriggerKey(name, triggerModel.Group);
 
