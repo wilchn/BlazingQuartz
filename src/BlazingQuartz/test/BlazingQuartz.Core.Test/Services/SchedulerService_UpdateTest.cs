@@ -11,7 +11,7 @@ using Quartz.Impl;
 
 namespace BlazingQuartz.Core.Test.Services
 {
-    public class SchedulerService_UpdateTest
+    public class SchedulerService_UpdateTest : IAsyncDisposable
     {
         ISchedulerFactory _factory;
         ISchedulerService _schedulerSvc;
@@ -20,10 +20,19 @@ namespace BlazingQuartz.Core.Test.Services
         {
             NameValueCollection properties = new NameValueCollection();
             properties["quartz.serializer.type"] = TestConstants.DefaultSerializerType;
+            properties["quartz.scheduler.instanceName"] = "SchedulerService_UpdateTest";
+            properties["quartz.scheduler.instanceId"] = "AUTO";
             _factory = new StdSchedulerFactory(properties);
 
             var loggerMock = new Mock<ILogger<SchedulerService>>();
             _schedulerSvc = new SchedulerService(loggerMock.Object, _factory);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            var _scheduler = await _factory.GetScheduler();
+            if (!_scheduler.IsShutdown)
+                await _scheduler.Shutdown();
         }
 
         [Fact]
@@ -71,7 +80,7 @@ namespace BlazingQuartz.Core.Test.Services
 
             var updatedJob = await _schedulerSvc.GetJobDetail(jobToUpdate.Name, jobToUpdate.Group);
             var updatedTrigger = await _schedulerSvc.GetTriggerDetail(triggerToUpdate.Name, triggerToUpdate.Group);
-            var allJobs = _schedulerSvc.GetAllJobsAsync().ToEnumerable();
+            var allJobs = await _schedulerSvc.GetAllJobsAsync().ToListAsync();
 
             await (await _factory.GetScheduler()).Shutdown();
 
@@ -135,7 +144,7 @@ namespace BlazingQuartz.Core.Test.Services
 
             var updatedJob = await _schedulerSvc.GetJobDetail(jobToUpdate.Name, jobToUpdate.Group);
             var updatedTrigger = await _schedulerSvc.GetTriggerDetail(triggerToUpdate.Name, triggerToUpdate.Group);
-            var allJobs = _schedulerSvc.GetAllJobsAsync().ToEnumerable();
+            var allJobs = await _schedulerSvc.GetAllJobsAsync().ToListAsync();
 
             await (await _factory.GetScheduler()).Shutdown();
 
@@ -151,6 +160,7 @@ namespace BlazingQuartz.Core.Test.Services
             schedListenerMock.Verify(l => l.JobScheduled(It.IsAny<ITrigger>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(2), "All triggers will get updated");
         }
+
     }
 }
 
