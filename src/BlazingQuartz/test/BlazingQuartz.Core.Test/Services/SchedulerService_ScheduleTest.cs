@@ -20,6 +20,8 @@ public class SchedulerService_ScheduleTest
     {
         NameValueCollection properties = new NameValueCollection();
         properties["quartz.serializer.type"] = TestConstants.DefaultSerializerType;
+        properties["quartz.scheduler.instanceName"] = "SchedulerService_ScheduleTest";
+        properties["quartz.scheduler.instanceId"] = "AUTO";
         _factory = new StdSchedulerFactory(properties);
 
         var loggerMock = new Mock<ILogger<SchedulerService>>();

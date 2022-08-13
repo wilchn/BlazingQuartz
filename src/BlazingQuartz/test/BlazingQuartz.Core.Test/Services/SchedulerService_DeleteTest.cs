@@ -21,6 +21,8 @@ namespace BlazingQuartz.Core.Test.Services
         {
             NameValueCollection properties = new NameValueCollection();
             properties["quartz.serializer.type"] = TestConstants.DefaultSerializerType;
+            properties["quartz.scheduler.instanceName"] = "SchedulerService_DeleteTest";
+            properties["quartz.scheduler.instanceId"] = "AUTO";
             _factory = new StdSchedulerFactory(properties);
 
             var loggerMock = new Mock<ILogger<SchedulerService>>();
