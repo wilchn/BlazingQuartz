@@ -21,6 +21,7 @@
     <PackageReference Include="MudBlazor" Version="6.0.14" />
     <PackageReference Include="CronExpressionDescriptor" Version="2.16.0" />
     <PackageReference Include="LibSassBuilder" Version="2.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,6 +40,7 @@
     <None Remove="Components\" />
     <None Remove="CronExpressionDescriptor" />
     <None Remove="LibSassBuilder" />
+    <None Remove="Microsoft.Extensions.Options.ConfigurationExtensions" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\" />
@@ -58,5 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BlazingQuartz.Core\BlazingQuartz.Core.csproj" />
+    <ProjectReference Include="..\BlazingQuartz.Core.Data\BlazingQuartz.Core.Data.csproj" />
   </ItemGroup>
 </Project>

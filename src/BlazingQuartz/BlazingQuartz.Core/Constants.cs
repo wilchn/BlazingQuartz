@@ -1,11 +1,20 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace BlazingQuartz.Core
+namespace BlazingQuartz
 {
     public static class Constants
     {
         public const string DEFAULT_GROUP = "No Group";
+        public const string INTERNAL_DATA_MAP_ITEM_PREFIX = "__";
+    }
+
+    public enum DataStoreProvider
+    {
+        Sqlite,
+        PostgreSQL,
+        InMemory,
+        Custom,
     }
 
     public enum JobStatus
