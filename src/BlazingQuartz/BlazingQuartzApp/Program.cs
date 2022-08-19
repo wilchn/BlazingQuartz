@@ -40,7 +40,8 @@ builder.Services.AddQuartzHostedService(
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddBlazingQuartzUI();
+builder.Services.AddBlazingQuartzUI(builder.Configuration.GetSection("BlazingQuartz"),
+    connectionString: builder.Configuration.GetConnectionString("BlazingQuartzDb"));
 
 var app = builder.Build();
 
@@ -61,6 +62,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+app.UseBlazingQuartzUI();
 app.MapBlazorHub();
 app.MapFallbackToPage("/BlazingQuartzUI/_Host");
 

@@ -16,12 +16,22 @@
     <None Remove="Extensions\" />
     <None Remove="Microsoft.Extensions.Options" />
     <None Remove="CronExpressionDescriptor" />
+    <None Remove="Microsoft.Extensions.Hosting" />
+    <None Remove="Microsoft.Extensions.Hosting.Abstractions" />
+    <None Remove="History\" />
+    <None Remove="Microsoft.EntityFrameworkCore.Abstractions" />
+    <None Remove="Microsoft.EntityFrameworkCore.Relational" />
+    <None Remove="Microsoft.EntityFrameworkCore.InMemory" />
+    <None Remove="Microsoft.EntityFrameworkCore.Sqlite" />
+    <None Remove="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <None Remove="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
     <Folder Include="Events\" />
     <Folder Include="Models\" />
     <Folder Include="Extensions\" />
+    <Folder Include="History\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Quartz" Version="3.4.0" />
@@ -29,8 +39,18 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
     <PackageReference Include="CronExpressionDescriptor" Version="2.16.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="6.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BlazingQuartz.Jobs\BlazingQuartz.Jobs.csproj" />
+    <ProjectReference Include="..\BlazingQuartz.Core.Data\BlazingQuartz.Core.Data.csproj" />
+    <ProjectReference Include="..\migrations\PostgreSQLMigrations\PostgreSQLMigrations.csproj" />
+    <ProjectReference Include="..\migrations\SqliteMigrations\SqliteMigrations.csproj" />
   </ItemGroup>
 </Project>

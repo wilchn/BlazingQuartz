@@ -14,5 +14,10 @@ namespace BlazingQuartz.Core
         /// <para>Ex. Quartz.Job.NativeJob</para>
         /// </summary>
         public string[]? DisallowedJobTypes { get; set; }
+        /// <summary>
+        /// Storage to use to store execution history
+        /// </summary>
+        public DataStoreProvider DataStoreProvider { get; set; } = DataStoreProvider.Sqlite;
+        public bool AutoMigrateDb { get; set; } = true;
     }
 }
