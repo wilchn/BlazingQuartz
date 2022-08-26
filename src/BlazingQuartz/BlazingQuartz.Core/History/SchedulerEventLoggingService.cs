@@ -17,17 +17,20 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
 
     private readonly IServiceProvider _svcProvider;
     private readonly ISchedulerListenerService _schLisSvc;
+    private readonly ISchedulerFactory _schedulerFactory;
     private readonly ILogger<SchedulerEventLoggingService> _logger;
     private readonly Channel<Func<IExecutionLogStore, CancellationToken, ValueTask>> _taskQueue;
 
 
     public SchedulerEventLoggingService(ILogger<SchedulerEventLoggingService> logger,
         IServiceProvider serviceProvider,
-        ISchedulerListenerService listenerSvc)
+        ISchedulerListenerService listenerSvc,
+        ISchedulerFactory schFactory)
     {
         _logger = logger;
         _svcProvider = serviceProvider;
         _schLisSvc = listenerSvc;
+        _schedulerFactory = schFactory;
         _taskQueue = Channel.CreateUnbounded<Func<IExecutionLogStore, CancellationToken, ValueTask>>(
             new UnboundedChannelOptions
             {
@@ -43,13 +46,13 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
         _schLisSvc.OnJobWasExecuted -= _schLisSvc_OnJobWasExecuted;
         _schLisSvc.OnJobExecutionVetoed -= _schLisSvc_OnJobExecutionVetoed;
         _schLisSvc.OnJobDeleted -= _schLisSvc_OnJobDeleted;
-        _schLisSvc.OnJobAdded -= _schLisSvc_OnJobAdded;
         _schLisSvc.OnJobInterrupted -= _schLisSvc_OnJobInterrupted;
         _schLisSvc.OnSchedulerError -= _schLisSvc_OnSchedulerError;
         _schLisSvc.OnTriggerMisfired -= _schLisSvc_OnTriggerMisfired;
         _schLisSvc.OnTriggerPaused -= _schLisSvc_OnTriggerPaused;
         _schLisSvc.OnTriggerResumed -= _schLisSvc_OnTriggerResumed;
         _schLisSvc.OnTriggerFinalized -= _schLisSvc_OnTriggerFinalized;
+        _schLisSvc.OnJobScheduled -= _schLisSvc_OnJobScheduled;
         base.Dispose();
     }
 
@@ -59,13 +62,29 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
         _schLisSvc.OnJobWasExecuted += _schLisSvc_OnJobWasExecuted;
         _schLisSvc.OnJobExecutionVetoed += _schLisSvc_OnJobExecutionVetoed;
         _schLisSvc.OnJobDeleted += _schLisSvc_OnJobDeleted;
-        _schLisSvc.OnJobAdded += _schLisSvc_OnJobAdded;
         _schLisSvc.OnJobInterrupted += _schLisSvc_OnJobInterrupted;
         _schLisSvc.OnSchedulerError += _schLisSvc_OnSchedulerError;
         _schLisSvc.OnTriggerMisfired += _schLisSvc_OnTriggerMisfired;
         _schLisSvc.OnTriggerPaused += _schLisSvc_OnTriggerPaused;
         _schLisSvc.OnTriggerResumed += _schLisSvc_OnTriggerResumed;
         _schLisSvc.OnTriggerFinalized += _schLisSvc_OnTriggerFinalized;
+        _schLisSvc.OnJobScheduled += _schLisSvc_OnJobScheduled;
+    }
+
+    private void _schLisSvc_OnJobScheduled(object? sender, Events.EventArgs<ITrigger> e)
+    {
+        var jKey = e.Args.JobKey;
+        var tKey = e.Args.Key;
+        var log = new ExecutionLog
+        {
+            JobName = jKey.Name,
+            JobGroup = jKey.Group,
+            TriggerName = tKey.Name,
+            TriggerGroup = tKey.Group,
+            LogType = LogType.Trigger,
+            Result = "Job scheduled"
+        };
+        QueueInsertTask(log);
     }
 
     private void _schLisSvc_OnTriggerFinalized(object? sender, Events.EventArgs<ITrigger> e)
@@ -94,7 +113,7 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
             LogType = LogType.Trigger,
             Result = "Trigger resumed"
         };
-        QueueInsertTask(log);
+        QueueGetJobKeyAndInsertTask(log);
     }
 
     private void _schLisSvc_OnTriggerPaused(object? sender, Events.EventArgs<TriggerKey> e)
@@ -107,7 +126,7 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
             LogType = LogType.Trigger,
             Result = "Trigger paused"
         };
-        QueueInsertTask(log);
+        QueueGetJobKeyAndInsertTask(log);
     }
 
     private void _schLisSvc_OnTriggerMisfired(object? sender, Events.EventArgs<ITrigger> e)
@@ -150,19 +169,6 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
             JobGroup = jKey.Group,
             LogType = LogType.System,
             Result = "Job interrupted"
-        };
-        QueueInsertTask(log);
-    }
-
-    private void _schLisSvc_OnJobAdded(object? sender, Events.EventArgs<IJobDetail> e)
-    {
-        var jKey = e.Args.Key;
-        var log = new ExecutionLog
-        {
-            JobName = jKey.Name,
-            JobGroup = jKey.Group,
-            LogType = LogType.System,
-            Result = "Job added"
         };
         QueueInsertTask(log);
     }
@@ -318,13 +324,58 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
                 {
                     _logger.LogError(ex,
                         "Error occurred while updating {logType} execution log with " +
-                        "run instance id [{runInstanceId}].", log.LogType,
-                        log.RunInstanceId);
+                        "job key [{jobGroup}.{jobName}] trigger key [{triggerGroup}.{triggerName}].", log.LogType,
+                        log.JobGroup, log.JobName, log.TriggerGroup, log.TriggerName);
                 }
             }
 
         });
     }
+
+    void QueueGetJobKeyAndInsertTask(ExecutionLog log)
+    {
+        QueueTask(async (IExecutionLogStore repo, CancellationToken cancelToken) =>
+        {
+            try
+            {
+                if (log.JobName == null &&
+                    log.TriggerName != null &&
+                    log.TriggerGroup != null)
+                {
+                    // when there is no job name but has trigger name
+                    // try to determine the job name
+                    var scheduler = await _schedulerFactory.GetScheduler();
+                    var trigger = await scheduler.GetTrigger(new TriggerKey(log.TriggerName, log.TriggerGroup),
+                        cancelToken);
+                    if (trigger != null)
+                    {
+                        log.JobName = trigger.JobKey.Name;
+                        log.JobGroup = trigger.JobKey.Group;
+                    }
+                }
+
+                await repo.AddExecutionLog(log, cancelToken);
+            }
+            catch (Exception ex)
+            {
+                if (log.LogType == LogType.ScheduleJob)
+                {
+                    _logger.LogError(ex,
+                        "Error occurred while adding execution log with job key [{jobGroup}.{jobName}] " +
+                        "run instance id [{runInstanceId}].", log.JobGroup, log.JobName, log.RunInstanceId);
+                }
+                else
+                {
+                    _logger.LogError(ex,
+                        "Error occurred while adding {logType} execution log with " +
+                        "job key [{jobGroup}.{jobName}] trigger key [{triggerGroup}.{triggerName}].", log.LogType,
+                        log.JobGroup, log.JobName, log.TriggerGroup, log.TriggerName);
+                }
+            }
+
+        });
+    }
+
 
     void QueueInsertTask(ExecutionLog log)
     {
@@ -346,8 +397,8 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
                 {
                     _logger.LogError(ex,
                         "Error occurred while adding {logType} execution log with " +
-                        "run instance id [{runInstanceId}].", log.LogType,
-                        log.RunInstanceId);
+                        "job key [{jobGroup}.{jobName}] trigger key [{triggerGroup}.{triggerName}].", log.LogType,
+                        log.JobGroup, log.JobName, log.TriggerGroup, log.TriggerName);
                 }
             }
             

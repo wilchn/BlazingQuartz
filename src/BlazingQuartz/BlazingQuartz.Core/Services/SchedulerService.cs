@@ -43,7 +43,7 @@ namespace BlazingQuartz.Core.Services
 
             var jobDetail = await scheduler.GetJobDetail(trigger.JobKey);
 
-            return CreateScheduleModel(jobDetail, trigger);
+            return await CreateScheduleModel(jobDetail, trigger);
         }
 
         public async Task<IReadOnlyCollection<string>> GetJobGroups()
@@ -58,8 +58,11 @@ namespace BlazingQuartz.Core.Services
             return await scheduler.GetTriggerGroupNames();
         }
 
-        public ScheduleModel CreateScheduleModel(IJobDetail? jobDetail, ITrigger trigger)
+        private async Task<ScheduleModel> CreateScheduleModel(IJobDetail? jobDetail, ITrigger trigger)
         {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            var triggerState = (await scheduler.GetTriggerState(trigger.Key));
+
             return new ScheduleModel
             {
                 JobName = jobDetail?.Key.Name,
@@ -73,7 +76,12 @@ namespace BlazingQuartz.Core.Services
                 TriggerTypeClassName = trigger.GetType().Name,
                 NextTriggerTime = trigger.GetNextFireTimeUtc(),
                 PreviousTriggerTime = trigger.GetPreviousFireTimeUtc(),
-                JobStatus = JobStatus.Idle,
+                JobStatus = triggerState switch
+                {
+                    TriggerState.Paused => JobStatus.Paused,
+                    TriggerState.None => JobStatus.NoTrigger,
+                    _ => JobStatus.Idle
+                },
                 TriggerDetail = CreateTriggerDetailModel(trigger)
             };
         }
@@ -277,7 +285,7 @@ namespace BlazingQuartz.Core.Services
             {
                 foreach (var trigger in jobTriggers)
                 {
-                    yield return CreateScheduleModel(jobDetail, trigger);
+                    yield return await CreateScheduleModel(jobDetail, trigger);
                 }
             }
         }
