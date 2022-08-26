@@ -423,6 +423,29 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
             await SchedulerSvc.CreateSchedule(jobDetail, triggerDetail);
         }
 
+        private void OnJobHistory(ScheduleModel model)
+        {
+            if (model.JobName == null)
+            {
+                // not possible?
+                return;
+            }
+            var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                FullWidth = true,
+                MaxWidth = MaxWidth.Medium
+            };
+
+            var parameters = new DialogParameters
+            {
+                ["JobKey"] = new Key(model.JobName, model.JobGroup),
+                ["TriggerKey"] = model.TriggerName != null ?
+                    new Key(model.TriggerName, model.TriggerGroup ?? Constants.DEFAULT_GROUP) : null
+            };
+            var dlg = DialogSvc.Show<HistoryDialog>("Execution History", parameters, options);
+        }
+
         private async Task OnAddTrigger(ScheduleModel model)
         {
             if (model.JobName == null)

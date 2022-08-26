@@ -1,0 +1,59 @@
+@using BlazingQuartz.Core.Data.Entities
+
+<MudDialog>
+    <DialogContent>
+        <div class="d-flex flex-column gap-2">
+            <MudTextField T="string" ReadOnly="true" 
+                Variant="Variant.Outlined"
+                Margin="Margin.Dense"
+                Text="@ExecutionLog.FireTimeUtc!.Value.LocalDateTime.ToString()" 
+                Label="Trigger time" />
+
+            @if(ExecutionLog.ExecutionDetails != null)
+            {
+                <MudTextField T="string" Label="Output" ReadOnly="true"
+                    Variant="Variant.Outlined" 
+                    Margin="Margin.Dense"
+                    Text="@ExecutionLog.ExecutionDetails" Lines="5" />
+            }
+
+            @if(ExecutionLog.ExceptionMessage != null)
+            {
+                <MudTextField T="string" Variant="Variant.Outlined" Label="Exception Message"
+                    ReadOnly="true"
+                    Margin="Margin.Dense"
+                    Text="@ExecutionLog.ExceptionMessage.Message" />
+                <MudTextField T="string" Variant="Variant.Outlined"
+                    ReadOnly="true" Label="Stack Trace"
+                    Margin="Margin.Dense"
+                    Text="@ExecutionLog.ExceptionMessage.StackTrace" Lines="6" />
+
+                @if (ExecutionLog.ExceptionMessage.ErrorCode != null)
+                {
+                    <MudText Typo="Typo.caption">
+                        @(ExecutionLog.ExceptionMessage.ErrorCode + " " + ExecutionLog.ExceptionMessage.HelpLink)
+                    </MudText>
+                }
+                else if (ExecutionLog.ExceptionMessage.HelpLink != null)
+                {
+                    <MudText Typo="Typo.caption">
+                        @ExecutionLog.ExceptionMessage.HelpLink
+                    </MudText>
+                }
+            }
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public ExecutionLog ExecutionLog { get; set; } = new();
+
+    void Close() => MudDialog.Cancel();
+}

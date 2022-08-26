@@ -1,5 +1,193 @@
 @page "/history"
+@using Core.Data
+@using Core.Data.Entities
 
 <PageTitle>History</PageTitle>
 
-Coming Soon
+<MudDrawer @bind-Open="@_openFilter" Anchor="Anchor.End" Elevation="1"
+           ClipMode="DrawerClipMode.Always"
+           Width="25%"
+           Variant="@DrawerVariant.Temporary">
+    <MudDrawerHeader>
+        <MudText Typo="Typo.h6">Filter Logs</MudText>
+    </MudDrawerHeader>
+    <MudDrawerContainer>
+        <div class="d-flex flex-column px-4 gap-2">
+            <MudSelect Dense="true" T="string" Label="Job Group"
+                       Value="@_filter.JobGroup"
+                       Clearable="true"
+                       ValueChanged="OnFilterJobGroupChanged"
+                       Variant="Variant.Outlined">
+                @foreach (var group in _jobGroups)
+                {
+                    if (string.IsNullOrEmpty(group))
+                    {
+                        <MudSelectItem Value="@(string.Empty)">(Blank)</MudSelectItem>
+                        continue;
+                    }
+                    <MudSelectItem Value="@group" />
+                }
+            </MudSelect>
+            <MudSelect Dense="true" T="string" Label="Job Name"
+                       Value="@_filter.JobName"
+                       Clearable="true"
+                       ValueChanged="OnFilterJobNameChanged"
+                       Variant="Variant.Outlined">
+                @foreach (var name in _jobNames)
+                {
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        <MudSelectItem Value="@(string.Empty)">(Blank)</MudSelectItem>
+                        continue;
+                    }
+                    <MudSelectItem Value="@name" />
+                }
+            </MudSelect>
+            <MudSelect Dense="true" T="string" Label="Trigger Group"
+                       Value="@_filter.TriggerGroup"
+                       Clearable="true"
+                       ValueChanged="OnFilterTriggerGroupChanged"
+                       Variant="Variant.Outlined">
+                @foreach (var group in _triggerGroups)
+                {
+                    if (string.IsNullOrEmpty(group))
+                    {
+                        <MudSelectItem Value="@(string.Empty)">(Blank)</MudSelectItem>
+                        continue;
+                    }
+                    <MudSelectItem Value="@group" />
+                }
+            </MudSelect>
+            <MudSelect Dense="true" T="string" Label="Trigger Name"
+                       Value="@_filter.TriggerName"
+                       Clearable="true"
+                       ValueChanged="OnFilterTriggerNameChanged"
+                       Variant="Variant.Outlined">
+                @foreach (var name in _triggerNames)
+                {
+                    if (string.IsNullOrEmpty(name))
+                        continue;
+                    <MudSelectItem Value="@name" />
+                }
+            </MudSelect>
+            <MudSelect Dense="true" T="LogType?" Label="Log type"
+                       Clearable="true"
+                       Value="_selectedLogType"
+                       ValueChanged="OnSelectedLogTypesChanged"
+                       Variant="Variant.Outlined">
+                <MudSelectItem T="LogType?" Value="LogType.ScheduleJob">Jobs</MudSelectItem>
+                <MudSelectItem T="LogType?" Value="LogType.Trigger">Triggers</MudSelectItem>
+                <MudSelectItem T="LogType?" Value="LogType.System">System/Scheduler</MudSelectItem>
+            </MudSelect>
+
+            <MudCheckBox Checked="@_filter.ErrorOnly"
+                         T="bool"
+                         CheckedChanged="OnErrorOnlyChanged"
+                         Label="Show error only" Color="Color.Primary"></MudCheckBox>
+        </div>
+        <div class="d-flex pa-4 justify-space-between gap-2">
+            <MudButton Variant="Variant.Filled"
+                       OnClick="OnCancelFilter">Cancel</MudButton>
+            <div class="d-flex gap-2">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Secondary"
+                           OnClick="OnClearFilter">Clear</MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="OnSaveFilter">Save</MudButton>
+            </div>
+        </div>
+    </MudDrawerContainer>
+</MudDrawer>
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<ExecutionLog>>>(LoadExecutionLogs))"
+          Dense="true" Hover="true" @ref="table">
+    <ToolBarContent>
+        <MudText Typo="Typo.h4">History</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      Clearable="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+                      Class="mt-0 flex-grow-0"></MudTextField>
+        <MudIconButton Icon="@Icons.Outlined.Refresh"
+                       Class="align-self-end"
+                       Size="Size.Medium" OnClick="RefreshLogs" />
+        <MudIconButton Icon="@Icons.Outlined.FilterAlt"
+                       Class="align-self-end"
+                       Size="Size.Medium" OnClick="OnFilterClicked" />
+    </ToolBarContent>
+    <ColGroup>
+        <col style="width: 30px;" />
+        <col style="width: 100px;" />
+        <col />
+        <col />
+        <col />
+        <col style="width: 30vw;" />
+        <col style="width: 100px;" />
+        <col style="width: 100px;" />
+        <col />
+    </ColGroup>
+    <HeaderContent>
+        <MudTh></MudTh>
+        <MudTh>Date Added</MudTh>
+        <MudTh>Job Name</MudTh>
+        <MudTh>Job Group</MudTh>
+        <MudTh>Trigger</MudTh>
+        <MudTh>Message</MudTh>
+        <MudTh>Scheduled Time</MudTh>
+        <MudTh>Run Time</MudTh>
+        <MudTh>Duration</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        @{
+            var iconAndColor = GetLogIconAndColor(context);
+        }
+        <MudTd><MudIcon Icon="@iconAndColor.Item1" Color="@iconAndColor.Item2" Title="@iconAndColor.Item3" Size="Size.Small" /></MudTd>
+        <MudTd DataLabel="Date">@context.DateAddedUtc.LocalDateTime</MudTd>
+        <MudTd DataLabel="Job">@context.JobName</MudTd>
+        <MudTd DataLabel="Group">@context.JobGroup</MudTd>
+        <MudTd DataLabel="Trigger">@context.TriggerName</MudTd>
+        <MudTd DataLabel="Msg">
+            <div>
+                <MudText Typo="Typo.body2" Color="Color.Dark">
+                    @if (context.ExceptionMessage != null)
+                    {
+                        @context.ExceptionMessage.Message
+                    }
+                    else
+                    {
+                        @(context.Result ?? (context.LogType == Core.Data.LogType.ScheduleJob ? "Job executed successfully" : string.Empty))
+                    }
+                </MudText>
+                @if (context.ExceptionMessage != null)
+                {
+                    <MudButton Variant="Variant.Text"
+                            Class="pa-0 ma-0"
+                            Style="text-transform:none;"
+                            OnClick="@(() => OnMoreDetails(context, "Error Details"))"
+                            Color="Color.Primary">Error Details</MudButton>
+                }
+                else if (context.ExecutionDetails != null)
+                {
+                    <MudButton Variant="Variant.Text"
+                            Class="pa-0 ma-0"
+                            Style="text-transform:none;"
+                            OnClick="@(() => OnMoreDetails(context, "Execution Details"))"
+                            Color="Color.Primary">Execution Details</MudButton>
+                }
+            </div>
+        </MudTd>
+        <MudTd DataLabel="Schedule">@context.ScheduleFireTimeUtc?.LocalDateTime</MudTd>
+        <MudTd DataLabel="Run">@context.FireTimeUtc?.LocalDateTime</MudTd>
+        <MudTd DataLabel="Duration">@context.JobRunTime?.ToHumanTimeString()</MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No execution logs found</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>

@@ -63,6 +63,7 @@ namespace BlazingQuartz.Core
 			services.AddSingleton<IJobListener>(schListenerSvc);
 			services.AddSingleton<ISchedulerListener>(schListenerSvc);
 			services.AddTransient<IExecutionLogStore, ExecutionLogStore>();
+			services.AddTransient<IExecutionLogService, ExecutionLogService>();
 
 			if (dbContextOptions != null)
 				services.AddDbContextFactory<BlazingQuartzDbContext>(dbContextOptions);

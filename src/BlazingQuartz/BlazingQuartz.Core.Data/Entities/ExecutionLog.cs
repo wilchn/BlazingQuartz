@@ -36,6 +36,8 @@ namespace BlazingQuartz.Core.Data.Entities
         {
             DateAddedUtc = DateTimeOffset.UtcNow;
         }
+
+        public DateTimeOffset? GetFinishTimeUtc() => FireTimeUtc?.Add(JobRunTime ?? TimeSpan.Zero);
     }
 }
 
