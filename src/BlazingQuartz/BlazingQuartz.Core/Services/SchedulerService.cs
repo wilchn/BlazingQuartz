@@ -268,10 +268,33 @@ namespace BlazingQuartz.Core.Services
         {
             var scheduler = await _schedulerFactory.GetScheduler();
 
-            var jobDetail = await scheduler.GetJobDetail(jobkey);
-            var jobTriggers = await scheduler.GetTriggersOfJob(jobkey);
+            IJobDetail? jobDetail = null;
+            IReadOnlyCollection<ITrigger>? jobTriggers = null;
+            ScheduleModel? exceptionJob = null;
+            try
+            {
+                jobDetail = await scheduler.GetJobDetail(jobkey);
+                jobTriggers = await scheduler.GetTriggersOfJob(jobkey);
+            }
+            catch (Exception ex)
+            {
+                exceptionJob = new ScheduleModel
+                {
+                    JobName = jobkey.Name,
+                    JobGroup = jobkey.Group,
+                    JobStatus = JobStatus.Error,
+                    TriggerName = triggerKey?.Name,
+                    TriggerGroup = triggerKey?.Group,
+                    TriggerType = TriggerType.Unknown,
+                    ExceptionMessage = ex.Message
+                };
+            }
 
-            if (!jobTriggers.Any())
+            if (exceptionJob != null)
+            {
+                yield return exceptionJob;
+            }
+            else if (jobTriggers == null || !jobTriggers.Any())
             {
                 yield return new ScheduleModel
                 {

@@ -229,13 +229,17 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
         private IEnumerable<ScheduleModel> FindScheduleModelByTrigger(TriggerKey triggerKey)
         {
             return ScheduledJobs.Where(j => j.EqualsTriggerKey(triggerKey) &&
-                j.JobStatus != JobStatus.NoSchedule && j.JobStatus != JobStatus.NoTrigger);
+                j.JobStatus != JobStatus.NoSchedule &&
+                j.JobStatus != JobStatus.Error &&
+                j.JobStatus != JobStatus.NoTrigger);
         }
 
         private IEnumerable<ScheduleModel> FindScheduleModel(JobKey jobKey, TriggerKey? triggerKey)
         {
             return ScheduledJobs.Where(j => j.Equals(jobKey, triggerKey) &&
-                j.JobStatus != JobStatus.NoSchedule && j.JobStatus != JobStatus.NoTrigger);
+                j.JobStatus != JobStatus.NoSchedule &&
+                j.JobStatus != JobStatus.Error &&
+                j.JobStatus != JobStatus.NoTrigger);
         }
 
         async Task RefreshJobs()
@@ -251,7 +255,8 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
 
         private Func<ScheduleModel, int, string> _scheduleRowStyleFunc => (model, i) =>
         {
-            if (model.JobStatus == JobStatus.NoSchedule)
+            if (model.JobStatus == JobStatus.NoSchedule ||
+                model.JobStatus == JobStatus.Error)
                 return "background-color:var(--mud-palette-background-grey)";
 
             return "";
