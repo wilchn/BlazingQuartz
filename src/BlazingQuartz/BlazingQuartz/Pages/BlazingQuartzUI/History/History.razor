@@ -118,13 +118,13 @@
     </ToolBarContent>
     <ColGroup>
         <col style="width: 30px;" />
-        <col style="width: 100px;" />
+        <col style="width: 120px;" />
         <col />
         <col />
         <col />
         <col style="width: 30vw;" />
-        <col style="width: 100px;" />
-        <col style="width: 100px;" />
+        <col style="width: 120px;" />
+        <col style="width: 120px;" />
         <col />
     </ColGroup>
     <HeaderContent>
@@ -150,30 +150,30 @@
         <MudTd DataLabel="Msg">
             <div>
                 <MudText Typo="Typo.body2" Color="Color.Dark">
-                    @if (context.ExceptionMessage != null)
-                    {
-                        @context.ExceptionMessage.Message
-                    }
-                    else
-                    {
-                        @(context.Result ?? (context.LogType == Core.Data.LogType.ScheduleJob ? "Job executed successfully" : string.Empty))
-                    }
+                    @(context.ErrorMessage ?? context.Result ??
+                        (context.LogType == Core.Data.LogType.ScheduleJob ? "Job executed successfully" : string.Empty))
                 </MudText>
-                @if (context.ExceptionMessage != null)
+                @if (context.IsException ?? false)
                 {
-                    <MudButton Variant="Variant.Text"
-                            Class="pa-0 ma-0"
-                            Style="text-transform:none;"
-                            OnClick="@(() => OnMoreDetails(context, "Error Details"))"
-                            Color="Color.Primary">Error Details</MudButton>
+                    <div class="pt-1">
+                        <MudButton Variant="Variant.Text"
+                                Class="pa-0 ma-0"
+                                Style="text-transform:none;"
+                                Size="Size.Small"
+                                OnClick="@(() => OnMoreDetails(context, "Error Details"))"
+                                Color="Color.Primary">Error Details</MudButton>
+                    </div>
                 }
-                else if (context.ExecutionDetails != null)
+                else if (context.ExecutionLogDetail?.ExecutionDetails != null)
                 {
-                    <MudButton Variant="Variant.Text"
-                            Class="pa-0 ma-0"
-                            Style="text-transform:none;"
-                            OnClick="@(() => OnMoreDetails(context, "Execution Details"))"
-                            Color="Color.Primary">Execution Details</MudButton>
+                    <div class="pt-1">
+                        <MudButton Variant="Variant.Text"
+                                Class="pa-0 ma-0"
+                                Style="text-transform:none;"
+                                Size="Size.Small"
+                                OnClick="@(() => OnMoreDetails(context, "Execution Details"))"
+                                Color="Color.Primary">Execution Details</MudButton>
+                    </div>
                 }
             </div>
         </MudTd>

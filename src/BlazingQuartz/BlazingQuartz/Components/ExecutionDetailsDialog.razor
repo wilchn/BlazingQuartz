@@ -6,38 +6,42 @@
             <MudTextField T="string" ReadOnly="true" 
                 Variant="Variant.Outlined"
                 Margin="Margin.Dense"
-                Text="@ExecutionLog.FireTimeUtc!.Value.LocalDateTime.ToString()" 
-                Label="Trigger time" />
+                Text="@(ExecutionLog.FireTimeUtc?.LocalDateTime.ToString() ??
+                          ExecutionLog.DateAddedUtc.LocalDateTime.ToString())" 
+                Label="@(ExecutionLog.FireTimeUtc.HasValue ? "Trigger time" : "Log time")" />
 
-            @if(ExecutionLog.ExecutionDetails != null)
+            @if(ExecutionLog.ExecutionLogDetail?.ExecutionDetails != null)
             {
                 <MudTextField T="string" Label="Output" ReadOnly="true"
                     Variant="Variant.Outlined" 
                     Margin="Margin.Dense"
-                    Text="@ExecutionLog.ExecutionDetails" Lines="5" />
+                    Text="@ExecutionLog.ExecutionLogDetail.ExecutionDetails" Lines="5" />
             }
 
-            @if(ExecutionLog.ExceptionMessage != null)
+            @if (ExecutionLog.ErrorMessage != null)
             {
                 <MudTextField T="string" Variant="Variant.Outlined" Label="Exception Message"
                     ReadOnly="true"
                     Margin="Margin.Dense"
-                    Text="@ExecutionLog.ExceptionMessage.Message" />
+                    Text="@ExecutionLog.ErrorMessage" />
+            }
+            @if(ExecutionLog.ExecutionLogDetail?.ErrorStackTrace != null)
+            {
                 <MudTextField T="string" Variant="Variant.Outlined"
                     ReadOnly="true" Label="Stack Trace"
                     Margin="Margin.Dense"
-                    Text="@ExecutionLog.ExceptionMessage.StackTrace" Lines="6" />
+                    Text="@ExecutionLog.ExecutionLogDetail.ErrorStackTrace" Lines="6" />
 
-                @if (ExecutionLog.ExceptionMessage.ErrorCode != null)
+                @if (ExecutionLog.ExecutionLogDetail?.ErrorCode != null)
                 {
                     <MudText Typo="Typo.caption">
-                        @(ExecutionLog.ExceptionMessage.ErrorCode + " " + ExecutionLog.ExceptionMessage.HelpLink)
+                        @(ExecutionLog.ExecutionLogDetail.ErrorCode + " " + ExecutionLog.ExecutionLogDetail.ErrorHelpLink)
                     </MudText>
                 }
-                else if (ExecutionLog.ExceptionMessage.HelpLink != null)
+                else if (ExecutionLog.ExecutionLogDetail?.ErrorHelpLink != null)
                 {
                     <MudText Typo="Typo.caption">
-                        @ExecutionLog.ExceptionMessage.HelpLink
+                        @ExecutionLog.ExecutionLogDetail.ErrorHelpLink
                     </MudText>
                 }
             }

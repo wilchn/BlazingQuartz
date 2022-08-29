@@ -80,6 +80,25 @@ namespace BlazingQuartz.Core
 				new TriggerKey(key.Name) :
 				new TriggerKey(key.Name, key.Group);
 		}
+
+		/// <summary>
+        /// Return closest non null stack trace of exception.
+        /// Loop until null InnerException to get stack trace.
+        /// </summary>
+        /// <param name="exception"></param>
+        /// <returns>null if inner exceptions does not have stack trace</returns>
+		public static string? NonNullStackTrace(this Exception exception)
+        {
+			Exception? currentException = exception;
+			while (currentException.StackTrace == null)
+            {
+				currentException = currentException.InnerException;
+				if (currentException == null)
+					break;
+            }
+			return currentException?.StackTrace;
+        }
+
 	}
 }
 

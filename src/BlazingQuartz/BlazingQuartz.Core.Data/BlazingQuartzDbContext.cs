@@ -24,10 +24,10 @@ namespace BlazingQuartz.Core.Data
             AddSqliteDateTimeOffsetSupport(modelBuilder);
 
             modelBuilder.Entity<ExecutionLog>()
-                .Property(l => l.ExceptionMessage)
-                .HasConversion(
-                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                    v => JsonSerializer.Deserialize<ExceptionMessage>(v, (JsonSerializerOptions?)null));
+                .OwnsOne(l => l.ExecutionLogDetail, e => {
+                    e.ToTable("bqz_ExecutionLogDetails");
+                    e.WithOwner().HasForeignKey("LogId");
+                });
 
             modelBuilder.Entity<ExecutionLog>()
                 .HasIndex(l => l.RunInstanceId)

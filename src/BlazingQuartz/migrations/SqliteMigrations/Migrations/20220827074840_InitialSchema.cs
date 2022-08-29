@@ -21,20 +21,40 @@ namespace SqliteMigrations.Migrations
                     JobGroup = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     TriggerName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     TriggerGroup = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    ScheduleFireTimeUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    FireTimeUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    ScheduleFireTimeUtc = table.Column<long>(type: "INTEGER", nullable: true),
+                    FireTimeUtc = table.Column<long>(type: "INTEGER", nullable: true),
                     JobRunTime = table.Column<TimeSpan>(type: "TEXT", nullable: true),
                     RetryCount = table.Column<int>(type: "INTEGER", nullable: true),
                     Result = table.Column<string>(type: "TEXT", maxLength: 8000, nullable: true),
-                    ExceptionMessage = table.Column<string>(type: "TEXT", nullable: true),
-                    ExecutionDetails = table.Column<string>(type: "TEXT", nullable: true),
+                    ErrorMessage = table.Column<string>(type: "TEXT", maxLength: 8000, nullable: true),
                     IsVetoed = table.Column<bool>(type: "INTEGER", nullable: true),
                     IsException = table.Column<bool>(type: "INTEGER", nullable: true),
-                    DateAddedUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    DateAddedUtc = table.Column<long>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_bqz_ExecutionLogs", x => x.LogId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "bqz_ExecutionLogDetails",
+                columns: table => new
+                {
+                    LogId = table.Column<long>(type: "INTEGER", nullable: false),
+                    ExecutionDetails = table.Column<string>(type: "TEXT", nullable: true),
+                    ErrorStackTrace = table.Column<string>(type: "TEXT", nullable: true),
+                    ErrorCode = table.Column<int>(type: "INTEGER", nullable: true),
+                    ErrorHelpLink = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_bqz_ExecutionLogDetails", x => x.LogId);
+                    table.ForeignKey(
+                        name: "FK_bqz_ExecutionLogDetails_bqz_ExecutionLogs_LogId",
+                        column: x => x.LogId,
+                        principalTable: "bqz_ExecutionLogs",
+                        principalColumn: "LogId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -56,6 +76,9 @@ namespace SqliteMigrations.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "bqz_ExecutionLogDetails");
+
             migrationBuilder.DropTable(
                 name: "bqz_ExecutionLogs");
         }

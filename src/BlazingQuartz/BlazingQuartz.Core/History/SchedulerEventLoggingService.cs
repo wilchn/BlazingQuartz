@@ -151,10 +151,10 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
         {
             LogType = LogType.System,
             IsException = true,
-            ExceptionMessage = new ExceptionMessage
+            ErrorMessage = e.ErrorMessage,
+            ExecutionLogDetail = new()
             {
-                Message = e.ErrorMessage,
-                StackTrace = e.Exception.StackTrace
+                ErrorStackTrace = e.Exception.NonNullStackTrace()
             }
         };
         QueueInsertTask(log);
@@ -266,12 +266,12 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
 
         if (jobException != null)
         {
-            log.ExceptionMessage = new ExceptionMessage
+            log.ErrorMessage = jobException.Message;
+            log.ExecutionLogDetail = new()
             {
                 ErrorCode = jobException.HResult,
-                Message = jobException.Message,
-                StackTrace = jobException.StackTrace,
-                HelpLink = jobException.HelpLink
+                ErrorStackTrace = jobException.NonNullStackTrace(),
+                ErrorHelpLink = jobException.HelpLink
             };
             log.IsException = true;
         }

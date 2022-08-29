@@ -39,8 +39,9 @@ namespace BlazingQuartz.Core.History
 
             if (entry != null)
             {
-                entry.ExceptionMessage = log.ExceptionMessage;
-                entry.ExecutionDetails = log.ExecutionDetails;
+                entry.ExecutionLogDetail = log.ExecutionLogDetail;
+                entry.ErrorMessage = log.ErrorMessage;
+                entry.ExecutionLogDetail = log.ExecutionLogDetail;
                 entry.IsVetoed = log.IsVetoed;
                 entry.JobRunTime = log.JobRunTime;
                 entry.Result = log.Result;

@@ -17,23 +17,21 @@ namespace SqliteMigrations.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.8");
 
-            modelBuilder.Entity("BlazingQuartz.Core.History.ExecutionLog", b =>
+            modelBuilder.Entity("BlazingQuartz.Core.Data.Entities.ExecutionLog", b =>
                 {
                     b.Property<long>("LogId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("DateAddedUtc")
+                    b.Property<long>("DateAddedUtc")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(8000)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ExceptionMessage")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ExecutionDetails")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset?>("FireTimeUtc")
-                        .HasColumnType("TEXT");
+                    b.Property<long?>("FireTimeUtc")
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("IsException")
                         .HasColumnType("INTEGER");
@@ -67,8 +65,8 @@ namespace SqliteMigrations.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("ScheduleFireTimeUtc")
-                        .HasColumnType("TEXT");
+                    b.Property<long?>("ScheduleFireTimeUtc")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("TriggerGroup")
                         .HasMaxLength(256)
@@ -88,6 +86,37 @@ namespace SqliteMigrations.Migrations
                     b.HasIndex("TriggerName", "TriggerGroup", "JobName", "JobGroup", "DateAddedUtc");
 
                     b.ToTable("bqz_ExecutionLogs");
+                });
+
+            modelBuilder.Entity("BlazingQuartz.Core.Data.Entities.ExecutionLog", b =>
+                {
+                    b.OwnsOne("BlazingQuartz.Core.Data.Entities.ExecutionLogDetail", "ExecutionLogDetail", b1 =>
+                        {
+                            b1.Property<long>("LogId")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int?>("ErrorCode")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<string>("ErrorHelpLink")
+                                .HasMaxLength(1000)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("ErrorStackTrace")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("ExecutionDetails")
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("LogId");
+
+                            b1.ToTable("bqz_ExecutionLogDetails", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("LogId");
+                        });
+
+                    b.Navigation("ExecutionLogDetail");
                 });
 #pragma warning restore 612, 618
         }

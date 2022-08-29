@@ -27,8 +27,7 @@ namespace PostgreSQLMigrations.Migrations
                     JobRunTime = table.Column<TimeSpan>(type: "interval", nullable: true),
                     RetryCount = table.Column<int>(type: "integer", nullable: true),
                     Result = table.Column<string>(type: "character varying(8000)", maxLength: 8000, nullable: true),
-                    ExceptionMessage = table.Column<string>(type: "text", nullable: true),
-                    ExecutionDetails = table.Column<string>(type: "text", nullable: true),
+                    ErrorMessage = table.Column<string>(type: "character varying(8000)", maxLength: 8000, nullable: true),
                     IsVetoed = table.Column<bool>(type: "boolean", nullable: true),
                     IsException = table.Column<bool>(type: "boolean", nullable: true),
                     DateAddedUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
@@ -36,6 +35,27 @@ namespace PostgreSQLMigrations.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_bqz_ExecutionLogs", x => x.LogId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "bqz_ExecutionLogDetails",
+                columns: table => new
+                {
+                    LogId = table.Column<long>(type: "bigint", nullable: false),
+                    ExecutionDetails = table.Column<string>(type: "text", nullable: true),
+                    ErrorStackTrace = table.Column<string>(type: "text", nullable: true),
+                    ErrorCode = table.Column<int>(type: "integer", nullable: true),
+                    ErrorHelpLink = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_bqz_ExecutionLogDetails", x => x.LogId);
+                    table.ForeignKey(
+                        name: "FK_bqz_ExecutionLogDetails_bqz_ExecutionLogs_LogId",
+                        column: x => x.LogId,
+                        principalTable: "bqz_ExecutionLogs",
+                        principalColumn: "LogId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -57,6 +77,9 @@ namespace PostgreSQLMigrations.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "bqz_ExecutionLogDetails");
+
             migrationBuilder.DropTable(
                 name: "bqz_ExecutionLogs");
         }

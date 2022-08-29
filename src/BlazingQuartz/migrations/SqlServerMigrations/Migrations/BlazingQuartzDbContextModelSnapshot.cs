@@ -33,10 +33,8 @@ namespace SqlServerMigrations.Migrations
                     b.Property<DateTimeOffset>("DateAddedUtc")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("ExceptionMessage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ExecutionDetails")
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(8000)
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset?>("FireTimeUtc")
@@ -96,6 +94,37 @@ namespace SqlServerMigrations.Migrations
                     b.HasIndex("TriggerName", "TriggerGroup", "JobName", "JobGroup", "DateAddedUtc");
 
                     b.ToTable("bqz_ExecutionLogs");
+                });
+
+            modelBuilder.Entity("BlazingQuartz.Core.Data.Entities.ExecutionLog", b =>
+                {
+                    b.OwnsOne("BlazingQuartz.Core.Data.Entities.ExecutionLogDetail", "ExecutionLogDetail", b1 =>
+                        {
+                            b1.Property<long>("LogId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<int?>("ErrorCode")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("ErrorHelpLink")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<string>("ErrorStackTrace")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("ExecutionDetails")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("LogId");
+
+                            b1.ToTable("bqz_ExecutionLogDetails", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("LogId");
+                        });
+
+                    b.Navigation("ExecutionLogDetail");
                 });
 #pragma warning restore 612, 618
         }
