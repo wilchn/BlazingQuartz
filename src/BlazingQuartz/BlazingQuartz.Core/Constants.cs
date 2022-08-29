@@ -26,7 +26,8 @@ namespace BlazingQuartz
         /// <summary>
         /// Not scheduled in scheduler. This happens when job is not durable and triggers ended
         /// </summary>
-        NoSchedule
+        NoSchedule,
+        Error
     }
 
     public enum TriggerType
