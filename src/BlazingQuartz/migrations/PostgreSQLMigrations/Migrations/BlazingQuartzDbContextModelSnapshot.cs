@@ -33,11 +33,9 @@ namespace PostgreSQLMigrations.Migrations
                     b.Property<DateTimeOffset>("DateAddedUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ExceptionMessage")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ExecutionDetails")
-                        .HasColumnType("text");
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)");
 
                     b.Property<DateTimeOffset?>("FireTimeUtc")
                         .HasColumnType("timestamp with time zone");
@@ -95,6 +93,37 @@ namespace PostgreSQLMigrations.Migrations
                     b.HasIndex("TriggerName", "TriggerGroup", "JobName", "JobGroup", "DateAddedUtc");
 
                     b.ToTable("bqz_ExecutionLogs");
+                });
+
+            modelBuilder.Entity("BlazingQuartz.Core.Data.Entities.ExecutionLog", b =>
+                {
+                    b.OwnsOne("BlazingQuartz.Core.Data.Entities.ExecutionLogDetail", "ExecutionLogDetail", b1 =>
+                        {
+                            b1.Property<long>("LogId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<int?>("ErrorCode")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("ErrorHelpLink")
+                                .HasMaxLength(1000)
+                                .HasColumnType("character varying(1000)");
+
+                            b1.Property<string>("ErrorStackTrace")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("ExecutionDetails")
+                                .HasColumnType("text");
+
+                            b1.HasKey("LogId");
+
+                            b1.ToTable("bqz_ExecutionLogDetails", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("LogId");
+                        });
+
+                    b.Navigation("ExecutionLogDetail");
                 });
 #pragma warning restore 612, 618
         }

@@ -110,7 +110,8 @@ namespace BlazingQuartz.Core.Services
                     if (filter.MessageContains != null)
                     {
                         q = q.Where(l => EF.Functions.Like(l.Result ?? String.Empty, $"%{filter.MessageContains}%")
-                            || EF.Functions.Like(l.ExecutionDetails ?? String.Empty, $"%{filter.MessageContains}%"));
+                            || (l.ExecutionLogDetail != null && EF.Functions.Like(
+                                l.ExecutionLogDetail.ExecutionDetails ?? String.Empty, $"%{filter.MessageContains}%")));
                     }
                 }
 

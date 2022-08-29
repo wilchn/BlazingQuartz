@@ -26,11 +26,12 @@ namespace BlazingQuartz.Core.Data.Entities
         public int? RetryCount { get; set; }
         [MaxLength(8000)]
         public string? Result { get; set; }
-        public ExceptionMessage? ExceptionMessage { get; set; }
-        public string? ExecutionDetails { get; set; }
+        [MaxLength(8000)]
+        public string? ErrorMessage { get; set; }
         public bool? IsVetoed { get; set; }
         public bool? IsException { get; set; }
         public DateTimeOffset DateAddedUtc { get; set; }
+        public ExecutionLogDetail? ExecutionLogDetail { get; set; }
 
         public ExecutionLog()
         {

@@ -26,8 +26,7 @@ namespace SqlServerMigrations.Migrations
                     JobRunTime = table.Column<TimeSpan>(type: "time", nullable: true),
                     RetryCount = table.Column<int>(type: "int", nullable: true),
                     Result = table.Column<string>(type: "nvarchar(max)", maxLength: 8000, nullable: true),
-                    ExceptionMessage = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ExecutionDetails = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ErrorMessage = table.Column<string>(type: "nvarchar(max)", maxLength: 8000, nullable: true),
                     IsVetoed = table.Column<bool>(type: "bit", nullable: true),
                     IsException = table.Column<bool>(type: "bit", nullable: true),
                     DateAddedUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
@@ -35,6 +34,27 @@ namespace SqlServerMigrations.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_bqz_ExecutionLogs", x => x.LogId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "bqz_ExecutionLogDetails",
+                columns: table => new
+                {
+                    LogId = table.Column<long>(type: "bigint", nullable: false),
+                    ExecutionDetails = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ErrorStackTrace = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ErrorCode = table.Column<int>(type: "int", nullable: true),
+                    ErrorHelpLink = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_bqz_ExecutionLogDetails", x => x.LogId);
+                    table.ForeignKey(
+                        name: "FK_bqz_ExecutionLogDetails_bqz_ExecutionLogs_LogId",
+                        column: x => x.LogId,
+                        principalTable: "bqz_ExecutionLogs",
+                        principalColumn: "LogId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -57,6 +77,9 @@ namespace SqlServerMigrations.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "bqz_ExecutionLogDetails");
+
             migrationBuilder.DropTable(
                 name: "bqz_ExecutionLogs");
         }

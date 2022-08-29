@@ -26,14 +26,14 @@ internal class Program
                         options => _ = provider switch
                         {
                             "Sqlite" => options.UseSqlite(
-                                "dummy",
+                                "DataSource=dummy",
                                 x => x.MigrationsAssembly("SqliteMigrations")),
 
                             "SqlServer" => options.UseSqlServer(
-                                "dummy",
+                                "Data Source=dummy",
                                 x => x.MigrationsAssembly("SqlServerMigrations")),
 
-                            "PostgreSQL" => options.UseNpgsql("dummy",
+                            "PostgreSQL" => options.UseNpgsql("Host=dummy",
                                 x => x.MigrationsAssembly("PostgreSQLMigrations")),
 
                             _ => throw new Exception($"Unsupported provider: {provider}")
