@@ -124,7 +124,7 @@ namespace BlazingQuartz.Core.Services
                 string assemblyPath = Path.Combine(path, assemblyStr + ".dll");
                 try
                 {
-                    Assembly assembly = Assembly.LoadFile(assemblyPath);
+                    Assembly assembly = Assembly.LoadFrom(assemblyPath);
                     if (assembly == null)
                     {
                         _logger.LogWarning("Cannot load allowed job assembly name '{assembly}'", assemblyStr);

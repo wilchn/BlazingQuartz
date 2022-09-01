@@ -25,6 +25,24 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
         private string? SearchJobKeyword;
         private MudDataGrid<ScheduleModel> _scheduleDataGrid = null!;
 
+        internal bool IsEditActionDisabled(ScheduleModel model) => (model.JobStatus == JobStatus.NoSchedule ||
+                                       model.JobStatus == JobStatus.Error);
+
+        internal bool IsRunActionDisabled(ScheduleModel model) => (model.JobStatus == JobStatus.NoSchedule ||
+                                            model.JobStatus == JobStatus.NoTrigger);
+
+        internal bool IsPauseActionDisabled(ScheduleModel model) => (model.JobStatus == JobStatus.NoSchedule ||
+                                            model.JobStatus == JobStatus.Error ||
+                                            model.JobStatus == JobStatus.NoTrigger);
+
+        internal bool IsAddTriggerActionDisabled(ScheduleModel model) => model.JobStatus == JobStatus.NoSchedule ||
+                                     model.JobStatus == JobStatus.Error;
+
+        internal bool IsCopyActionDisabled(ScheduleModel model) => (model.JobStatus == JobStatus.NoSchedule ||
+                                     model.JobStatus == JobStatus.Error);
+
+        internal bool IsHistoryActionDisabled(ScheduleModel model) => model.JobStatus == JobStatus.NoSchedule;
+
         // private TableGroupDefinition<ScheduleModel> _groupDefinition = new()
         // {
         //     GroupName = string.Empty,
@@ -143,8 +161,10 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                 
                 if (model is not null)
                 {
-                    if (model.JobName == null)
+                    if (model.JobName == null || model.JobStatus == JobStatus.Error)
                     {
+                        // Just remove if no way to get job details
+                        // if status is error, means get job details will throw exception
                         ScheduledJobs.Remove(model);
                     }
                     else
@@ -230,16 +250,15 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
         {
             return ScheduledJobs.Where(j => j.EqualsTriggerKey(triggerKey) &&
                 j.JobStatus != JobStatus.NoSchedule &&
-                j.JobStatus != JobStatus.Error &&
                 j.JobStatus != JobStatus.NoTrigger);
         }
 
         private IEnumerable<ScheduleModel> FindScheduleModel(JobKey jobKey, TriggerKey? triggerKey)
         {
-            return ScheduledJobs.Where(j => j.Equals(jobKey, triggerKey) &&
-                j.JobStatus != JobStatus.NoSchedule &&
-                j.JobStatus != JobStatus.Error &&
-                j.JobStatus != JobStatus.NoTrigger);
+            return ScheduledJobs.Where(j => j.Equals(jobKey, triggerKey)
+                && ((j.JobStatus != JobStatus.NoSchedule && j.JobStatus != JobStatus.NoTrigger)
+                    || (j.JobStatus == JobStatus.Error && j.TriggerName != null))
+                );
         }
 
         async Task RefreshJobs()

@@ -80,6 +80,7 @@ namespace BlazingQuartz.Core.Services
                 {
                     TriggerState.Paused => JobStatus.Paused,
                     TriggerState.None => JobStatus.NoTrigger,
+                    TriggerState.Error => JobStatus.Error,
                     _ => JobStatus.Idle
                 },
                 TriggerDetail = CreateTriggerDetailModel(trigger)
@@ -226,6 +227,15 @@ namespace BlazingQuartz.Core.Services
 
             var jobKey = new JobKey(model.JobName, model.JobGroup);
 
+            if (model.JobStatus == JobStatus.Error &&
+                model.TriggerName == null)
+            {
+                _logger.LogInformation("Job [{jobGroup}.{jobName}] has no trigger name. " +
+                    "Cannot UncheduleJob by trigger, will delete job directly.", jobKey.Group, jobKey.Name);
+                await scheduler.DeleteJob(jobKey);
+                return true; // TODO after upgrade to Quartz 3.5.0
+            }
+
             if (model.JobStatus == JobStatus.NoTrigger)
             {
                 var triggers = await scheduler.GetTriggersOfJob(jobKey);
@@ -248,8 +258,8 @@ namespace BlazingQuartz.Core.Services
                 {
                     _logger.LogInformation("UnscheduleJob [{jobGroup}.{jobName}] has no more triggers. " +
                         "Determine if job was deleted.", jobKey.Group, jobKey.Name);
-                    var jd = await scheduler.GetJobDetail(jobKey);
-                    if (jd != null)
+                    
+                    if (await scheduler.CheckExists(jobKey))
                     {
                         _logger.LogInformation("Manually delete job [{jobGroup}.{jobName}].", jobKey.Group, jobKey.Name);
                         await scheduler.DeleteJob(jobKey);
@@ -264,7 +274,7 @@ namespace BlazingQuartz.Core.Services
 
         #region Private methods
 
-        private async IAsyncEnumerable<ScheduleModel> GetScheduleModelsAsync(JobKey jobkey, TriggerKey? triggerKey = null)
+        private async IAsyncEnumerable<ScheduleModel> GetScheduleModelsAsync(JobKey jobkey)
         {
             var scheduler = await _schedulerFactory.GetScheduler();
 
@@ -273,8 +283,8 @@ namespace BlazingQuartz.Core.Services
             ScheduleModel? exceptionJob = null;
             try
             {
-                jobDetail = await scheduler.GetJobDetail(jobkey);
                 jobTriggers = await scheduler.GetTriggersOfJob(jobkey);
+                jobDetail = await scheduler.GetJobDetail(jobkey);
             }
             catch (Exception ex)
             {
@@ -283,16 +293,29 @@ namespace BlazingQuartz.Core.Services
                     JobName = jobkey.Name,
                     JobGroup = jobkey.Group,
                     JobStatus = JobStatus.Error,
-                    TriggerName = triggerKey?.Name,
-                    TriggerGroup = triggerKey?.Group,
-                    TriggerType = TriggerType.Unknown,
                     ExceptionMessage = ex.Message
                 };
             }
 
             if (exceptionJob != null)
             {
-                yield return exceptionJob;
+                if (jobTriggers == null || !jobTriggers.Any())
+                {
+                    exceptionJob.TriggerType = TriggerType.Unknown;
+                    yield return exceptionJob;
+                }
+                else
+                {
+                    foreach (var trigger in jobTriggers)
+                    {
+                        var jobModel = await CreateScheduleModel(null, trigger);
+                        jobModel.JobName = exceptionJob.JobName;
+                        jobModel.JobGroup = exceptionJob.JobGroup;
+                        jobModel.JobStatus = exceptionJob.JobStatus;
+                        jobModel.ExceptionMessage = exceptionJob.ExceptionMessage;
+                        yield return jobModel;
+                    }
+                }
             }
             else if (jobTriggers == null || !jobTriggers.Any())
             {
