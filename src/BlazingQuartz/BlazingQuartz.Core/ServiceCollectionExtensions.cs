@@ -7,6 +7,7 @@ using Quartz;
 using BlazingQuartz.Core.History;
 using BlazingQuartz.Core.Data;
 using Microsoft.Extensions.Configuration;
+using System.Reflection;
 
 namespace BlazingQuartz.Core
 {
@@ -93,8 +94,23 @@ namespace BlazingQuartz.Core
 			}
 
 			services.AddHostedService<SchedulerEventLoggingService>();
+			LoadJobAssemblies(coreOptions);
 
 			return services;
+		}
+
+		private static void LoadJobAssemblies(BlazingQuartzCoreOptions coreOptions)
+        {
+			if (coreOptions.AllowedJobAssemblyFiles == null)
+				return;
+
+			var path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(SchedulerDefinitionService))!.Location) ?? String.Empty;
+			List<Type> jobTypes = new();
+			foreach (var assemblyStr in coreOptions.AllowedJobAssemblyFiles)
+			{
+				string assemblyPath = Path.Combine(path, assemblyStr + ".dll");
+				Assembly.LoadFrom(assemblyPath);
+			}
 		}
 	}
 }
