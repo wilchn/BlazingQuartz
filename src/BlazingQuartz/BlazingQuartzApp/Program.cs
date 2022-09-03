@@ -28,7 +28,7 @@ builder.Services.Configure<QuartzOptions>(options =>
 // Add the required Quartz.NET services
 builder.Services.AddQuartz(q =>
 {
-    // Use a Scoped container to create jobs. I'll touch on this later
+    // Use a Scoped container to create jobs.
     q.UseMicrosoftDependencyInjectionJobFactory();
 
 });

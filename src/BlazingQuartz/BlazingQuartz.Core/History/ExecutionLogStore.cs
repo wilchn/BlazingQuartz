@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore;
 using BlazingQuartz.Core.Data;
 using BlazingQuartz.Core.Data.Entities;
 using Microsoft.Extensions.Logging;
@@ -9,12 +10,15 @@ namespace BlazingQuartz.Core.History
     {
         private readonly ILogger<ExecutionLogStore> _logger;
         private readonly BlazingQuartzDbContext _dbContext;
+        private readonly IExecutionLogRawSqlProvider _sqlProvider;
 
         public ExecutionLogStore(ILogger<ExecutionLogStore> logger,
-            BlazingQuartzDbContext dbContext)
+            BlazingQuartzDbContext dbContext,
+            IExecutionLogRawSqlProvider sqlProvider)
         {
             _logger = logger;
             _dbContext = dbContext;
+            _sqlProvider = sqlProvider;
         }
 
         public async Task AddExecutionLog(ExecutionLog log, CancellationToken cancelToken = default)
@@ -25,6 +29,18 @@ namespace BlazingQuartz.Core.History
         public bool Exists(ExecutionLog log)
         {
             return _dbContext.ExecutionLogs.Any(l => l.RunInstanceId == log.RunInstanceId);
+        }
+
+        public async Task<int> DeleteLogsByDays(int daysToKeep, CancellationToken cancelToken = default)
+        {
+            DateTime oldDate = DateTime.UtcNow.Date.AddDays(-(daysToKeep+1));
+
+            IEnumerable<object> parameters = new List<object>
+            {
+                oldDate
+            };
+            return await _dbContext.Database.ExecuteSqlRawAsync(_sqlProvider.DeleteLogsByDays,
+                parameters, cancelToken);
         }
 
         public async Task SaveChangesAsync(CancellationToken cancelToken = default)

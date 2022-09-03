@@ -25,6 +25,7 @@
     <None Remove="Microsoft.EntityFrameworkCore.Sqlite" />
     <None Remove="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <None Remove="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <None Remove="Jobs\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -32,6 +33,7 @@
     <Folder Include="Models\" />
     <Folder Include="Extensions\" />
     <Folder Include="History\" />
+    <Folder Include="Jobs\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Quartz" Version="3.4.0" />

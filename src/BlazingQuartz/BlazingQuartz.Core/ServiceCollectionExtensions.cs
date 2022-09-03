@@ -67,30 +67,41 @@ namespace BlazingQuartz.Core
 			services.AddTransient<IExecutionLogService, ExecutionLogService>();
 
 			if (dbContextOptions != null)
+            {
 				services.AddDbContextFactory<BlazingQuartzDbContext>(dbContextOptions);
+				services.AddSingleton<IExecutionLogRawSqlProvider, BaseExecutionLogRawSqlProvider>();
+			}	
 			else
 			{
-				services.AddDbContextFactory<BlazingQuartzDbContext>(
-					options =>
-					{
-						switch (coreOptions.DataStoreProvider)
-                        {
-							case DataStoreProvider.Sqlite:
-								options.UseSqlite(connectionString ?? "DataSource=blazingQuartzApp.db;Cache=Shared",
-									x => x.MigrationsAssembly("SqliteMigrations"));
-								break;
-							case DataStoreProvider.InMemory:
-								options.UseInMemoryDatabase(connectionString ?? "BlazingQuartzDb");
-								break;
-							case DataStoreProvider.PostgreSQL:
-								ArgumentNullException.ThrowIfNull(connectionString);
-								options.UseNpgsql(connectionString,
-									x => x.MigrationsAssembly("PostgreSQLMigrations"));
-								break;
-							default:
-								throw new NotSupportedException("Unsupported data store provider. Configure services.AddDbContextFactory() manually");
-						}
-					});
+				Action<DbContextOptionsBuilder>? dbOptionAction = null;
+				switch (coreOptions.DataStoreProvider)
+				{
+					case DataStoreProvider.Sqlite:
+						dbOptionAction = options =>
+							options.UseSqlite(connectionString ?? "DataSource=blazingQuartzApp.db;Cache=Shared",
+								x => x.MigrationsAssembly("SqliteMigrations"));
+						services.AddSingleton<IExecutionLogRawSqlProvider, BaseExecutionLogRawSqlProvider>();
+						break;
+					case DataStoreProvider.InMemory:
+						dbOptionAction = options =>
+							options.UseInMemoryDatabase(connectionString ?? "BlazingQuartzDb");
+						services.AddSingleton<IExecutionLogRawSqlProvider, BaseExecutionLogRawSqlProvider>(); // TODO in memory does not support raw sql
+						break;
+					case DataStoreProvider.PostgreSQL:
+						ArgumentNullException.ThrowIfNull(connectionString);
+						dbOptionAction = options =>
+							options.UseNpgsql(connectionString,
+								x => x.MigrationsAssembly("PostgreSQLMigrations"));
+						services.AddSingleton<IExecutionLogRawSqlProvider, PostgreSQLExecutionLogRawSqlProvider>();
+						break;
+					default:
+						throw new NotSupportedException("Unsupported data store provider. Configure services.AddDbContextFactory() manually");
+
+				}
+
+				services.AddDbContextFactory<BlazingQuartzDbContext>(dbOptionAction);
+
+
 			}
 
 			services.AddHostedService<SchedulerEventLoggingService>();
