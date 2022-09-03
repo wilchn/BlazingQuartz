@@ -3,10 +3,12 @@ using System.Globalization;
 using System.Threading.Channels;
 using BlazingQuartz.Core.Data;
 using BlazingQuartz.Core.Data.Entities;
+using BlazingQuartz.Core.Jobs;
 using BlazingQuartz.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Quartz;
 
 namespace BlazingQuartz.Core.History;
@@ -20,17 +22,19 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
     private readonly ISchedulerFactory _schedulerFactory;
     private readonly ILogger<SchedulerEventLoggingService> _logger;
     private readonly Channel<Func<IExecutionLogStore, CancellationToken, ValueTask>> _taskQueue;
-
+    private readonly BlazingQuartzCoreOptions _options;
 
     public SchedulerEventLoggingService(ILogger<SchedulerEventLoggingService> logger,
         IServiceProvider serviceProvider,
         ISchedulerListenerService listenerSvc,
-        ISchedulerFactory schFactory)
+        ISchedulerFactory schFactory,
+        IOptions<BlazingQuartzCoreOptions> options)
     {
         _logger = logger;
         _svcProvider = serviceProvider;
         _schLisSvc = listenerSvc;
         _schedulerFactory = schFactory;
+        _options = options.Value;
         _taskQueue = Channel.CreateUnbounded<Func<IExecutionLogStore, CancellationToken, ValueTask>>(
             new UnboundedChannelOptions
             {
@@ -201,6 +205,34 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
     private void _schLisSvc_OnJobToBeExecuted(object? sender, Events.EventArgs<Quartz.IJobExecutionContext> e)
     {
         QueueInsertTask(CreateLogEntry(e.Args));
+    }
+
+    private async Task AddHousekeepingSchedule(IScheduler scheduler)
+    {
+        if (!string.IsNullOrEmpty(_options.HousekeepingCronSchedule))
+        {
+            var housekeepingJobName = "Housekeep ExecutionLogs (bqz)";
+            IJobDetail job = JobBuilder.Create<HousekeepExecutionLogsJob>()
+                .WithIdentity(housekeepingJobName, Constants.SYSTEM_GROUP)
+                .Build();
+
+            ITrigger trigger = TriggerBuilder.Create()
+                .WithIdentity(housekeepingJobName, Constants.SYSTEM_GROUP)
+                .StartNow()
+                .WithCronSchedule(_options.HousekeepingCronSchedule)
+                .Build();
+
+            await scheduler.ScheduleJob(job, new[] { trigger }, true);
+        }
+    }
+
+    public override async Task StartAsync(CancellationToken cancellationToken)
+    {
+        var scheduler = await _schedulerFactory.GetScheduler();
+
+        await AddHousekeepingSchedule(scheduler);
+
+        await base.StartAsync(cancellationToken);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

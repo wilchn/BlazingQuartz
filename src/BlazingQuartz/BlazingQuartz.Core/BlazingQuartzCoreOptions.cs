@@ -19,5 +19,7 @@ namespace BlazingQuartz.Core
         /// </summary>
         public DataStoreProvider DataStoreProvider { get; set; } = DataStoreProvider.Sqlite;
         public bool AutoMigrateDb { get; set; } = true;
+        public string? HousekeepingCronSchedule { get; set; } = "0 0 1 * * ?";
+        public int ExecutionLogsDaysToKeep { get; set; } = 6;
     }
 }
