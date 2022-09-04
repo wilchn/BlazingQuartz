@@ -10,6 +10,7 @@
     <None Remove="Microsoft.EntityFrameworkCore.Abstractions" />
     <None Remove="Entities\" />
     <None Remove="Microsoft.EntityFrameworkCore.Relational" />
+    <None Remove="EFCore.NamingConventions" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="6.0.8" />

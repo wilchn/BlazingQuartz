@@ -66,10 +66,11 @@ namespace BlazingQuartz.Core
 			services.AddTransient<IExecutionLogStore, ExecutionLogStore>();
 			services.AddTransient<IExecutionLogService, ExecutionLogService>();
 
+			services.AddSingleton<IExecutionLogRawSqlProvider, BaseExecutionLogRawSqlProvider>();
+
 			if (dbContextOptions != null)
             {
 				services.AddDbContextFactory<BlazingQuartzDbContext>(dbContextOptions);
-				services.AddSingleton<IExecutionLogRawSqlProvider, BaseExecutionLogRawSqlProvider>();
 			}	
 			else
 			{
@@ -79,20 +80,19 @@ namespace BlazingQuartz.Core
 					case DataStoreProvider.Sqlite:
 						dbOptionAction = options =>
 							options.UseSqlite(connectionString ?? "DataSource=blazingQuartzApp.db;Cache=Shared",
-								x => x.MigrationsAssembly("SqliteMigrations"));
-						services.AddSingleton<IExecutionLogRawSqlProvider, BaseExecutionLogRawSqlProvider>();
+								x => x.MigrationsAssembly("SqliteMigrations"))
+								.UseSnakeCaseNamingConvention();
 						break;
 					case DataStoreProvider.InMemory:
 						dbOptionAction = options =>
 							options.UseInMemoryDatabase(connectionString ?? "BlazingQuartzDb");
-						services.AddSingleton<IExecutionLogRawSqlProvider, BaseExecutionLogRawSqlProvider>(); // TODO in memory does not support raw sql
 						break;
 					case DataStoreProvider.PostgreSQL:
 						ArgumentNullException.ThrowIfNull(connectionString);
 						dbOptionAction = options =>
 							options.UseNpgsql(connectionString,
-								x => x.MigrationsAssembly("PostgreSQLMigrations"));
-						services.AddSingleton<IExecutionLogRawSqlProvider, PostgreSQLExecutionLogRawSqlProvider>();
+								x => x.MigrationsAssembly("PostgreSQLMigrations"))
+								.UseSnakeCaseNamingConvention();
 						break;
 					default:
 						throw new NotSupportedException("Unsupported data store provider. Configure services.AddDbContextFactory() manually");
@@ -100,8 +100,6 @@ namespace BlazingQuartz.Core
 				}
 
 				services.AddDbContextFactory<BlazingQuartzDbContext>(dbOptionAction);
-
-
 			}
 
 			services.AddHostedService<SchedulerEventLoggingService>();

@@ -3,60 +3,69 @@ using System;
 using BlazingQuartz.Core.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace SqliteMigrations.Migrations
+namespace PostgreSQLMigrations.Migrations
 {
     [DbContext(typeof(BlazingQuartzDbContext))]
-    partial class BlazingQuartzDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220903132027_InitialSchema")]
+    partial class InitialSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.8");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "6.0.8")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("BlazingQuartz.Core.Data.Entities.ExecutionLog", b =>
                 {
                     b.Property<long>("LogId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("bigint")
                         .HasColumnName("log_id");
 
-                    b.Property<long>("DateAddedUtc")
-                        .HasColumnType("INTEGER")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("LogId"));
+
+                    b.Property<DateTimeOffset>("DateAddedUtc")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("date_added_utc");
 
                     b.Property<string>("ErrorMessage")
                         .HasMaxLength(8000)
-                        .HasColumnType("TEXT")
+                        .HasColumnType("character varying(8000)")
                         .HasColumnName("error_message");
 
-                    b.Property<long?>("FireTimeUtc")
-                        .HasColumnType("INTEGER")
+                    b.Property<DateTimeOffset?>("FireTimeUtc")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("fire_time_utc");
 
                     b.Property<bool?>("IsException")
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_exception");
 
                     b.Property<bool?>("IsVetoed")
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_vetoed");
 
                     b.Property<string>("JobGroup")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("job_group");
 
                     b.Property<string>("JobName")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("job_name");
 
                     b.Property<TimeSpan?>("JobRunTime")
-                        .HasColumnType("TEXT")
+                        .HasColumnType("interval")
                         .HasColumnName("job_run_time");
 
                     b.Property<string>("LogType")
@@ -66,30 +75,30 @@ namespace SqliteMigrations.Migrations
 
                     b.Property<string>("Result")
                         .HasMaxLength(8000)
-                        .HasColumnType("TEXT")
+                        .HasColumnType("character varying(8000)")
                         .HasColumnName("result");
 
                     b.Property<int?>("RetryCount")
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("integer")
                         .HasColumnName("retry_count");
 
                     b.Property<string>("RunInstanceId")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("run_instance_id");
 
-                    b.Property<long?>("ScheduleFireTimeUtc")
-                        .HasColumnType("INTEGER")
+                    b.Property<DateTimeOffset?>("ScheduleFireTimeUtc")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("schedule_fire_time_utc");
 
                     b.Property<string>("TriggerGroup")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("trigger_group");
 
                     b.Property<string>("TriggerName")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("trigger_name");
 
                     b.HasKey("LogId")
@@ -103,7 +112,7 @@ namespace SqliteMigrations.Migrations
                         .HasDatabaseName("ix_bqz_execution_logs_date_added_utc_log_type");
 
                     b.HasIndex("TriggerName", "TriggerGroup", "JobName", "JobGroup", "DateAddedUtc")
-                        .HasDatabaseName("ix_bqz_execution_logs_trigger_name_trigger_group_job_name_job_group_date_added_utc");
+                        .HasDatabaseName("ix_bqz_execution_logs_trigger_name_trigger_group_job_name_job_");
 
                     b.ToTable("bqz_execution_logs", (string)null);
                 });
@@ -113,24 +122,24 @@ namespace SqliteMigrations.Migrations
                     b.OwnsOne("BlazingQuartz.Core.Data.Entities.ExecutionLogDetail", "ExecutionLogDetail", b1 =>
                         {
                             b1.Property<long>("LogId")
-                                .HasColumnType("INTEGER")
+                                .HasColumnType("bigint")
                                 .HasColumnName("log_id");
 
                             b1.Property<int?>("ErrorCode")
-                                .HasColumnType("INTEGER")
+                                .HasColumnType("integer")
                                 .HasColumnName("error_code");
 
                             b1.Property<string>("ErrorHelpLink")
                                 .HasMaxLength(1000)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("character varying(1000)")
                                 .HasColumnName("error_help_link");
 
                             b1.Property<string>("ErrorStackTrace")
-                                .HasColumnType("TEXT")
+                                .HasColumnType("text")
                                 .HasColumnName("error_stack_trace");
 
                             b1.Property<string>("ExecutionDetails")
-                                .HasColumnType("TEXT")
+                                .HasColumnType("text")
                                 .HasColumnName("execution_details");
 
                             b1.HasKey("LogId")

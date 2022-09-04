@@ -1,9 +1,9 @@
 ﻿IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
-        [MigrationId] nvarchar(150) NOT NULL,
-        [ProductVersion] nvarchar(32) NOT NULL,
-        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+        [migration_id] nvarchar(150) NOT NULL,
+        [product_version] nvarchar(32) NOT NULL,
+        CONSTRAINT [pk___ef_migrations_history] PRIMARY KEY ([migration_id])
     );
 END;
 GO
@@ -11,66 +11,66 @@ GO
 BEGIN TRANSACTION;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20220827074935_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
 BEGIN
-    CREATE TABLE [bqz_ExecutionLogs] (
-        [LogId] bigint NOT NULL IDENTITY,
-        [RunInstanceId] nvarchar(256) NULL,
-        [LogType] varchar(20) NOT NULL,
-        [JobName] nvarchar(256) NULL,
-        [JobGroup] nvarchar(256) NULL,
-        [TriggerName] nvarchar(256) NULL,
-        [TriggerGroup] nvarchar(256) NULL,
-        [ScheduleFireTimeUtc] datetimeoffset NULL,
-        [FireTimeUtc] datetimeoffset NULL,
-        [JobRunTime] time NULL,
-        [RetryCount] int NULL,
-        [Result] nvarchar(max) NULL,
-        [ErrorMessage] nvarchar(max) NULL,
-        [IsVetoed] bit NULL,
-        [IsException] bit NULL,
-        [DateAddedUtc] datetimeoffset NOT NULL,
-        CONSTRAINT [PK_bqz_ExecutionLogs] PRIMARY KEY ([LogId])
+    CREATE TABLE [bqz_execution_logs] (
+        [log_id] bigint NOT NULL IDENTITY,
+        [run_instance_id] nvarchar(256) NULL,
+        [log_type] varchar(20) NOT NULL,
+        [job_name] nvarchar(256) NULL,
+        [job_group] nvarchar(256) NULL,
+        [trigger_name] nvarchar(256) NULL,
+        [trigger_group] nvarchar(256) NULL,
+        [schedule_fire_time_utc] datetimeoffset NULL,
+        [fire_time_utc] datetimeoffset NULL,
+        [job_run_time] time NULL,
+        [retry_count] int NULL,
+        [result] nvarchar(max) NULL,
+        [error_message] nvarchar(max) NULL,
+        [is_vetoed] bit NULL,
+        [is_exception] bit NULL,
+        [date_added_utc] datetimeoffset NOT NULL,
+        CONSTRAINT [pk_bqz_execution_logs] PRIMARY KEY ([log_id])
     );
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20220827074935_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
 BEGIN
-    CREATE TABLE [bqz_ExecutionLogDetails] (
-        [LogId] bigint NOT NULL,
-        [ExecutionDetails] nvarchar(max) NULL,
-        [ErrorStackTrace] nvarchar(max) NULL,
-        [ErrorCode] int NULL,
-        [ErrorHelpLink] nvarchar(1000) NULL,
-        CONSTRAINT [PK_bqz_ExecutionLogDetails] PRIMARY KEY ([LogId]),
-        CONSTRAINT [FK_bqz_ExecutionLogDetails_bqz_ExecutionLogs_LogId] FOREIGN KEY ([LogId]) REFERENCES [bqz_ExecutionLogs] ([LogId]) ON DELETE CASCADE
+    CREATE TABLE [bqz_execution_log_details] (
+        [log_id] bigint NOT NULL,
+        [execution_details] nvarchar(max) NULL,
+        [error_stack_trace] nvarchar(max) NULL,
+        [error_code] int NULL,
+        [error_help_link] nvarchar(1000) NULL,
+        CONSTRAINT [pk_bqz_execution_log_details] PRIMARY KEY ([log_id]),
+        CONSTRAINT [fk_bqz_execution_log_details_bqz_execution_logs_log_id] FOREIGN KEY ([log_id]) REFERENCES [bqz_execution_logs] ([log_id]) ON DELETE CASCADE
     );
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20220827074935_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
 BEGIN
-    CREATE INDEX [IX_bqz_ExecutionLogs_DateAddedUtc_LogType] ON [bqz_ExecutionLogs] ([DateAddedUtc], [LogType]);
+    CREATE INDEX [ix_bqz_execution_logs_date_added_utc_log_type] ON [bqz_execution_logs] ([date_added_utc], [log_type]);
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20220827074935_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
 BEGIN
-    EXEC(N'CREATE UNIQUE INDEX [IX_bqz_ExecutionLogs_RunInstanceId] ON [bqz_ExecutionLogs] ([RunInstanceId]) WHERE [RunInstanceId] IS NOT NULL');
+    EXEC(N'CREATE UNIQUE INDEX [ix_bqz_execution_logs_run_instance_id] ON [bqz_execution_logs] ([run_instance_id]) WHERE [run_instance_id] IS NOT NULL');
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20220827074935_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
 BEGIN
-    CREATE INDEX [IX_bqz_ExecutionLogs_TriggerName_TriggerGroup_JobName_JobGroup_DateAddedUtc] ON [bqz_ExecutionLogs] ([TriggerName], [TriggerGroup], [JobName], [JobGroup], [DateAddedUtc]);
+    CREATE INDEX [ix_bqz_execution_logs_trigger_name_trigger_group_job_name_job_group_date_added_utc] ON [bqz_execution_logs] ([trigger_name], [trigger_group], [job_name], [job_group], [date_added_utc]);
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20220827074935_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
 BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'20220827074935_InitialSchema', N'6.0.8');
+    INSERT INTO [__EFMigrationsHistory] ([migration_id], [product_version])
+    VALUES (N'20220903132032_InitialSchema', N'6.0.8');
 END;
 GO
 

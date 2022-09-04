@@ -26,74 +26,94 @@ namespace SqlServerMigrations.Migrations
                 {
                     b.Property<long>("LogId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("log_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("LogId"), 1L, 1);
 
                     b.Property<DateTimeOffset>("DateAddedUtc")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("date_added_utc");
 
                     b.Property<string>("ErrorMessage")
                         .HasMaxLength(8000)
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("error_message");
 
                     b.Property<DateTimeOffset?>("FireTimeUtc")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("fire_time_utc");
 
                     b.Property<bool?>("IsException")
-                        .HasColumnType("bit");
+                        .HasColumnType("bit")
+                        .HasColumnName("is_exception");
 
                     b.Property<bool?>("IsVetoed")
-                        .HasColumnType("bit");
+                        .HasColumnType("bit")
+                        .HasColumnName("is_vetoed");
 
                     b.Property<string>("JobGroup")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("job_group");
 
                     b.Property<string>("JobName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("job_name");
 
                     b.Property<TimeSpan?>("JobRunTime")
-                        .HasColumnType("time");
+                        .HasColumnType("time")
+                        .HasColumnName("job_run_time");
 
                     b.Property<string>("LogType")
                         .IsRequired()
-                        .HasColumnType("varchar(20)");
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("log_type");
 
                     b.Property<string>("Result")
                         .HasMaxLength(8000)
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("result");
 
                     b.Property<int?>("RetryCount")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("retry_count");
 
                     b.Property<string>("RunInstanceId")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("run_instance_id");
 
                     b.Property<DateTimeOffset?>("ScheduleFireTimeUtc")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("schedule_fire_time_utc");
 
                     b.Property<string>("TriggerGroup")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("trigger_group");
 
                     b.Property<string>("TriggerName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("trigger_name");
 
-                    b.HasKey("LogId");
+                    b.HasKey("LogId")
+                        .HasName("pk_bqz_execution_logs");
 
                     b.HasIndex("RunInstanceId")
                         .IsUnique()
-                        .HasFilter("[RunInstanceId] IS NOT NULL");
+                        .HasDatabaseName("ix_bqz_execution_logs_run_instance_id")
+                        .HasFilter("[run_instance_id] IS NOT NULL");
 
-                    b.HasIndex("DateAddedUtc", "LogType");
+                    b.HasIndex("DateAddedUtc", "LogType")
+                        .HasDatabaseName("ix_bqz_execution_logs_date_added_utc_log_type");
 
-                    b.HasIndex("TriggerName", "TriggerGroup", "JobName", "JobGroup", "DateAddedUtc");
+                    b.HasIndex("TriggerName", "TriggerGroup", "JobName", "JobGroup", "DateAddedUtc")
+                        .HasDatabaseName("ix_bqz_execution_logs_trigger_name_trigger_group_job_name_job_group_date_added_utc");
 
-                    b.ToTable("bqz_ExecutionLogs");
+                    b.ToTable("bqz_execution_logs", (string)null);
                 });
 
             modelBuilder.Entity("BlazingQuartz.Core.Data.Entities.ExecutionLog", b =>
@@ -101,27 +121,34 @@ namespace SqlServerMigrations.Migrations
                     b.OwnsOne("BlazingQuartz.Core.Data.Entities.ExecutionLogDetail", "ExecutionLogDetail", b1 =>
                         {
                             b1.Property<long>("LogId")
-                                .HasColumnType("bigint");
+                                .HasColumnType("bigint")
+                                .HasColumnName("log_id");
 
                             b1.Property<int?>("ErrorCode")
-                                .HasColumnType("int");
+                                .HasColumnType("int")
+                                .HasColumnName("error_code");
 
                             b1.Property<string>("ErrorHelpLink")
                                 .HasMaxLength(1000)
-                                .HasColumnType("nvarchar(1000)");
+                                .HasColumnType("nvarchar(1000)")
+                                .HasColumnName("error_help_link");
 
                             b1.Property<string>("ErrorStackTrace")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("error_stack_trace");
 
                             b1.Property<string>("ExecutionDetails")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("execution_details");
 
-                            b1.HasKey("LogId");
+                            b1.HasKey("LogId")
+                                .HasName("pk_bqz_execution_log_details");
 
-                            b1.ToTable("bqz_ExecutionLogDetails", (string)null);
+                            b1.ToTable("bqz_execution_log_details", (string)null);
 
                             b1.WithOwner()
-                                .HasForeignKey("LogId");
+                                .HasForeignKey("LogId")
+                                .HasConstraintName("fk_bqz_execution_log_details_bqz_execution_logs_log_id");
                         });
 
                     b.Navigation("ExecutionLogDetail");

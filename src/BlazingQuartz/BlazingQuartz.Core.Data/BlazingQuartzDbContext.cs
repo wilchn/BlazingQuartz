@@ -20,12 +20,11 @@ namespace BlazingQuartz.Core.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            AddTablePrefix(modelBuilder, "bqz_");
             AddSqliteDateTimeOffsetSupport(modelBuilder);
 
             modelBuilder.Entity<ExecutionLog>()
                 .OwnsOne(l => l.ExecutionLogDetail, e => {
-                    e.ToTable("bqz_ExecutionLogDetails");
+                    e.ToTable("bqz_execution_log_details");
                     e.WithOwner().HasForeignKey("LogId");
                 });
 
