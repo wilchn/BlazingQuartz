@@ -27,14 +27,17 @@ internal class Program
                         {
                             "Sqlite" => options.UseSqlite(
                                 "DataSource=dummy",
-                                x => x.MigrationsAssembly("SqliteMigrations")),
+                                x => x.MigrationsAssembly("SqliteMigrations"))
+                                .UseSnakeCaseNamingConvention(),
 
                             "SqlServer" => options.UseSqlServer(
                                 "Data Source=dummy",
-                                x => x.MigrationsAssembly("SqlServerMigrations")),
+                                x => x.MigrationsAssembly("SqlServerMigrations"))
+                                .UseSnakeCaseNamingConvention(),
 
                             "PostgreSQL" => options.UseNpgsql("Host=dummy",
-                                x => x.MigrationsAssembly("PostgreSQLMigrations")),
+                                x => x.MigrationsAssembly("PostgreSQLMigrations"))
+                                .UseSnakeCaseNamingConvention(),
 
                             _ => throw new Exception($"Unsupported provider: {provider}")
                         });

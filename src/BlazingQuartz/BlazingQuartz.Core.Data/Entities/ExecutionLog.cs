@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlazingQuartz.Core.Data.Entities
 {
+    [Table("bqz_execution_logs")]
     public class ExecutionLog
     {
         [Key]

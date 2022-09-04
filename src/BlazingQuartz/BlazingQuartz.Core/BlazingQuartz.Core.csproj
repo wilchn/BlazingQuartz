@@ -26,6 +26,7 @@
     <None Remove="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <None Remove="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <None Remove="Jobs\" />
+    <None Remove="EFCore.NamingConventions" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -48,6 +49,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.8" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.6" />
+    <PackageReference Include="EFCore.NamingConventions" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BlazingQuartz.Jobs\BlazingQuartz.Jobs.csproj" />
