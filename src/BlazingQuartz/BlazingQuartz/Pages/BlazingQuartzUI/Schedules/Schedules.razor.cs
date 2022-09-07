@@ -25,8 +25,14 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
         private string? SearchJobKeyword;
         private MudDataGrid<ScheduleModel> _scheduleDataGrid = null!;
 
+        private bool _openFilter;
+
+        private ScheduleJobFilter _filter = new();
+        private ScheduleJobFilter _origFilter = new();
+
         internal bool IsEditActionDisabled(ScheduleModel model) => (model.JobStatus == JobStatus.NoSchedule ||
-                                       model.JobStatus == JobStatus.Error);
+            model.JobStatus == JobStatus.Error ||
+            model.JobGroup == Constants.SYSTEM_GROUP);
 
         internal bool IsRunActionDisabled(ScheduleModel model) => (model.JobStatus == JobStatus.NoSchedule ||
                                             model.JobStatus == JobStatus.NoTrigger);
@@ -36,10 +42,12 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                                             model.JobStatus == JobStatus.NoTrigger);
 
         internal bool IsAddTriggerActionDisabled(ScheduleModel model) => model.JobStatus == JobStatus.NoSchedule ||
-                                     model.JobStatus == JobStatus.Error;
+            model.JobStatus == JobStatus.Error ||
+            model.JobGroup == Constants.SYSTEM_GROUP;
 
         internal bool IsCopyActionDisabled(ScheduleModel model) => (model.JobStatus == JobStatus.NoSchedule ||
-                                     model.JobStatus == JobStatus.Error);
+            model.JobStatus == JobStatus.Error ||
+            model.JobGroup == Constants.SYSTEM_GROUP);
 
         internal bool IsHistoryActionDisabled(ScheduleModel model) => model.JobStatus == JobStatus.NoSchedule;
 
@@ -222,6 +230,13 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
 
         private async void SchedulerListenerSvc_OnJobScheduled(object? sender, EventArgs<ITrigger> e)
         {
+            if (!_filter.IncludeSystemJobs && (e.Args.JobKey.Group == Constants.SYSTEM_GROUP || 
+                e.Args.Key.Group == Constants.SYSTEM_GROUP))
+            {
+                // system job is not visible, skip this event
+                return;
+            }
+
             await InvokeAsync(async () =>
             {
                 var model = await SchedulerSvc.GetScheduleModelAsync(e.Args);
@@ -265,7 +280,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
         {
             ScheduledJobs.Clear();
 
-            var jobs = SchedulerSvc.GetAllJobsAsync();
+            var jobs = SchedulerSvc.GetAllJobsAsync(_filter);
             await foreach(var job in jobs)
             {
                 ScheduledJobs.Add(job);
@@ -533,6 +548,41 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
         {
             UnRegisterEventListeners();
         }
+
+        #region Filter
+        private void OnFilterClicked()
+        {
+            // backup original filter
+            _origFilter = (ScheduleJobFilter)_filter.Clone();
+
+            _openFilter = true;
+        }
+
+        private void OnSaveFilter()
+        {
+            _openFilter = false;
+        }
+
+        private async Task OnClearFilter()
+        {
+            _filter = new();
+            await RefreshJobs();
+            _openFilter = false;
+        }
+
+        private async Task OnCancelFilter()
+        {
+            _filter = _origFilter;
+            await RefreshJobs();
+            _openFilter = false;
+        }
+
+        private async Task OnIncludeSystemJobsChanged(bool value)
+        {
+            _filter.IncludeSystemJobs = value;
+            await RefreshJobs();
+        }
+        #endregion Filter
     }
 }
 

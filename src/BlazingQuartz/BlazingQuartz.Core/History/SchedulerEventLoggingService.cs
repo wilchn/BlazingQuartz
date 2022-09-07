@@ -209,20 +209,55 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
 
     private async Task AddHousekeepingSchedule(IScheduler scheduler)
     {
+        var housekeepingJobName = "Housekeep ExecutionLogs (bqz)";
+        var triggerKey = new TriggerKey(housekeepingJobName, Constants.SYSTEM_GROUP);
+
         if (!string.IsNullOrEmpty(_options.HousekeepingCronSchedule))
         {
-            var housekeepingJobName = "Housekeep ExecutionLogs (bqz)";
-            IJobDetail job = JobBuilder.Create<HousekeepExecutionLogsJob>()
-                .WithIdentity(housekeepingJobName, Constants.SYSTEM_GROUP)
-                .Build();
+            var reschedule = true;
 
-            ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity(housekeepingJobName, Constants.SYSTEM_GROUP)
-                .StartNow()
-                .WithCronSchedule(_options.HousekeepingCronSchedule)
-                .Build();
+            // determine if already exists
+            if (await scheduler.CheckExists(triggerKey))
+            {
+                // determine if same cron schedule
+                var trig = await scheduler.GetTrigger(triggerKey);
+                if (trig != null && trig.GetTriggerType() == TriggerType.Cron)
+                {
+                    var cronTrigger = (ICronTrigger)trig;
+                    if (cronTrigger.CronExpressionString == _options.HousekeepingCronSchedule)
+                        reschedule = false;
+                }
+            }
 
-            await scheduler.ScheduleJob(job, new[] { trigger }, true);
+            if (reschedule)
+            {
+                // create new one
+                IJobDetail job = JobBuilder.Create<HousekeepExecutionLogsJob>()
+                    .WithIdentity(housekeepingJobName, Constants.SYSTEM_GROUP)
+                    .Build();
+
+                ITrigger trigger = TriggerBuilder.Create()
+                    .WithIdentity(housekeepingJobName, Constants.SYSTEM_GROUP)
+                    .StartNow()
+                    .WithCronSchedule(_options.HousekeepingCronSchedule)
+                    .Build();
+
+                ITrigger nowTrigger = TriggerBuilder.Create()
+                    .WithIdentity("Housekeep ExecutionLogs now (bqz)", Constants.SYSTEM_GROUP)
+                    .StartNow()
+                    .Build();
+
+                await scheduler.ScheduleJob(job, new[] { trigger, nowTrigger }, true);
+            }
+        }
+        else
+        {
+            // delete housekeeping schedule
+            if (await scheduler.CheckExists(triggerKey))
+            {
+                _logger.LogInformation("Housekeeping ExecutionLogs has no cron schedule specified. Delete scheduled job");
+                await scheduler.UnscheduleJob(triggerKey);
+            }
         }
     }
 

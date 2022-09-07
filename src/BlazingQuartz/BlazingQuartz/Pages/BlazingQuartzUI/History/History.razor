@@ -84,6 +84,11 @@
                          T="bool"
                          CheckedChanged="OnErrorOnlyChanged"
                          Label="Show error only" Color="Color.Primary"></MudCheckBox>
+
+            <MudCheckBox Checked="@_filter.IncludeSystemJobs"
+                         T="bool"
+                         CheckedChanged="OnIncludeSystemJobsChanged"
+                         Label="Show BlazingQuartz jobs" Color="Color.Primary"></MudCheckBox>
         </div>
         <div class="d-flex pa-4 justify-space-between gap-2">
             <MudButton Variant="Variant.Filled"
