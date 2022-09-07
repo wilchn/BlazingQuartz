@@ -30,6 +30,19 @@ namespace BlazingQuartz.Core.Models
             PreviousTriggerTime = null;
             TriggerType = TriggerType.Unknown;
         }
+
+        public string? GetJobTypeShortName()
+        {
+            if (JobType != null)
+            {
+                var dotIndex = JobType.LastIndexOf('.');
+                if (dotIndex < 0)
+                    return JobType;
+
+                return JobType.Substring(dotIndex+1);
+            }
+            return JobType;
+        }
     }
 }
 

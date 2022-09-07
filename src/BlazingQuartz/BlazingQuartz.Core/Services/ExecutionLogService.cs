@@ -109,9 +109,22 @@ namespace BlazingQuartz.Core.Services
 
                     if (filter.MessageContains != null)
                     {
-                        q = q.Where(l => EF.Functions.Like(l.Result ?? String.Empty, $"%{filter.MessageContains}%")
-                            || (l.ExecutionLogDetail != null && EF.Functions.Like(
-                                l.ExecutionLogDetail.ExecutionDetails ?? String.Empty, $"%{filter.MessageContains}%")));
+                        var likeStr = $"%{filter.MessageContains}%";
+                        q = q.Where(l => EF.Functions.Like(l.JobName ?? string.Empty, likeStr)
+                            || EF.Functions.Like(l.TriggerName ?? string.Empty, likeStr)
+                            || EF.Functions.Like(l.Result ?? string.Empty, likeStr)
+                            || EF.Functions.Like(l.ErrorMessage ?? string.Empty, likeStr)
+                            || (l.ExecutionLogDetail != null
+                                && (EF.Functions.Like(
+                                    l.ExecutionLogDetail.ExecutionDetails ?? string.Empty, likeStr)
+                                    || EF.Functions.Like(l.ExecutionLogDetail.ErrorStackTrace ?? string.Empty, likeStr)
+                                    || (l.ExecutionLogDetail.ErrorCode != null && l.ExecutionLogDetail.ErrorCode.Value.ToString() == filter.MessageContains))));
+                    }
+
+                    if (!filter.IncludeSystemJobs)
+                    {
+                        q = q.Where(l => !(l.TriggerGroup == Constants.SYSTEM_GROUP ||
+                            l.JobGroup == Constants.SYSTEM_GROUP));
                     }
                 }
 

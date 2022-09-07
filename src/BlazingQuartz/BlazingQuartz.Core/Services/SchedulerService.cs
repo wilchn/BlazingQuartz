@@ -18,13 +18,19 @@ namespace BlazingQuartz.Core.Services
             _schedulerFactory = schedulerFactory;
         }
 
-        public async IAsyncEnumerable<ScheduleModel> GetAllJobsAsync()
+        public async IAsyncEnumerable<ScheduleModel> GetAllJobsAsync(ScheduleJobFilter? filter = null)
         {
             var scheduler = await _schedulerFactory.GetScheduler();
             var jobGroupNames = await scheduler.GetJobGroupNames();
 
             foreach (var jobGrp in jobGroupNames)
             {
+                if (filter != null && !filter.IncludeSystemJobs)
+                {
+                    if (jobGrp == Constants.SYSTEM_GROUP)
+                        continue;
+                }
+                    
                 var jobKeys = await scheduler.GetJobKeys(GroupMatcher<JobKey>.GroupEquals(jobGrp));
 
                 foreach (var jobKey in jobKeys)
@@ -49,13 +55,15 @@ namespace BlazingQuartz.Core.Services
         public async Task<IReadOnlyCollection<string>> GetJobGroups()
         {
             var scheduler = await _schedulerFactory.GetScheduler();
-            return await scheduler.GetJobGroupNames();
+            return (await scheduler.GetJobGroupNames())
+                .Where(n => n != Constants.SYSTEM_GROUP).ToList();
         }
 
         public async Task<IReadOnlyCollection<string>> GetTriggerGroups()
         {
             var scheduler = await _schedulerFactory.GetScheduler();
-            return await scheduler.GetTriggerGroupNames();
+            return (await scheduler.GetTriggerGroupNames()).
+                Where(n => n != Constants.SYSTEM_GROUP).ToList();
         }
 
         private async Task<ScheduleModel> CreateScheduleModel(IJobDetail? jobDetail, ITrigger trigger)

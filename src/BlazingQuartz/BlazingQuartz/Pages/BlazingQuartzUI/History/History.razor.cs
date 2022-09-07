@@ -185,6 +185,12 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.History
             _filter.ErrorOnly = errorOnly;
             RefreshLogs();
         }
+
+        private void OnIncludeSystemJobsChanged(bool flag)
+        {
+            _filter.IncludeSystemJobs = flag;
+            RefreshLogs();
+        }
     }
 }
 

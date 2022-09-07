@@ -23,6 +23,7 @@ namespace BlazingQuartz.Core.Models
         public DateTimeOffset? DateAddedEndUtc { get; set; }
         public bool IsAscending { get; set; }
         public bool ErrorOnly { get; set; }
+        public bool IncludeSystemJobs { get; set; } = false;
 
         public object Clone()
         {
