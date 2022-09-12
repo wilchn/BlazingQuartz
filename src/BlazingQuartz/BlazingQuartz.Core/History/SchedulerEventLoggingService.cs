@@ -15,6 +15,7 @@ namespace BlazingQuartz.Core.History;
 
 internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEventLoggingService
 {
+    private const int RESULT_MAX_LENGTH = 8000;
     private const int MAX_BATCH_SIZE = 50;
 
     private readonly IServiceProvider _svcProvider;
@@ -329,25 +330,51 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
             JobRunTime = context.JobRunTime,
             LogType = LogType.ScheduleJob
         };
+        var logDetail = new ExecutionLogDetail();
 
+        var returnCode = context.JobDetail.JobDataMap.Get(Constants.DATA_MAP_RETURN_CODE_KEY);
+        if (returnCode != null)
+        {
+            log.ReturnCode = Convert.ToString(returnCode);
+        }
+
+        var isSuccess = context.JobDetail.JobDataMap.Get(Constants.DATA_MAP_IS_SUCCESS_KEY);
+        if (isSuccess != null)
+        {
+            log.IsSuccess = Convert.ToBoolean(isSuccess);
+        }
+
+        var execDetail = context.JobDetail.JobDataMap.Get(Constants.DATA_MAP_EXECUTION_DETAIL_KEY);
+        if (execDetail != null)
+        {
+            var strExecDetail = Convert.ToString(execDetail, CultureInfo.InvariantCulture);
+            if (!string.IsNullOrEmpty(strExecDetail))
+            {
+                logDetail.ExecutionDetails = strExecDetail;
+                log.ExecutionLogDetail = logDetail;
+            }
+        }
 
         if (jobException != null)
         {
             log.ErrorMessage = jobException.Message;
-            log.ExecutionLogDetail = new()
-            {
-                ErrorCode = jobException.HResult,
-                ErrorStackTrace = jobException.NonNullStackTrace(),
-                ErrorHelpLink = jobException.HelpLink
-            };
+            log.ExecutionLogDetail = logDetail;
+            logDetail.ErrorCode = jobException.HResult;
+            logDetail.ErrorStackTrace = jobException.NonNullStackTrace();
+            logDetail.ErrorHelpLink = jobException.HelpLink;
+
+            if (log.ReturnCode == null)
+                log.ReturnCode = jobException.HResult.ToString();
+
             log.IsException = true;
+            log.IsSuccess = false;
         }
         else
         {
             if (context.Result != null)
             {
                 var result = Convert.ToString(context.Result, CultureInfo.InvariantCulture);
-                log.Result = result;
+                log.Result = result?.Substring(0, Math.Min(result.Length, RESULT_MAX_LENGTH));
             }
         }
 

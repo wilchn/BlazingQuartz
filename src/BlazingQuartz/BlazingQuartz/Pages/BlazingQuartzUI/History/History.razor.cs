@@ -104,6 +104,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.History
             DialogSvc.Show<ExecutionDetailsDialog>(title, parameters, options);
         }
 
+        #region Filters
         private async Task OnFilterClicked()
         {
             // backup original filter
@@ -191,6 +192,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.History
             _filter.IncludeSystemJobs = flag;
             RefreshLogs();
         }
+        #endregion Filters
     }
 }
 

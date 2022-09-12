@@ -3,34 +3,50 @@
 <MudDialog>
     <DialogContent>
         <div class="d-flex flex-column gap-2">
-            <MudTextField T="string" ReadOnly="true" 
-                Variant="Variant.Outlined"
-                Margin="Margin.Dense"
-                Text="@(ExecutionLog.FireTimeUtc?.LocalDateTime.ToString() ??
-                          ExecutionLog.DateAddedUtc.LocalDateTime.ToString())" 
-                Label="@(ExecutionLog.FireTimeUtc.HasValue ? "Trigger time" : "Log time")" />
+            <MudTextField T="string" ReadOnly="true"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          Text="@(ExecutionLog.FireTimeUtc?.LocalDateTime.ToString() ??
+                          ExecutionLog.DateAddedUtc.LocalDateTime.ToString())"
+                          Label="@(ExecutionLog.FireTimeUtc.HasValue ? "Trigger time" : "Log time")" />
 
-            @if(ExecutionLog.ExecutionLogDetail?.ExecutionDetails != null)
+            @if (ExecutionLog.ReturnCode != null)
+            {
+                <MudTextField T="string" Label="Return Code" ReadOnly="true"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Text="@ExecutionLog.ReturnCode" />
+            }
+
+            @if (ExecutionLog.Result != null)
+            {
+                <MudTextField T="string" Label="Result" ReadOnly="true"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Text="@ExecutionLog.Result" Lines="5" />
+            }
+
+            @if (ExecutionLog.ExecutionLogDetail?.ExecutionDetails != null)
             {
                 <MudTextField T="string" Label="Output" ReadOnly="true"
-                    Variant="Variant.Outlined" 
-                    Margin="Margin.Dense"
-                    Text="@ExecutionLog.ExecutionLogDetail.ExecutionDetails" Lines="5" />
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Text="@ExecutionLog.ExecutionLogDetail.ExecutionDetails" Lines="5" />
             }
 
             @if (ExecutionLog.ErrorMessage != null)
             {
                 <MudTextField T="string" Variant="Variant.Outlined" Label="Exception Message"
-                    ReadOnly="true"
-                    Margin="Margin.Dense"
-                    Text="@ExecutionLog.ErrorMessage" />
+                              ReadOnly="true"
+                              Margin="Margin.Dense"
+                              Text="@ExecutionLog.ErrorMessage" />
             }
-            @if(ExecutionLog.ExecutionLogDetail?.ErrorStackTrace != null)
+            @if (ExecutionLog.ExecutionLogDetail?.ErrorStackTrace != null)
             {
                 <MudTextField T="string" Variant="Variant.Outlined"
-                    ReadOnly="true" Label="Stack Trace"
-                    Margin="Margin.Dense"
-                    Text="@ExecutionLog.ExecutionLogDetail.ErrorStackTrace" Lines="6" />
+                              ReadOnly="true" Label="Stack Trace"
+                              Margin="Margin.Dense"
+                              Text="@ExecutionLog.ExecutionLogDetail.ErrorStackTrace" Lines="6" />
 
                 @if (ExecutionLog.ExecutionLogDetail?.ErrorCode != null)
                 {

@@ -48,6 +48,10 @@ namespace SqlServerMigrations.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("is_exception");
 
+                    b.Property<bool?>("IsSuccess")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_success");
+
                     b.Property<bool?>("IsVetoed")
                         .HasColumnType("bit")
                         .HasColumnName("is_vetoed");
@@ -79,6 +83,11 @@ namespace SqlServerMigrations.Migrations
                     b.Property<int?>("RetryCount")
                         .HasColumnType("int")
                         .HasColumnName("retry_count");
+
+                    b.Property<string>("ReturnCode")
+                        .HasMaxLength(28)
+                        .HasColumnType("nvarchar(28)")
+                        .HasColumnName("return_code");
 
                     b.Property<string>("RunInstanceId")
                         .HasMaxLength(256)
