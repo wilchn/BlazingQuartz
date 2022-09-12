@@ -41,6 +41,10 @@ namespace SqliteMigrations.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_exception");
 
+                    b.Property<bool?>("IsSuccess")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_success");
+
                     b.Property<bool?>("IsVetoed")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_vetoed");
@@ -72,6 +76,11 @@ namespace SqliteMigrations.Migrations
                     b.Property<int?>("RetryCount")
                         .HasColumnType("INTEGER")
                         .HasColumnName("retry_count");
+
+                    b.Property<string>("ReturnCode")
+                        .HasMaxLength(28)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("return_code");
 
                     b.Property<string>("RunInstanceId")
                         .HasMaxLength(256)

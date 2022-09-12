@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace PostgreSQLMigrations.Migrations
 {
     [DbContext(typeof(BlazingQuartzDbContext))]
-    [Migration("20220903132027_InitialSchema")]
+    [Migration("20220912031807_InitialSchema")]
     partial class InitialSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,6 +50,10 @@ namespace PostgreSQLMigrations.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_exception");
 
+                    b.Property<bool?>("IsSuccess")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_success");
+
                     b.Property<bool?>("IsVetoed")
                         .HasColumnType("boolean")
                         .HasColumnName("is_vetoed");
@@ -81,6 +85,11 @@ namespace PostgreSQLMigrations.Migrations
                     b.Property<int?>("RetryCount")
                         .HasColumnType("integer")
                         .HasColumnName("retry_count");
+
+                    b.Property<string>("ReturnCode")
+                        .HasMaxLength(28)
+                        .HasColumnType("character varying(28)")
+                        .HasColumnName("return_code");
 
                     b.Property<string>("RunInstanceId")
                         .HasMaxLength(256)

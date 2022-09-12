@@ -62,6 +62,8 @@ namespace BlazingQuartz.Core.History
                 entry.JobRunTime = log.JobRunTime;
                 entry.Result = log.Result;
                 entry.IsException = log.IsException;
+                entry.IsSuccess = log.IsSuccess;
+                entry.ReturnCode = log.ReturnCode;
 
                 _dbContext.ExecutionLogs.Update(entry);
             }

@@ -14,6 +14,11 @@ public class HelloJob : IJob
     {
         _logger.LogInformation("Hello world!");
         await Task.Delay(1000);
+
+        context.JobDetail.JobDataMap["__isSuccess"] = true;
+        context.JobDetail.JobDataMap["__returnCode"] = 0;
+        context.JobDetail.JobDataMap["__execDetails"] = "Executed successfully";
+
         //return Task.CompletedTask;
     }
 }

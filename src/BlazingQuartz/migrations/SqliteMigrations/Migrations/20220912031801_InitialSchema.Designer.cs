@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqliteMigrations.Migrations
 {
     [DbContext(typeof(BlazingQuartzDbContext))]
-    [Migration("20220903132022_InitialSchema")]
+    [Migration("20220912031801_InitialSchema")]
     partial class InitialSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,10 @@ namespace SqliteMigrations.Migrations
                     b.Property<bool?>("IsException")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_exception");
+
+                    b.Property<bool?>("IsSuccess")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_success");
 
                     b.Property<bool?>("IsVetoed")
                         .HasColumnType("INTEGER")
@@ -74,6 +78,11 @@ namespace SqliteMigrations.Migrations
                     b.Property<int?>("RetryCount")
                         .HasColumnType("INTEGER")
                         .HasColumnName("retry_count");
+
+                    b.Property<string>("ReturnCode")
+                        .HasMaxLength(28)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("return_code");
 
                     b.Property<string>("RunInstanceId")
                         .HasMaxLength(256)

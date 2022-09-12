@@ -44,7 +44,7 @@
                                             </span>
                                         }
                                     </MudText>
-                                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@log.ErrorMessage</MudText>
+                                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@log.GetShortExceptionMessage()</MudText>
                                     <MudButton Variant="Variant.Text"
                                             Class="pa-0 ma-0"
                                             Style="text-transform:none;"
@@ -67,9 +67,9 @@
                                     }
                                 </MudText>
                                 <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                                    @(log.Result ?? (log.LogType == Core.Data.LogType.ScheduleJob ? "Job executed successfully" : string.Empty))
+                                    @log.GetShortResultMessage()
                                 </MudText>
-                                @if (log.ExecutionLogDetail?.ExecutionDetails != null)
+                                @if (log.ShowExecutionDetailButton())
                                 {
                                     <MudButton Variant="Variant.Text"
                                             Class="pa-0 ma-0"

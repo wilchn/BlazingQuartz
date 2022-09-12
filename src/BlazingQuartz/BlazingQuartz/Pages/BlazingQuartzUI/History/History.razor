@@ -155,8 +155,14 @@
         <MudTd DataLabel="Msg">
             <div>
                 <MudText Typo="Typo.body2" Color="Color.Dark">
-                    @(context.ErrorMessage ?? context.Result ??
-                        (context.LogType == Core.Data.LogType.ScheduleJob ? "Job executed successfully" : string.Empty))
+                    @if (context.IsException ?? false)
+                    {
+                        @context.GetShortExceptionMessage();
+                    }
+                    else
+                    {
+                        @context.GetShortResultMessage();
+                    }
                 </MudText>
                 @if (context.IsException ?? false)
                 {
@@ -169,7 +175,7 @@
                                 Color="Color.Primary">Error Details</MudButton>
                     </div>
                 }
-                else if (context.ExecutionLogDetail?.ExecutionDetails != null)
+                else if (context.ShowExecutionDetailButton())
                 {
                     <div class="pt-1">
                         <MudButton Variant="Variant.Text"

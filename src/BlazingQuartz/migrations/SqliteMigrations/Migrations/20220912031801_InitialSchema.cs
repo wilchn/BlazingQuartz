@@ -29,6 +29,8 @@ namespace SqliteMigrations.Migrations
                     error_message = table.Column<string>(type: "TEXT", maxLength: 8000, nullable: true),
                     is_vetoed = table.Column<bool>(type: "INTEGER", nullable: true),
                     is_exception = table.Column<bool>(type: "INTEGER", nullable: true),
+                    is_success = table.Column<bool>(type: "INTEGER", nullable: true),
+                    return_code = table.Column<string>(type: "TEXT", maxLength: 28, nullable: true),
                     date_added_utc = table.Column<long>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>

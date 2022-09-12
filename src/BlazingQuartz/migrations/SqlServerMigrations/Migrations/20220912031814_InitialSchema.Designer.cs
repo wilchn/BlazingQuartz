@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqlServerMigrations.Migrations
 {
     [DbContext(typeof(BlazingQuartzDbContext))]
-    [Migration("20220903132032_InitialSchema")]
+    [Migration("20220912031814_InitialSchema")]
     partial class InitialSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,6 +50,10 @@ namespace SqlServerMigrations.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("is_exception");
 
+                    b.Property<bool?>("IsSuccess")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_success");
+
                     b.Property<bool?>("IsVetoed")
                         .HasColumnType("bit")
                         .HasColumnName("is_vetoed");
@@ -81,6 +85,11 @@ namespace SqlServerMigrations.Migrations
                     b.Property<int?>("RetryCount")
                         .HasColumnType("int")
                         .HasColumnName("retry_count");
+
+                    b.Property<string>("ReturnCode")
+                        .HasMaxLength(28)
+                        .HasColumnType("nvarchar(28)")
+                        .HasColumnName("return_code");
 
                     b.Property<string>("RunInstanceId")
                         .HasMaxLength(256)

@@ -31,6 +31,19 @@ namespace BlazingQuartz.Core.Data.Entities
         public string? ErrorMessage { get; set; }
         public bool? IsVetoed { get; set; }
         public bool? IsException { get; set; }
+        /// <summary>
+        /// Indicate whether the execution is successful or not.
+        /// It is possible IsException is false but IsSuccess is true.
+        /// </summary>
+        public bool? IsSuccess { get; set; }
+        /// <summary>
+        /// Return code of execution.
+        /// <para>Ex.</para>
+        /// <para>for HTTP call - 200, 404, 500 etc.</para>
+        /// <para>for command line - 0 = success, -1 = failed</para>
+        /// </summary>
+        [MaxLength(28)]
+        public string? ReturnCode { get; set; }
         public DateTimeOffset DateAddedUtc { get; set; }
         public ExecutionLogDetail? ExecutionLogDetail { get; set; }
 

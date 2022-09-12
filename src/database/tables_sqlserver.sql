@@ -11,7 +11,7 @@ GO
 BEGIN TRANSACTION;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220912031814_InitialSchema')
 BEGIN
     CREATE TABLE [bqz_execution_logs] (
         [log_id] bigint NOT NULL IDENTITY,
@@ -29,13 +29,15 @@ BEGIN
         [error_message] nvarchar(max) NULL,
         [is_vetoed] bit NULL,
         [is_exception] bit NULL,
+        [is_success] bit NULL,
+        [return_code] nvarchar(28) NULL,
         [date_added_utc] datetimeoffset NOT NULL,
         CONSTRAINT [pk_bqz_execution_logs] PRIMARY KEY ([log_id])
     );
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220912031814_InitialSchema')
 BEGIN
     CREATE TABLE [bqz_execution_log_details] (
         [log_id] bigint NOT NULL,
@@ -49,28 +51,28 @@ BEGIN
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220912031814_InitialSchema')
 BEGIN
     CREATE INDEX [ix_bqz_execution_logs_date_added_utc_log_type] ON [bqz_execution_logs] ([date_added_utc], [log_type]);
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220912031814_InitialSchema')
 BEGIN
     EXEC(N'CREATE UNIQUE INDEX [ix_bqz_execution_logs_run_instance_id] ON [bqz_execution_logs] ([run_instance_id]) WHERE [run_instance_id] IS NOT NULL');
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220912031814_InitialSchema')
 BEGIN
     CREATE INDEX [ix_bqz_execution_logs_trigger_name_trigger_group_job_name_job_group_date_added_utc] ON [bqz_execution_logs] ([trigger_name], [trigger_group], [job_name], [job_group], [date_added_utc]);
 END;
 GO
 
-IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220903132032_InitialSchema')
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [migration_id] = N'20220912031814_InitialSchema')
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([migration_id], [product_version])
-    VALUES (N'20220903132032_InitialSchema', N'6.0.8');
+    VALUES (N'20220912031814_InitialSchema', N'6.0.8');
 END;
 GO
 
