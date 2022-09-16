@@ -5,6 +5,7 @@ using BlazingQuartz.Core.Data;
 using BlazingQuartz.Core.Data.Entities;
 using BlazingQuartz.Core.Jobs;
 using BlazingQuartz.Core.Services;
+using BlazingQuartz.Jobs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -332,27 +333,14 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
         };
         var logDetail = new ExecutionLogDetail();
 
-        var returnCode = context.JobDetail.JobDataMap.Get(Constants.DATA_MAP_RETURN_CODE_KEY);
-        if (returnCode != null)
-        {
-            log.ReturnCode = Convert.ToString(returnCode);
-        }
+        log.ReturnCode = context.GetReturnCode();
+        log.IsSuccess = context.GetIsSuccess();
 
-        var isSuccess = context.JobDetail.JobDataMap.Get(Constants.DATA_MAP_IS_SUCCESS_KEY);
-        if (isSuccess != null)
+        var execDetail = context.GetExecutionDetails();
+        if (!string.IsNullOrEmpty(execDetail))
         {
-            log.IsSuccess = Convert.ToBoolean(isSuccess);
-        }
-
-        var execDetail = context.JobDetail.JobDataMap.Get(Constants.DATA_MAP_EXECUTION_DETAIL_KEY);
-        if (execDetail != null)
-        {
-            var strExecDetail = Convert.ToString(execDetail, CultureInfo.InvariantCulture);
-            if (!string.IsNullOrEmpty(strExecDetail))
-            {
-                logDetail.ExecutionDetails = strExecDetail;
-                log.ExecutionLogDetail = logDetail;
-            }
+            logDetail.ExecutionDetails = execDetail;
+            log.ExecutionLogDetail = logDetail;
         }
 
         if (jobException != null)
@@ -360,7 +348,7 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
             log.ErrorMessage = jobException.Message;
             log.ExecutionLogDetail = logDetail;
             logDetail.ErrorCode = jobException.HResult;
-            logDetail.ErrorStackTrace = jobException.NonNullStackTrace();
+            logDetail.ErrorStackTrace = jobException.ToString();
             logDetail.ErrorHelpLink = jobException.HelpLink;
 
             if (log.ReturnCode == null)

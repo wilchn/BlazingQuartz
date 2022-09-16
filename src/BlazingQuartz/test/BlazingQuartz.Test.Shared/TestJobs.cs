@@ -1,7 +1,7 @@
 ﻿using System;
 using Quartz;
 
-namespace BlazingQuartz.Core.Test;
+namespace BlazingQuartz.Test.Shared;
 
 public class TestJob : IJob
 {
