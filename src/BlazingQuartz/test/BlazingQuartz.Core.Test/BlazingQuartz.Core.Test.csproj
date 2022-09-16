@@ -47,5 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BlazingQuartz.Core\BlazingQuartz.Core.csproj" />
+    <ProjectReference Include="..\BlazingQuartz.Test.Shared\BlazingQuartz.Test.Shared.csproj" />
   </ItemGroup>
 </Project>

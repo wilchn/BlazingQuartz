@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
 using BlazingQuartz.Core.History;
 using BlazingQuartz.Core.Data;
+using BlazingQuartz.Jobs;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
@@ -55,7 +56,9 @@ namespace BlazingQuartz.Core
 			Action<DbContextOptionsBuilder>? dbContextOptions = null,
 			string? connectionString = null)
 		{
-			services.TryAddSingleton<ISchedulerDefinitionService, SchedulerDefinitionService>();
+			services.AddBlazingQuartzJobs();
+
+            services.TryAddSingleton<ISchedulerDefinitionService, SchedulerDefinitionService>();
 			services.AddTransient<ISchedulerService, SchedulerService>();
 
 			var schListenerSvc = new SchedulerListenerService();

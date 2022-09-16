@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbContextMigrations", "migr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServerMigrations", "migrations\SqlServerMigrations\SqlServerMigrations.csproj", "{F07891F0-40C0-4DAD-91F1-603BC04B24EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingQuartz.Jobs.Test", "test\BlazingQuartz.Jobs.Test\BlazingQuartz.Jobs.Test.csproj", "{6C6F8B83-BAF0-4189-8430-92DE7D6E4805}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingQuartz.Test.Shared", "test\BlazingQuartz.Test.Shared\BlazingQuartz.Test.Shared.csproj", "{4B3165FD-1C50-4598-9F06-C06D5FE597C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +77,14 @@ Global
 		{F07891F0-40C0-4DAD-91F1-603BC04B24EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F07891F0-40C0-4DAD-91F1-603BC04B24EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F07891F0-40C0-4DAD-91F1-603BC04B24EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C6F8B83-BAF0-4189-8430-92DE7D6E4805}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C6F8B83-BAF0-4189-8430-92DE7D6E4805}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C6F8B83-BAF0-4189-8430-92DE7D6E4805}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C6F8B83-BAF0-4189-8430-92DE7D6E4805}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B3165FD-1C50-4598-9F06-C06D5FE597C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B3165FD-1C50-4598-9F06-C06D5FE597C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B3165FD-1C50-4598-9F06-C06D5FE597C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B3165FD-1C50-4598-9F06-C06D5FE597C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,5 +98,7 @@ Global
 		{E7E6E107-DD94-422D-BAE1-406E9F50BF71} = {5B5E78CC-0BFD-4301-9C17-09D8C582559A}
 		{5BB99184-41D8-48DD-8DC2-73825D431DED} = {5B5E78CC-0BFD-4301-9C17-09D8C582559A}
 		{F07891F0-40C0-4DAD-91F1-603BC04B24EA} = {5B5E78CC-0BFD-4301-9C17-09D8C582559A}
+		{6C6F8B83-BAF0-4189-8430-92DE7D6E4805} = {9F56BDA4-D8E7-48D9-937E-2EC2AB0C6D9A}
+		{4B3165FD-1C50-4598-9F06-C06D5FE597C2} = {9F56BDA4-D8E7-48D9-937E-2EC2AB0C6D9A}
 	EndGlobalSection
 EndGlobal
