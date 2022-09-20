@@ -64,6 +64,7 @@ namespace BlazingQuartz
 
 			services.AddScoped<LayoutService>();
 			services.AddTransient<ITriggerDetailModelValidator, TriggerDetailModelValidator>();
+			services.AddSingleton<IJobUIProvider, JobUIProvider>();
 
 			return services;
 		}

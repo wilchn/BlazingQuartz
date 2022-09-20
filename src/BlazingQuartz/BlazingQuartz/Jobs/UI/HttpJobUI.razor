@@ -1,0 +1,43 @@
+<MudSelect T="string" Label="HTTP Request Method" Variant="Variant.Outlined"
+           Required="true"
+           RequiredError="HTTP action is required"
+           ReadOnly="IsReadOnly"
+           @bind-Value="HttpAction"
+           Margin="Margin.Dense" AnchorOrigin="Origin.BottomCenter">
+    <MudSelectItem T="string" Value="@("Get")">GET</MudSelectItem>
+    <MudSelectItem T="string" Value="@("Post")">POST</MudSelectItem>
+    <MudSelectItem T="string" Value="@("Put")">PUT</MudSelectItem>
+    <MudSelectItem T="string" Value="@("Delete")">DELETE</MudSelectItem>
+</MudSelect>
+
+<MudTextField @bind-Value="Url"
+              For="@(() => Url)"
+              Required="true"
+              RequiredError="Request URL is required"
+              Margin="Margin.Dense"
+              Variant="Variant.Outlined"
+              ReadOnly="IsReadOnly"
+              Label="Request URL" />
+
+<MudTextField @bind-Value="Headers"
+              For="@(() => Headers)"
+              Lines="3"
+              Immediate="true"
+              Margin="Margin.Dense"
+              Variant="Variant.Outlined"
+              ReadOnly="IsReadOnly"
+              Label="Headers" />
+
+<MudTextField @bind-Value="Parameters"
+              For="@(() => Parameters)"
+              Lines="3"
+              Immediate="true"
+              Margin="Margin.Dense"
+              Variant="Variant.Outlined"
+              ReadOnly="IsReadOnly"
+              Label="Params" />
+
+<MudCheckBox @bind-Checked="IgnoreSsl"
+             ReadOnly="IsReadOnly"
+             Label="Allow insecure SSL connection"
+             aria-label="When checked, it will ignore SSL certificate validation."></MudCheckBox>

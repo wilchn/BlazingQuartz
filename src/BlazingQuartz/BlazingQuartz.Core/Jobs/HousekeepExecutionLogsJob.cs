@@ -2,6 +2,7 @@
 using BlazingQuartz.Core.History;
 using Microsoft.Extensions.Options;
 using Quartz;
+using BlazingQuartz.Jobs.Abstractions;
 
 namespace BlazingQuartz.Core.Jobs
 {
@@ -23,7 +24,7 @@ namespace BlazingQuartz.Core.Jobs
             {
                 var count = await _logStore.DeleteLogsByDays(_options.ExecutionLogsDaysToKeep);
                 context.Result = $"Deleted {count} record(s)";
-                context.JobDetail.JobDataMap[Constants.DATA_MAP_IS_SUCCESS_KEY] = true;
+                context.JobDetail.JobDataMap[JobDataMapKeys.IsSuccess] = true;
             }
             catch (Exception ex)
             {

@@ -1,3 +1,11 @@
+.jobform {
+    height: 65vh;
+    max-height: 630px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-top: 4px;
+}
+
 .datamap-container {
     display: grid;
     grid-template-columns: 2fr 3fr 1fr 80px;

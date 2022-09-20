@@ -2,7 +2,9 @@
 using System.Linq;
 using BlazingQuartz.Core.Models;
 using BlazingQuartz.Core.Services;
+using BlazingQuartz.Jobs.Abstractions;
 using BlazingQuartz.Models;
+using BlazingQuartz.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
@@ -15,6 +17,7 @@ namespace BlazingQuartz.Components
         [Inject] private ISchedulerService SchedulerSvc { get; set; } = null!;
         [Inject] private IDialogService DialogSvc { get; set; } = null!;
         [Inject] private ILogger<BlazingJob> Logger { get; set; } = null!;
+        [Inject] private IJobUIProvider JobUIProvider { get; set; } = null!;
 
         [Parameter]
         [EditorRequired]
@@ -30,13 +33,19 @@ namespace BlazingQuartz.Components
         private IEnumerable<Type> AvailableJobTypes = Enumerable.Empty<Type>();
         private IEnumerable<string>? ExistingJobGroups;
         private MudForm _form = null!;
+        private Type? JobUIType = null;
+        private Dictionary<string, object> JobUITypeParameters = new();
+        private DynamicComponent? _jobUIComponent;
 
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
             var types = SchedulerDefSvc.GetJobTypes();
             var typeList = new HashSet<Type>(types);
             if (JobDetail.JobClass != null)
+            {
                 typeList.Add(JobDetail.JobClass);
+                await OnJobClassValueChanged(JobDetail.JobClass);
+            }
             AvailableJobTypes = typeList;
 
             OriginalJobKey = new(JobDetail.Name, JobDetail.Group);
@@ -52,127 +61,6 @@ namespace BlazingQuartz.Components
             return ExistingJobGroups.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
         }
 
-        async Task OnAddDataMap()
-        {
-            var options = new DialogOptions {
-                CloseOnEscapeKey = true,
-                DisableBackdropClick = true,
-                FullWidth = true,
-                MaxWidth = MaxWidth.Small
-            };
-            var parameters = new DialogParameters { 
-                ["JobDataMap"] = new Dictionary<string, object>(JobDetail.JobDataMap, StringComparer.OrdinalIgnoreCase)
-            };
-
-            var dialog = DialogSvc.Show<JobDataMapDialog>("Add Data Map", parameters, options);
-            var result = await dialog.Result;
-
-            if (!result.Cancelled)
-            {
-                var dataMap = (DataMapItemModel)result.Data;
-                if (dataMap.Key != null && dataMap.Value != null)
-                    JobDetail.JobDataMap.Add(dataMap.Key, dataMap.Value);
-                else
-                {
-                    // TODO print error message. Data map is null
-                }
-            }
-        }
-
-        async Task OnEditDataMap(KeyValuePair<string, object> item)
-        {
-            var options = new DialogOptions
-            {
-                CloseOnEscapeKey = true,
-                DisableBackdropClick = true,
-                FullWidth = true,
-                MaxWidth = MaxWidth.Small
-            };
-            var parameters = new DialogParameters
-            {
-                ["JobDataMap"] = JobDetail.JobDataMap,
-                ["DataMapItem"] = new DataMapItemModel(item),
-                ["IsEditMode"] = true
-            };
-
-            var dialog = DialogSvc.Show<JobDataMapDialog>("Edit Data Map", parameters, options);
-            var result = await dialog.Result;
-
-            if (!result.Cancelled)
-            {
-                var dataMap = (DataMapItemModel)result.Data;
-                if (dataMap.Key != null && dataMap.Value != null)
-                {
-                    JobDetail.JobDataMap[dataMap.Key] = dataMap.Value;
-                }
-                else
-                {
-                    // TODO print error message. Data map is null
-                }
-            }
-        }
-
-        async Task OnCloneDataMap(KeyValuePair<string, object> item)
-        {
-            var options = new DialogOptions
-            {
-                CloseOnEscapeKey = true,
-                DisableBackdropClick = true,
-                FullWidth = true,
-                MaxWidth = MaxWidth.Small
-            };
-            int index = 1;
-            var key = item.Key + index++;
-            
-            while (JobDetail.JobDataMap.ContainsKey(key))
-            {
-                if (index == int.MaxValue)
-                {
-                    key = string.Empty;
-                    break;
-                }
-                    
-                key = item.Key + index++;
-            }
-            var clonedItem = new KeyValuePair<string, object>(key, item.Value);
-            var parameters = new DialogParameters
-            {
-                ["JobDataMap"] = new Dictionary<string, object>(JobDetail.JobDataMap, StringComparer.OrdinalIgnoreCase),
-                ["DataMapItem"] = new DataMapItemModel(clonedItem)
-            };
-
-            var dialog = DialogSvc.Show<JobDataMapDialog>("Add Data Map", parameters, options);
-            var result = await dialog.Result;
-
-            if (!result.Cancelled)
-            {
-                var dataMap = (DataMapItemModel)result.Data;
-                if (dataMap.Key != null && dataMap.Value != null)
-                {
-                    JobDetail.JobDataMap[dataMap.Key] = dataMap.Value;
-                }
-                else
-                {
-                    // TODO print error message. Data map is null
-                }
-            }
-        }
-
-        async Task OnDeleteDataMap(KeyValuePair<string, object> item)
-        {
-            bool? yes = await DialogSvc.ShowMessageBox(
-                "Confirm Delete", 
-                $"Do you want to delete '{item.Key}'?", 
-                yesText:"Yes", cancelText:"No");
-
-            if (yes == null || !yes.Value)
-            {
-                return;
-            }
-
-            JobDetail.JobDataMap.Remove(item);
-        }
-
         private void OnSetIsValid(bool value)
         {
             if (IsValid == value)
@@ -181,9 +69,20 @@ namespace BlazingQuartz.Components
             IsValidChanged.InvokeAsync(value).AndForget();
         }
 
-        public Task Validate()
+        public async Task Validate()
         {
-            return _form.Validate();
+            var jobUI = _jobUIComponent?.Instance as IJobUI;
+
+            if (jobUI != null)
+            {
+                if (!await jobUI.ApplyChanges())
+                {
+                    OnSetIsValid(false);
+                    return;
+                }
+            }
+
+            await _form.Validate();
         }
 
         private async Task<string?> ValidateJobName(string name)
@@ -207,6 +106,25 @@ namespace BlazingQuartz.Components
                 return "Job name already in used. Please choose another name or group.";
 
             return null;
+        }
+
+        private async Task OnJobClassValueChanged(Type jobType)
+        {
+            JobDetail.JobClass = jobType;
+
+            // clear previous changes
+            var jobUI = _jobUIComponent?.Instance as IJobUI;
+            if (jobUI != null)
+                await jobUI.ClearChanges();
+
+            var jobUIType = JobUIProvider.GetJobUIType(jobType.FullName);
+            JobUITypeParameters.Clear();
+            JobUITypeParameters[nameof(IsReadOnly)] = IsReadOnly;
+            if (jobUIType == typeof(DefaultJobUI))
+                JobUITypeParameters[nameof(JobDetail)] = JobDetail;
+            else
+                JobUITypeParameters[nameof(JobDetail.JobDataMap)] = JobDetail.JobDataMap;
+            JobUIType = jobUIType;
         }
     }
 }

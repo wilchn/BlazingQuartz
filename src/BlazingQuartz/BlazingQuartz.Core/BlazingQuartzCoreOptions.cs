@@ -4,7 +4,7 @@ namespace BlazingQuartz.Core
     public class BlazingQuartzCoreOptions
     {
         /// <summary>
-        /// <para>Assembly files that contain IJob implementation use for creating new Jobs.</para>
+        /// <para>Assembly files that contain IJob or IJobUI implementation use for creating schedule.</para>
         /// <para>Ex. Quartz.Jobs</para>
         /// <para>Or Jobs/Quartz.Jobs - if this file is under Job folder</para>
         /// </summary>
