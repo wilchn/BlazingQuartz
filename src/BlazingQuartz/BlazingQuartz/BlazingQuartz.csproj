@@ -41,6 +41,8 @@
     <None Remove="CronExpressionDescriptor" />
     <None Remove="LibSassBuilder" />
     <None Remove="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <None Remove="Jobs\" />
+    <None Remove="Jobs\UI\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\" />
@@ -54,6 +56,8 @@
     <Folder Include="Pages\BlazingQuartzUI\Triggers\" />
     <Folder Include="Pages\BlazingQuartzUI\Overview\" />
     <Folder Include="Components\" />
+    <Folder Include="Jobs\" />
+    <Folder Include="Jobs\UI\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\css\" />
@@ -61,5 +65,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BlazingQuartz.Core\BlazingQuartz.Core.csproj" />
     <ProjectReference Include="..\BlazingQuartz.Core.Data\BlazingQuartz.Core.Data.csproj" />
+    <ProjectReference Include="..\BlazingQuartz.Jobs.Abstractions\BlazingQuartz.Jobs.Abstractions.csproj" />
+    <ProjectReference Include="..\BlazingQuartz.Jobs\BlazingQuartz.Jobs.csproj" />
   </ItemGroup>
 </Project>

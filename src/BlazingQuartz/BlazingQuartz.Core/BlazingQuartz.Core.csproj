@@ -58,5 +58,6 @@
     <ProjectReference Include="..\BlazingQuartz.Core.Data\BlazingQuartz.Core.Data.csproj" />
     <ProjectReference Include="..\migrations\PostgreSQLMigrations\PostgreSQLMigrations.csproj" />
     <ProjectReference Include="..\migrations\SqliteMigrations\SqliteMigrations.csproj" />
+    <ProjectReference Include="..\BlazingQuartz.Jobs.Abstractions\BlazingQuartz.Jobs.Abstractions.csproj" />
   </ItemGroup>
 </Project>

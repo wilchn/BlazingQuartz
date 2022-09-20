@@ -7,10 +7,6 @@ namespace BlazingQuartz
     {
         public const string SYSTEM_GROUP = "BlazingQuartz";
         public const string DEFAULT_GROUP = "No Group";
-        public const string INTERNAL_DATA_MAP_ITEM_PREFIX = "__";
-        public const string DATA_MAP_IS_SUCCESS_KEY = INTERNAL_DATA_MAP_ITEM_PREFIX + "isSuccess";
-        public const string DATA_MAP_RETURN_CODE_KEY = INTERNAL_DATA_MAP_ITEM_PREFIX + "returnCode";
-        public const string DATA_MAP_EXECUTION_DETAIL_KEY = INTERNAL_DATA_MAP_ITEM_PREFIX + "execDetails";
     }
 
     public enum DataStoreProvider
