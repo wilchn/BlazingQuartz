@@ -69,17 +69,18 @@ namespace BlazingQuartz.Core.Test.Services
             await Task.Delay(500);
 
             var schedList = await _schedulerSvc.GetAllJobsAsync().ToListAsync();
-            await _schedulerSvc.DeleteSchedule(schedList.First());
+            var deleteSuccess = await _schedulerSvc.DeleteSchedule(schedList.First());
             var schedListAfterDelete = await _schedulerSvc.GetAllJobsAsync().ToListAsync();
 
+            await Task.Delay(250);
             await (await _factory.GetScheduler()).Shutdown();
 
+            deleteSuccess.Should().BeTrue();
             schedList.Count.Should().Be(1);
             schedList.First().TriggerName.Should().BeNull();
             schedListAfterDelete.Count.Should().Be(0);
-            //uncomment after upgrade to Quartz 3.5
-            //schedListenerMock.Verify(l => l.JobUnscheduled(It.IsAny<TriggerKey>(), It.IsAny<CancellationToken>()),
-            //    Times.Once);
+            schedListenerMock.Verify(l => l.JobUnscheduled(It.IsAny<TriggerKey>(), It.IsAny<CancellationToken>()),
+                Times.Never, "Nothing to unschedule since all trigger ends already when call DeleteSchedule()");
         }
 
         [Fact]
@@ -111,6 +112,7 @@ namespace BlazingQuartz.Core.Test.Services
             var deleteResult = await _schedulerSvc.DeleteSchedule(schedListBeforeDelete.Single());
             var schedListAfterDelete = await _schedulerSvc.GetAllJobsAsync().ToListAsync();
 
+            await Task.Delay(250);
             await (await _factory.GetScheduler()).Shutdown();
 
             deleteResult.Should().Be(true);
@@ -118,9 +120,8 @@ namespace BlazingQuartz.Core.Test.Services
             schedListAfterDelete.Count.Should().Be(0);
             schedListenerMock.Verify(l => l.JobUnscheduled(It.IsAny<TriggerKey>(), It.IsAny<CancellationToken>()),
                 Times.Never, "Job has no trigger to unschedule");
-            //uncomment after upgrade to Quartz 3.5
-            //schedListenerMock.Verify(l => l.JobDeleted(It.IsAny<JobKey>(), It.IsAny<CancellationToken>()),
-            //    Times.Once, "JobDeleted will be fired when no trigger job got deleted");
+            schedListenerMock.Verify(l => l.JobDeleted(It.IsAny<JobKey>(), It.IsAny<CancellationToken>()),
+                Times.Once, "JobDeleted will be fired when no trigger job got deleted");
         }
 
         [Fact]
@@ -172,9 +173,8 @@ namespace BlazingQuartz.Core.Test.Services
             schedListAfterDelete.Count.Should().Be(1);
             schedListenerMock.Verify(l => l.TriggerFinalized(It.IsAny<ITrigger>(), It.IsAny<CancellationToken>()),
                 Times.Once, "1 trigger run once only");
-            //uncomment after upgrade to Quartz 3.5
-            //schedListenerMock.Verify(l => l.JobDeleted(It.IsAny<JobKey>(), It.IsAny<CancellationToken>()),
-            //    Times.Once, "JobDeleted will be fired when no trigger job got deleted");
+            schedListenerMock.Verify(l => l.JobDeleted(It.IsAny<JobKey>(), It.IsAny<CancellationToken>()),
+                Times.Never, "JobDeleted will not be fired since there are still triggers assigned to the job");
         }
     }
 }

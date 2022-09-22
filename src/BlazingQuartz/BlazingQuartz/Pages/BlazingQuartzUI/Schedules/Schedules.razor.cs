@@ -410,6 +410,10 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                 {
                     Snackbar.Add($"Failed to delete schedule '{model.JobName}'", Severity.Error);
                 }
+                else
+                {
+                    Snackbar.Add("Deleted schedule", Severity.Info);
+                }
             }
         }
         private async Task OnDuplicateScheduleJob(ScheduleModel model)
@@ -539,9 +543,25 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                 ScheduledJobs.Remove(model);
                 return SchedulerSvc.DeleteSchedule(model);
             });
-            await Task.WhenAll(deleteTasks);
+            var results = await Task.WhenAll(deleteTasks);
 
-            Snackbar.Add($"Deleted {selectedItems.Count} schedule(s)", Severity.Info);
+            if (results == null)
+            {
+                await RefreshJobs();
+                Snackbar.Add("Failed to delete schedules", Severity.Error);
+            }
+            else
+            {
+                var deletedCount = results.Where(t => t).Count();
+                var notDeletedCount = results.Count() - deletedCount;
+                Snackbar.Add($"Deleted {deletedCount} schedule(s)", Severity.Info);
+
+                if (notDeletedCount > 0)
+                {
+                    await RefreshJobs();
+                    Snackbar.Add($"Failed to deleted {notDeletedCount} schedule(s)", Severity.Warning);
+                }
+            }
         }
 
         public void Dispose()
