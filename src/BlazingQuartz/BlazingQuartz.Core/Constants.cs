@@ -22,9 +22,12 @@ namespace BlazingQuartz
         Running,
         Idle,
         Paused,
+        /// <summary>
+        /// No trigger assigned to this job. This happens when job is durable and triggers ended
+        /// </summary>
         NoTrigger,
         /// <summary>
-        /// Not scheduled in scheduler. This happens when job is not durable and triggers ended
+        /// Not scheduled in scheduler. This happens when job is NOT durable and triggers ended
         /// </summary>
         NoSchedule,
         Error

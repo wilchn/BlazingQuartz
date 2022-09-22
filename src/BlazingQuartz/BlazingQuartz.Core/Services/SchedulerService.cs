@@ -240,16 +240,21 @@ namespace BlazingQuartz.Core.Services
             {
                 _logger.LogInformation("Job [{jobGroup}.{jobName}] has no trigger name. " +
                     "Cannot UncheduleJob by trigger, will delete job directly.", jobKey.Group, jobKey.Name);
-                await scheduler.DeleteJob(jobKey);
-                return true; // TODO after upgrade to Quartz 3.5.0
+                return await scheduler.DeleteJob(jobKey);
             }
 
             if (model.JobStatus == JobStatus.NoTrigger)
             {
                 var triggers = await scheduler.GetTriggersOfJob(jobKey);
                 if (!triggers.Any())
-                    await scheduler.DeleteJob(jobKey);
-                return true; // TODO after upgrade to Quartz 3.5.0
+                    return await scheduler.DeleteJob(jobKey);
+                else
+                {
+                    _logger.LogWarning("Cannot delete Job [{jobGroup}.{jobName}]. There are still {triggerCount}" +
+                        " trigger(s) assigned to this job.", jobKey.Group, jobKey.Name,
+                        triggers.Count);
+                    return false;
+                }
             }
 
             if (model.TriggerName == null)
@@ -270,9 +275,7 @@ namespace BlazingQuartz.Core.Services
                     if (await scheduler.CheckExists(jobKey))
                     {
                         _logger.LogInformation("Manually delete job [{jobGroup}.{jobName}].", jobKey.Group, jobKey.Name);
-                        await scheduler.DeleteJob(jobKey);
-
-                        return true; // TODO after upgrade to Quartz 3.5.0
+                        return await scheduler.DeleteJob(jobKey);
                     }
                 }
             }
