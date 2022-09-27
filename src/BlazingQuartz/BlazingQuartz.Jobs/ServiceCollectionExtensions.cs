@@ -1,4 +1,5 @@
 ﻿using System;
+using BlazingQuartz.Jobs.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BlazingQuartz.Jobs
@@ -15,7 +16,7 @@ namespace BlazingQuartz.Jobs
                     ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
                 });
 
-            return services;
+            return Abstractions.ServiceCollectionExtensions.AddBlazingQuartzJobs(services);
         }
     }
 }

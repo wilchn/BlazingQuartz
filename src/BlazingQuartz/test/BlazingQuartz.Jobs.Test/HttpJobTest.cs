@@ -6,7 +6,7 @@ using BlazingQuartz.Test.Shared;
 using Moq;
 using Moq.Protected;
 using RichardSzalay.MockHttp;
-using BlazingQuartz.Jobs;
+using BlazingQuartz.Jobs.Abstractions;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 

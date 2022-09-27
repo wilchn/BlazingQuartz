@@ -5,7 +5,7 @@ using BlazingQuartz.Core.Data;
 using BlazingQuartz.Core.Data.Entities;
 using BlazingQuartz.Core.Jobs;
 using BlazingQuartz.Core.Services;
-using BlazingQuartz.Jobs;
+using BlazingQuartz.Jobs.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
