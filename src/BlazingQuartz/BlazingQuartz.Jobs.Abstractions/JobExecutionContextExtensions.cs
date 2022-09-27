@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Globalization;
+using System.Text.Json;
 using Quartz;
-using BlazingQuartz.Jobs.Abstractions;
 
-namespace BlazingQuartz.Jobs
+namespace BlazingQuartz.Jobs.Abstractions
 {
     public static class JobExecutionContextExtensions
     {
@@ -54,6 +54,12 @@ namespace BlazingQuartz.Jobs
             if (value == null)
                 return null;
             return Convert.ToBoolean(value);
+        }
+
+        public static DataMapValue? GetDataMapValue(this IJobExecutionContext context, string key)
+        {
+            var value = context.MergedJobDataMap.GetString(key);
+            return DataMapValue.Create(value);
         }
     }
 }

@@ -5,32 +5,53 @@ using Microsoft.AspNetCore.Components;
 
 namespace BlazingQuartz.Examples.JobUI
 {
+    /// <summary>
+    /// Custom UI for Hello Job
+    /// </summary>
     public partial class HelloJobUI : ComponentBase, IJobUI
     {
         public string JobClass => "BlazingQuartz.Examples.JobUI.HelloJob";
 
+        [Inject] public IDataMapValueResolver DataMapValueResolver { get; set; } = null!;
+
         [Parameter] public bool IsReadOnly { get; set; }
         [Parameter] public IDictionary<string, object> JobDataMap { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
-        private string? Message { get; set; }
+        private DataMapValue DataMapMessage { get; set; } = new(DataMapValueType.InterpolatedString, 1);
+
+        private string? ResolvedMessage { get; set; }
 
         protected override void OnInitialized()
         {
             if (JobDataMap.ContainsKey(HelloJob.PropertyMessage))
             {
-                Message = Convert.ToString(JobDataMap[HelloJob.PropertyMessage], CultureInfo.InvariantCulture);
+                var dmv = DataMapValue.Create(JobDataMap[HelloJob.PropertyMessage]);
+                if (dmv != null)
+                    DataMapMessage = dmv;
+                else
+                    DataMapMessage = new(DataMapValueType.InterpolatedString, 1);
             }
+        }
+
+        /// <summary>
+        /// Handle action when message text field got updated
+        /// </summary>
+        /// <param name="message"></param>
+        private void OnMessageChanged(string? message)
+        {
+            DataMapMessage.Value = message;
+            ResolvedMessage = DataMapValueResolver.Resolve(DataMapMessage);
         }
 
         public Task<bool> ApplyChanges()
         {
-            if (string.IsNullOrEmpty(Message))
+            if (string.IsNullOrEmpty(DataMapMessage.Value))
             {
                 JobDataMap.Remove(HelloJob.PropertyMessage);
             }
             else
             {
-                JobDataMap[HelloJob.PropertyMessage] = Message;
+                JobDataMap[HelloJob.PropertyMessage] = DataMapMessage.ToString();
             }
 
             return Task.FromResult<bool>(true);

@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Quartz;
 using static System.Net.Mime.MediaTypeNames;
+using BlazingQuartz.Jobs.Abstractions;
 
 namespace BlazingQuartz.Jobs
 {

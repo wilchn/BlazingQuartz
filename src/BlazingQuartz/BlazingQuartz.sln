@@ -37,6 +37,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{17
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingQuartz.Examples.JobUI", "examples\BlazingQuartz.Examples.JobUI\BlazingQuartz.Examples.JobUI.csproj", "{EBD23AEF-5832-4D9D-A5AA-AE1EC76EBD58}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingQuartz.Jobs.Abstractions.Test", "test\BlazingQuartz.Jobs.Abstractions.Test\BlazingQuartz.Jobs.Abstractions.Test.csproj", "{F5876CED-AE35-4649-B78E-9E129949030F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{EBD23AEF-5832-4D9D-A5AA-AE1EC76EBD58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBD23AEF-5832-4D9D-A5AA-AE1EC76EBD58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBD23AEF-5832-4D9D-A5AA-AE1EC76EBD58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5876CED-AE35-4649-B78E-9E129949030F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5876CED-AE35-4649-B78E-9E129949030F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5876CED-AE35-4649-B78E-9E129949030F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5876CED-AE35-4649-B78E-9E129949030F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -115,5 +121,6 @@ Global
 		{6C6F8B83-BAF0-4189-8430-92DE7D6E4805} = {9F56BDA4-D8E7-48D9-937E-2EC2AB0C6D9A}
 		{4B3165FD-1C50-4598-9F06-C06D5FE597C2} = {9F56BDA4-D8E7-48D9-937E-2EC2AB0C6D9A}
 		{EBD23AEF-5832-4D9D-A5AA-AE1EC76EBD58} = {173B4167-6D19-4A60-8C8E-1A12426BCB42}
+		{F5876CED-AE35-4649-B78E-9E129949030F} = {9F56BDA4-D8E7-48D9-937E-2EC2AB0C6D9A}
 	EndGlobalSection
 EndGlobal
