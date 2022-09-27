@@ -5,9 +5,20 @@ namespace BlazingQuartz.Core.Services
 {
     public interface ISchedulerService
     {
-        //ScheduleModel CreateScheduleModel(IJobDetail? jobDetail, ITrigger trigger);
         Task<ScheduleModel> GetScheduleModelAsync(ITrigger trigger);
-        IAsyncEnumerable<ScheduleModel> GetAllJobsAsync();
-        Task CreateSchedule(ScheduleModel model);
+        IAsyncEnumerable<ScheduleModel> GetAllJobsAsync(ScheduleJobFilter? filter = null);
+        Task CreateSchedule(JobDetailModel jobDetailModel, TriggerDetailModel triggerDetailModel);
+        Task<IReadOnlyCollection<string>> GetJobGroups();
+        Task<IReadOnlyCollection<string>> GetTriggerGroups();
+        Task<JobDetailModel?> GetJobDetail(string jobName, string groupName);
+        Task<TriggerDetailModel?> GetTriggerDetail(string triggerName, string triggerGroup);
+        Task<bool> ContainsTriggerKey(string triggerName, string triggerGroup);
+        Task<bool> ContainsJobKey(string jobName, string jobGroup);
+        Task<IReadOnlyCollection<string>> GetCalendarNames(CancellationToken cancelToken = default);
+        Task PauseTrigger(string triggerName, string? triggerGroup);
+        Task ResumeTrigger(string triggerName, string? triggerGroup);
+        Task<bool> DeleteSchedule(ScheduleModel model);
+        Task UpdateSchedule(Key oldJobKey, Key? oldTriggerKey,
+            JobDetailModel newJobModel, TriggerDetailModel newTriggerModel);
     }
 }

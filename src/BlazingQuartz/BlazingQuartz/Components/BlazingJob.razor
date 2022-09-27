@@ -1,0 +1,62 @@
+﻿@using BlazingQuartz.Jobs.UI
+<div class="jobform">
+    <MudForm @ref="_form" Model="@JobDetail" IsValidChanged="OnSetIsValid">
+        <MudStack Spacing="1">
+            <div class="d-flex flex-grow-1 gap-2">
+                <MudTextField @bind-Value="JobDetail.Name"
+                              For="@(() => JobDetail.Name)"
+                              Required="true"
+                              Validation="@(async (string name) => await ValidateJobName(name))"
+                              RequiredError="Job name is required"
+                              Immediate="true"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              ReadOnly="IsReadOnly"
+                              Label="Name" />
+                <MudAutocomplete T="string" Label="Group" @bind-Value="JobDetail.Group"
+                                 SearchFunc="SearchJobGroup"
+                                 ResetValueOnEmptyText="true"
+                                 Required="true"
+                                 RequiredError="Group name is required"
+                                 Dense="true"
+                                 Margin="Margin.Dense"
+                                 Variant="Variant.Outlined"
+                                 ReadOnly="IsReadOnly"
+                                 CoerceValue="true" />
+            </div>
+
+            <MudSelect T="Type" Label="Job Class" Variant="Variant.Outlined"
+                       Required="true"
+                       RequiredError="Job class is required"
+                       ReadOnly="IsReadOnly"
+                       Value="JobDetail.JobClass"
+                       ValueChanged="OnJobClassValueChanged"
+                       Margin="Margin.Dense" AnchorOrigin="Origin.BottomCenter">
+                @foreach (var cls in AvailableJobTypes)
+                {
+                    <MudSelectItem T="Type" Value="cls">@cls.FullName</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudTextField @bind-Value="JobDetail.Description"
+                          For="@(() => JobDetail.Description)"
+                          Lines="2"
+                          Immediate="true"
+                          Margin="Margin.Dense"
+                          Variant="Variant.Outlined"
+                          ReadOnly="IsReadOnly"
+                          Label="Description" />
+
+            @if (JobUIType != null)
+            {
+                <DynamicComponent Type="@JobUIType" Parameters="@JobUITypeParameters" @ref="_jobUIComponent" />
+            }
+
+
+            <MudCheckBox @bind-Checked="JobDetail.IsDurable"
+                         ReadOnly="IsReadOnly"
+                         Label="Do not remove job after trigger ends"
+                         aria-label="When checked, job will remain in scheduler after trigger ends"></MudCheckBox>
+        </MudStack>
+    </MudForm>
+</div>

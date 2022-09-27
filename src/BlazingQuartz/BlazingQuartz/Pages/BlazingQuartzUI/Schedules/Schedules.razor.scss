@@ -1,0 +1,10 @@
+::deep th.mud-table-cell:nth-child(1) {
+    width: 1px !important;
+}
+
+::deep .tab {
+    &__actions {
+        white-space: nowrap;
+        padding-left: 0px;
+    }
+}

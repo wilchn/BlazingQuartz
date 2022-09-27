@@ -1,0 +1,17 @@
+.jobform {
+    height: 65vh;
+    max-height: 630px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-top: 4px;
+}
+
+.datamap-container {
+    display: grid;
+    grid-template-columns: 2fr 3fr 1fr 80px;
+}
+
+.mud-simple-table table tbody tr:last-child td {
+    border-bottom: 1px solid var(--mud-palette-table-lines);
+}
+

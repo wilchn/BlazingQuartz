@@ -1,5 +1,4 @@
 ﻿using System;
-using Quartz;
 
 namespace BlazingQuartz.Core.Services
 {
@@ -7,6 +6,12 @@ namespace BlazingQuartz.Core.Services
 	{
 		IEnumerable<IntervalUnit> GetTriggerIntervalUnits(TriggerType triggerType);
 		IEnumerable<MisfireAction> GetMisfireActions(TriggerType triggerType);
+		/// <summary>
+        /// Return available IJob implementations
+        /// </summary>
+        /// <param name="reload"></param>
+        /// <returns></returns>
+		IEnumerable<Type> GetJobTypes(bool reload = false);
 	}
 }
 

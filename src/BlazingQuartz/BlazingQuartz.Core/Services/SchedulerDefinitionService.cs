@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Quartz;
 
 namespace BlazingQuartz.Core.Services
@@ -11,10 +14,17 @@ namespace BlazingQuartz.Core.Services
         private IEnumerable<IntervalUnit> _simpleIntervalUnits;
         private IEnumerable<MisfireAction>? _cronCalDailyMisfireActions;
         private IEnumerable<MisfireAction>? _simpleMisfireActions;
+        private readonly BlazingQuartzCoreOptions _options;
+        private readonly ILogger<SchedulerDefinitionService> _logger;
+        private List<Type>? _allowedJobTypes;
 
-        public SchedulerDefinitionService(ISchedulerFactory schedulerFactory)
+        public SchedulerDefinitionService(ILogger<SchedulerDefinitionService> logger,
+            ISchedulerFactory schedulerFactory,
+            IOptions<BlazingQuartzCoreOptions> options)
         {
+            _logger = logger;
             _schedulerFactory = schedulerFactory;
+            _options = options.Value;
             Init();
         }
 
@@ -90,6 +100,56 @@ namespace BlazingQuartz.Core.Services
             }
 
             return Enumerable.Empty<MisfireAction>();
+        }
+
+        public IEnumerable<Type> GetJobTypes(bool reload=false)
+        {
+            if (_options.AllowedJobAssemblyFiles == null)
+                return Enumerable.Empty<Type>();
+
+            // use cached job types if already loaded
+            if (_allowedJobTypes != null && !reload)
+                return _allowedJobTypes;
+
+            HashSet<string> disallowedJobs = new(_options.DisallowedJobTypes ?? Enumerable.Empty<string>());
+
+            if (_options.DisallowedJobTypes != null)
+                _logger.LogInformation("{disallowedVar} was set. Will not load following job types {jobTypes}",
+                    nameof(_options.DisallowedJobTypes), _options.DisallowedJobTypes);
+
+            var path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(SchedulerDefinitionService))!.Location) ?? String.Empty;
+            List<Type> jobTypes = new();
+            foreach(var assemblyStr in _options.AllowedJobAssemblyFiles)
+            {
+                string assemblyPath = Path.Combine(path, assemblyStr + ".dll");
+                try
+                {
+                    Assembly assembly = Assembly.LoadFrom(assemblyPath);
+                    if (assembly == null)
+                    {
+                        _logger.LogWarning("Cannot load allowed job assembly name '{assembly}'", assemblyStr);
+                        continue;
+                    }
+
+                    jobTypes.AddRange(assembly.GetExportedTypes()
+                        .Where(x =>
+                            x.IsPublic &&
+                            x.IsClass &&
+                            !x.IsAbstract &&
+                            typeof(IJob).IsAssignableFrom(x) &&
+                            !disallowedJobs.Contains(x.FullName)));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to load allowed job assembly filename '{assembly}'", assemblyStr);
+                    continue;
+                }
+            }
+            if (!jobTypes.Any())
+                return jobTypes;
+
+            _allowedJobTypes = jobTypes;
+            return _allowedJobTypes.AsReadOnly();
         }
     }
 }

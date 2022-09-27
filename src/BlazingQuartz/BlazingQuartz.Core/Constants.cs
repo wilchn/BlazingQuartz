@@ -1,14 +1,36 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace BlazingQuartz.Core
+namespace BlazingQuartz
 {
+    public static class Constants
+    {
+        public const string SYSTEM_GROUP = "BlazingQuartz";
+        public const string DEFAULT_GROUP = "No Group";
+    }
+
+    public enum DataStoreProvider
+    {
+        Sqlite,
+        PostgreSQL,
+        InMemory,
+        Custom,
+    }
+
     public enum JobStatus
     {
         Running,
         Idle,
         Paused,
-        NoTrigger
+        /// <summary>
+        /// No trigger assigned to this job. This happens when job is durable and triggers ended
+        /// </summary>
+        NoTrigger,
+        /// <summary>
+        /// Not scheduled in scheduler. This happens when job is NOT durable and triggers ended
+        /// </summary>
+        NoSchedule,
+        Error
     }
 
     public enum TriggerType
@@ -42,6 +64,32 @@ namespace BlazingQuartz.Core
         DoNothing,
         [Description("Instruct to fire now")]
         FireOnceNow
+    }
+
+    public enum IntervalUnit
+    {
+        Millisecond,
+        Second,
+        Minute,
+        Hour,
+        Day,
+        Week,
+        Month,
+        Year
+    }
+
+    public enum DataMapType
+    {
+        Bool,
+        String,
+        Integer,
+        Float,
+        Double,
+        Decimal,
+        Long,
+        Short,
+        Char,
+        Object
     }
 }
 

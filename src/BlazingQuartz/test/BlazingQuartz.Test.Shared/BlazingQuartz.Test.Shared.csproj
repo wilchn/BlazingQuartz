@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Kralizek.AutoFixture.Extensions.MockHttp" />
+    <None Remove="AutoFixture.Xunit2" />
+    <None Remove="AutoFixture.AutoMoq" />
+    <None Remove="Moq" />
+    <None Remove="AutoFixture" />
+    <None Remove="RichardSzalay.MockHttp" />
+    <None Remove="Quartz" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Kralizek.AutoFixture.Extensions.MockHttp" Version="1.3.0" />
+    <PackageReference Include="AutoFixture.Xunit2" Version="4.17.0" />
+    <PackageReference Include="AutoFixture.AutoMoq" Version="4.17.0" />
+    <PackageReference Include="Moq" Version="4.18.2" />
+    <PackageReference Include="AutoFixture" Version="4.17.0" />
+    <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
+    <PackageReference Include="Quartz" Version="3.5.0" />
+  </ItemGroup>
+</Project>

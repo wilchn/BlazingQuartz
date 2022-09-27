@@ -8,8 +8,14 @@
 
   <ItemGroup>
     <None Remove="Quartz" />
+    <None Remove="Microsoft.Extensions.Http" />
+    <None Remove="System.Net.Http.Json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Quartz" Version="3.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BlazingQuartz.Jobs.Abstractions\BlazingQuartz.Jobs.Abstractions.csproj" />
   </ItemGroup>
 </Project>

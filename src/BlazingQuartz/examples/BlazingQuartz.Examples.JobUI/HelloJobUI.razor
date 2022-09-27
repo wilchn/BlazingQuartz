@@ -1,0 +1,11 @@
+﻿<MudTextField Value="@DataMapMessage.Value"
+              For="@(() => DataMapMessage.Value)"
+              HelperText="This field support dynamic variables. Try {{$datetime iso8601}}"
+              TextChanged="OnMessageChanged"
+              DebounceInterval="500"
+              Margin="Margin.Dense"
+              Variant="Variant.Outlined"
+              ReadOnly="IsReadOnly"
+              Label="Message" />
+
+<MudText Typo="Typo.body1">Output: @ResolvedMessage</MudText>
