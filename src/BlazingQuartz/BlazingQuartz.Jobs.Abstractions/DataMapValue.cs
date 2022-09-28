@@ -56,6 +56,16 @@ namespace BlazingQuartz.Jobs.Abstractions
 
             return JsonSerializer.Deserialize<DataMapValue>(dataMapValue);
         }
+
+        public static DataMapValue Create(object? dataMapValue, DataMapValueType defaultType,
+            int defaultVersion, string? defaultValue = null)
+        {
+            var dmv = Create(dataMapValue);
+            if (dmv != null)
+                return dmv;
+            else
+                return new(defaultType, defaultValue, defaultVersion);
+        }
     }
 }
 

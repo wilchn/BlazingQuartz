@@ -25,11 +25,8 @@ namespace BlazingQuartz.Examples.JobUI
         {
             if (JobDataMap.ContainsKey(HelloJob.PropertyMessage))
             {
-                var dmv = DataMapValue.Create(JobDataMap[HelloJob.PropertyMessage]);
-                if (dmv != null)
-                    DataMapMessage = dmv;
-                else
-                    DataMapMessage = new(DataMapValueType.InterpolatedString, 1);
+                DataMapMessage = DataMapValue.Create(JobDataMap[HelloJob.PropertyMessage],
+                    DataMapValueType.InterpolatedString, 1);
             }
         }
 

@@ -10,32 +10,32 @@
     <MudSelectItem T="string" Value="@("Delete")">DELETE</MudSelectItem>
 </MudSelect>
 
-<MudTextField @bind-Value="Url"
-              For="@(() => Url)"
+<MudTextField @bind-Value="DataMapUrl.Value"
+              For="@(() => DataMapUrl.Value)"
               Required="true"
               RequiredError="Request URL is required"
               Margin="Margin.Dense"
               Variant="Variant.Outlined"
               ReadOnly="IsReadOnly"
-              Label="Request URL" />
+              Label="Request URL {{$}}" />
 
-<MudTextField @bind-Value="Headers"
-              For="@(() => Headers)"
+<MudTextField @bind-Value="DataMapHeaders.Value"
+              For="@(() => DataMapHeaders.Value)"
               Lines="3"
               Immediate="true"
               Margin="Margin.Dense"
               Variant="Variant.Outlined"
               ReadOnly="IsReadOnly"
-              Label="Headers" />
+              Label="Headers {{$}}" />
 
-<MudTextField @bind-Value="Parameters"
-              For="@(() => Parameters)"
+<MudTextField @bind-Value="DataMapParameters.Value"
+              For="@(() => DataMapParameters.Value)"
               Lines="3"
               Immediate="true"
               Margin="Margin.Dense"
               Variant="Variant.Outlined"
               ReadOnly="IsReadOnly"
-              Label="Params" />
+              Label="Params {{$}}" />
 
 <MudCheckBox @bind-Checked="IgnoreSsl"
              ReadOnly="IsReadOnly"

@@ -18,12 +18,15 @@ namespace BlazingQuartz.Jobs
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<HttpJob> _logger;
+        private readonly IDataMapValueResolver _dmvResolver;
 
         public HttpJob(IHttpClientFactory httpClientFactory,
-            ILogger<HttpJob> logger)
+            ILogger<HttpJob> logger,
+            IDataMapValueResolver dmvResolver)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+            _dmvResolver = dmvResolver;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -31,7 +34,9 @@ namespace BlazingQuartz.Jobs
             try
             {
                 var data = context.MergedJobDataMap;
-                var url = data.GetString(PropertyRequestUrl);
+
+                var dmvUrl = data.GetDataMapValue(PropertyRequestUrl);
+                var url = _dmvResolver.Resolve(dmvUrl);
                 if (string.IsNullOrEmpty(url))
                 {
                     _logger.LogWarning("[{runInstanceId}]. Cannot run HttpJob. No request url specified.",
@@ -40,8 +45,8 @@ namespace BlazingQuartz.Jobs
                 }
                 url = url.StartsWith("http") ? url : "http://" + url;
 
-                var parameters = data.GetString(PropertyRequestParameters);
-                var strHeaders = data.GetString(PropertyRequestHeaders);
+                var parameters = _dmvResolver.Resolve(data.GetDataMapValue(PropertyRequestParameters));
+                var strHeaders = _dmvResolver.Resolve(data.GetDataMapValue(PropertyRequestHeaders));
                 var headers = string.IsNullOrEmpty(strHeaders) ? null :
                     JsonSerializer.Deserialize<Dictionary<string, string>>(strHeaders.Trim());
 
