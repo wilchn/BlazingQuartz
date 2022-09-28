@@ -14,10 +14,10 @@ namespace BlazingQuartz.Jobs.UI
         [Parameter] public bool IsReadOnly { get; set; }
         [Parameter] public IDictionary<string, object> JobDataMap { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
-        private string? Url { get; set; }
+        private DataMapValue DataMapUrl = new(DataMapValueType.InterpolatedString, 1);
+        private DataMapValue DataMapHeaders = new(DataMapValueType.InterpolatedString, 1);
+        private DataMapValue DataMapParameters = new DataMapValue(DataMapValueType.InterpolatedString, 1);
         private string? HttpAction { get; set; }
-        private string? Headers { get; set; }
-        private string? Parameters { get; set; }
         private bool IgnoreSsl { get; set; }
 
         protected override void OnInitialized()
@@ -28,15 +28,18 @@ namespace BlazingQuartz.Jobs.UI
             }
             if (JobDataMap.ContainsKey(HttpJob.PropertyRequestUrl))
             {
-                Url = Convert.ToString(JobDataMap[HttpJob.PropertyRequestUrl], CultureInfo.InvariantCulture);
+                DataMapUrl = DataMapValue.Create(JobDataMap[HttpJob.PropertyRequestUrl],
+                    DataMapValueType.InterpolatedString, 1);
             }
             if (JobDataMap.ContainsKey(HttpJob.PropertyRequestHeaders))
             {
-                Headers = Convert.ToString(JobDataMap[HttpJob.PropertyRequestHeaders], CultureInfo.InvariantCulture);
+                DataMapHeaders = DataMapValue.Create(JobDataMap[HttpJob.PropertyRequestHeaders],
+                    DataMapValueType.InterpolatedString, 1);
             }
             if (JobDataMap.ContainsKey(HttpJob.PropertyRequestParameters))
             {
-                Parameters = Convert.ToString(JobDataMap[HttpJob.PropertyRequestParameters], CultureInfo.InvariantCulture);
+                DataMapParameters = DataMapValue.Create(JobDataMap[HttpJob.PropertyRequestParameters],
+                    DataMapValueType.InterpolatedString, 1);
             }
             if (JobDataMap.ContainsKey(HttpJob.PropertyIgnoreVerifySsl))
             {
@@ -55,31 +58,31 @@ namespace BlazingQuartz.Jobs.UI
                 JobDataMap[HttpJob.PropertyRequestAction] = HttpAction;
             }
 
-            if (Url == null)
+            if (DataMapUrl.Value == null)
             {
                 JobDataMap.Remove(HttpJob.PropertyRequestUrl);
             }
             else
             {
-                JobDataMap[HttpJob.PropertyRequestUrl] = Url;
+                JobDataMap[HttpJob.PropertyRequestUrl] = DataMapUrl.ToString();
             }
 
-            if (Headers == null)
+            if (DataMapHeaders.Value == null)
             {
                 JobDataMap.Remove(HttpJob.PropertyRequestHeaders);
             }
             else
             {
-                JobDataMap[HttpJob.PropertyRequestHeaders] = Headers;
+                JobDataMap[HttpJob.PropertyRequestHeaders] = DataMapHeaders.ToString();
             }
 
-            if (Parameters == null)
+            if (DataMapParameters.Value == null)
             {
                 JobDataMap.Remove(HttpJob.PropertyRequestParameters);
             }
             else
             {
-                JobDataMap[HttpJob.PropertyRequestParameters] = Parameters;
+                JobDataMap[HttpJob.PropertyRequestParameters] = DataMapParameters.ToString();
             }
 
             if (!IgnoreSsl)

@@ -61,6 +61,11 @@ namespace BlazingQuartz.Jobs.Abstractions
             var value = context.MergedJobDataMap.GetString(key);
             return DataMapValue.Create(value);
         }
+
+        public static DataMapValue? GetDataMapValue(this JobDataMap dataMap, string key)
+        {
+            return DataMapValue.Create(dataMap.GetString(key));
+        }
     }
 }
 
