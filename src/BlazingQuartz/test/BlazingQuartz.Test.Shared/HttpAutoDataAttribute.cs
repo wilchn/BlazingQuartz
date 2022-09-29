@@ -14,7 +14,6 @@ namespace BlazingQuartz.Test.Shared
 
         private static IFixture CreateFixture()
         {
-            var mockHttp = new MockHttpMessageHandler();
             var fixture = new Fixture();
 
             fixture.AddMockHttp();
