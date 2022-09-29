@@ -16,13 +16,17 @@ public class HttpJobTest
 {
     [Theory, HttpAutoData]
     public async Task Execute_Get([Frozen] MockHttpMessageHandler handler,
+        [Frozen] Mock<IDataMapValueResolver> dmvResolverMock,
         HttpJob sut, Uri testUri, string expectedResult)
     {
         // ARRANGE
         handler.When(HttpMethod.Get, testUri.ToString())
                .Respond(HttpStatusCode.OK, new StringContent(expectedResult));
+        dmvResolverMock.Setup(r => r.Resolve(It.IsAny<DataMapValue?>()))
+            .Returns<DataMapValue?>(dmv => dmv?.Value);
         var jobContext = TestUtils.NewJobExecutionContextFor(sut);
-        jobContext.MergedJobDataMap.Put(HttpJob.PropertyRequestUrl, testUri.ToString());
+        var dmw = new DataMapValue(DataMapValueType.InterpolatedString, testUri.ToString(), 1);
+        jobContext.MergedJobDataMap.Put(HttpJob.PropertyRequestUrl, dmw.ToString());
         jobContext.MergedJobDataMap.Put(HttpJob.PropertyRequestAction, HttpAction.Get.ToString());
 
         // ACT
