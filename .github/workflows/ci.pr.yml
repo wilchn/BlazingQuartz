@@ -1,10 +1,8 @@
-name: Build and Publish
+name: Pull Request Build
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
 
 jobs:
   build:
