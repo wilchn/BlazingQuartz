@@ -60,4 +60,13 @@
     <ProjectReference Include="..\migrations\SqliteMigrations\SqliteMigrations.csproj" />
     <ProjectReference Include="..\BlazingQuartz.Jobs.Abstractions\BlazingQuartz.Jobs.Abstractions.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+    <_Parameter1>$(AssemblyName).Test</_Parameter1> <!-- We use the value of AssemblyName to declare the value of the attribute -->
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+    <_Parameter1>DynamicProxyGenAssembly2</_Parameter1> <!-- We use the value of AssemblyName to declare the value of the attribute -->
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>
