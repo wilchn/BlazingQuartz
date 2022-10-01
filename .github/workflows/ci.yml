@@ -22,8 +22,15 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore -p:PackageVersion=${{steps.tag.outputs.tag}} --configuration Release
+      run: dotnet build --no-restore -p:Version=${{steps.tag.outputs.tag}} -p:PackageVersion=${{steps.tag.outputs.tag}} --configuration Release
       working-directory: src/BlazingQuartz
     - name: Test
       run: dotnet test --no-build --verbosity normal
       working-directory: src/BlazingQuartz
+    - name: Publish BlazingQuartzApp
+      run: dotnet publish -c Release --no-restore -o "../../app" -p:Version=${{steps.tag.outputs.tag}} -p:PackageVersion=${{steps.tag.outputs.tag}} "BlazingQuartzApp/BlazingQuartzApp.csproj"
+      working-directory: src/BlazingQuartz
+    - uses: actions/upload-artifact@master
+      with:
+        name: BlazingQuartzApp Artifact
+        path: app/
