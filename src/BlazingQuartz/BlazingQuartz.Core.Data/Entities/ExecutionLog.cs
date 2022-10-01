@@ -33,7 +33,11 @@ namespace BlazingQuartz.Core.Data.Entities
         public bool? IsException { get; set; }
         /// <summary>
         /// Indicate whether the execution is successful or not.
-        /// It is possible IsException is false but IsSuccess is true.
+        /// If <see cref="LogType"/> is <see cref="LogType.ScheduleJob"/>, it may have value:
+        /// <para>true - If job does not return IsSuccess or when execution completed successfully</para>
+        /// <para>false - Execution completed but return code is error or job throw an exception</para>
+        /// <para>null - Job still running or terminated unexpectedly.</para>
+        /// If <see cref="LogType"/> is not <see cref="LogType.ScheduleJob"/> value will be null.
         /// </summary>
         public bool? IsSuccess { get; set; }
         /// <summary>
