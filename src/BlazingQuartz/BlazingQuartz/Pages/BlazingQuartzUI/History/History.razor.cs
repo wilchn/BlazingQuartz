@@ -80,9 +80,16 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.History
                 case Core.Data.LogType.ScheduleJob:
                     if (log.IsVetoed ?? false)
                         return (Icons.Filled.HighlightOff, Color.Warning, "Vetoed");
-                    return (Icons.Filled.Check, Color.Info, "Success");
+
+                    if (log.IsSuccess is null)
+                    {
+                        // still running
+                        return (Icons.Filled.IncompleteCircle, Color.Secondary, "Executing");
+                    }
+                    else
+                        return (Icons.Filled.Check, Color.Info, "Success");
                 case Core.Data.LogType.Trigger:
-                    return (Icons.Filled.AccessTime, Color.Tertiary, "Trigger");
+                    return (Icons.Filled.Alarm, Color.Tertiary, "Trigger");
                 default:
                     return (Icons.Outlined.Info, Color.Tertiary, "System Info");
             }

@@ -192,19 +192,19 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
         QueueInsertTask(log);
     }
 
-    private void _schLisSvc_OnJobExecutionVetoed(object? sender, Events.EventArgs<Quartz.IJobExecutionContext> e)
+    internal void _schLisSvc_OnJobExecutionVetoed(object? sender, Events.EventArgs<Quartz.IJobExecutionContext> e)
     {
-        var log = CreateLogEntry(e.Args);
+        var log = CreateLogEntry(e.Args, defaultIsSuccess: false);
         log.IsVetoed = true;
         QueueUpdateTask(log);
     }
 
-    private void _schLisSvc_OnJobWasExecuted(object? sender, Events.JobWasExecutedEventArgs e)
+    internal void _schLisSvc_OnJobWasExecuted(object? sender, Events.JobWasExecutedEventArgs e)
     {
-        QueueUpdateTask(CreateLogEntry(e.JobExecutionContext, e.JobException));
+        QueueUpdateTask(CreateLogEntry(e.JobExecutionContext, e.JobException, true));
     }
 
-    private void _schLisSvc_OnJobToBeExecuted(object? sender, Events.EventArgs<Quartz.IJobExecutionContext> e)
+    internal void _schLisSvc_OnJobToBeExecuted(object? sender, Events.EventArgs<Quartz.IJobExecutionContext> e)
     {
         QueueInsertTask(CreateLogEntry(e.Args));
     }
@@ -276,47 +276,53 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var batch = await GetBatch(stoppingToken);
+            await ProcessTaskAsync(stoppingToken);
+        }
+    }
 
-            _logger.LogInformation("Got a batch with {taskCount} task(s). Saving to data store.",
-                batch.Count);
+    internal async Task ProcessTaskAsync(CancellationToken stoppingToken = default)
+    {
+        var batch = await GetBatch(stoppingToken);
 
-            try
+        _logger.LogInformation("Got a batch with {taskCount} task(s). Saving to data store.",
+            batch.Count);
+
+        try
+        {
+            using (IServiceScope scope = _svcProvider.CreateScope())
             {
-                using (IServiceScope scope = _svcProvider.CreateScope())
+                var repo =
+                    scope.ServiceProvider.GetRequiredService<IExecutionLogStore>();
+
+                foreach (var workItem in batch)
                 {
-                    var repo =
-                        scope.ServiceProvider.GetRequiredService<IExecutionLogStore>();
+                    await workItem(repo, stoppingToken);
+                }
 
-                    foreach (var workItem in batch)
-                    {
-                        await workItem(repo, stoppingToken);
-                    }
-
-                    try
-                    {
-                        await repo.SaveChangesAsync(stoppingToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error occurred while saving execution logs.");
-                    }
+                try
+                {
+                    await repo.SaveChangesAsync(stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error occurred while saving execution logs.");
                 }
             }
-            catch (OperationCanceledException)
-            {
-                // Prevent throwing if stoppingToken was signaled
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred executing task work item.");
-            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Prevent throwing if stoppingToken was signaled
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred executing task work item.");
         }
     }
 
 
-
-    private ExecutionLog CreateLogEntry(IJobExecutionContext context, JobExecutionException? jobException = null)
+    private ExecutionLog CreateLogEntry(IJobExecutionContext context,
+        JobExecutionException? jobException = null,
+        bool? defaultIsSuccess = null)
     {
         var log = new ExecutionLog
         {
@@ -335,6 +341,9 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
 
         log.ReturnCode = context.GetReturnCode();
         log.IsSuccess = context.GetIsSuccess();
+
+        if (log.IsSuccess is null)
+            log.IsSuccess = defaultIsSuccess;
 
         var execDetail = context.GetExecutionDetails();
         if (!string.IsNullOrEmpty(execDetail))

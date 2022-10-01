@@ -66,11 +66,14 @@ namespace BlazingQuartz.Core.Services
                 Where(n => n != Constants.SYSTEM_GROUP).ToList();
         }
 
-        private async Task<ScheduleModel> CreateScheduleModel(IJobDetail? jobDetail, ITrigger trigger)
+        private async Task<ScheduleModel> CreateScheduleModel(IJobDetail? jobDetail, ITrigger trigger,
+            CancellationToken cancellationToken = default)
         {
             var scheduler = await _schedulerFactory.GetScheduler();
             var triggerState = (await scheduler.GetTriggerState(trigger.Key));
-
+            var runningTrigger = (await scheduler.GetCurrentlyExecutingJobs(cancellationToken)).Where(context =>
+                context.Trigger.Equals(trigger)).FirstOrDefault();
+            
             return new ScheduleModel
             {
                 JobName = jobDetail?.Key.Name,
@@ -84,7 +87,7 @@ namespace BlazingQuartz.Core.Services
                 TriggerTypeClassName = trigger.GetType().Name,
                 NextTriggerTime = trigger.GetNextFireTimeUtc(),
                 PreviousTriggerTime = trigger.GetPreviousFireTimeUtc(),
-                JobStatus = triggerState switch
+                JobStatus = runningTrigger != null ? JobStatus.Running : triggerState switch
                 {
                     TriggerState.Paused => JobStatus.Paused,
                     TriggerState.None => JobStatus.NoTrigger,
@@ -299,6 +302,7 @@ namespace BlazingQuartz.Core.Services
             }
             catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Cannot GetScheduleModel of job [{jobGroup}.{jobName}]", jobkey.Group, jobkey.Name);
                 exceptionJob = new ScheduleModel
                 {
                     JobName = jobkey.Name,
@@ -310,6 +314,7 @@ namespace BlazingQuartz.Core.Services
 
             if (exceptionJob != null)
             {
+                // job with exception
                 if (jobTriggers == null || !jobTriggers.Any())
                 {
                     exceptionJob.TriggerType = TriggerType.Unknown;

@@ -25,8 +25,11 @@ namespace BlazingQuartz.Extensions
             }
             else if (log.LogType == LogType.ScheduleJob)
             {
-                // Not all jobs support IsSuccess hence assume true when IsSuccess is null.
-                if (log.IsSuccess ?? true)
+                if (log.IsSuccess is null)
+                {
+                    strBldr.Append("Executing...");
+                }
+                else if (log.IsSuccess.Value)
                 {
                     strBldr.Append("Job executed successfully.");
                 }
