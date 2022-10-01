@@ -28,7 +28,7 @@ jobs:
       run: dotnet build --no-restore -p:Version=${{steps.tag.outputs.tag}} -p:PackageVersion=${{steps.tag.outputs.tag}} --configuration Release
       working-directory: src/BlazingQuartz
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity normal --configuration Release
       working-directory: src/BlazingQuartz
     - name: Publish BlazingQuartzApp
       run: dotnet publish -c Release --no-restore -o "../../app" -p:Version=${{steps.tag.outputs.tag}} -p:PackageVersion=${{steps.tag.outputs.tag}} "BlazingQuartzApp/BlazingQuartzApp.csproj"
