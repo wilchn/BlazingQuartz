@@ -1,0 +1,39 @@
+name: Build and Publish
+
+on:
+    push:
+        tags:
+        - '*.*.*'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get tag
+      id: tag
+      uses: dawidd6/action-get-tag@v1
+      with:
+        strip_v: true
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: src/BlazingQuartz
+    - name: Build
+      run: dotnet build --no-restore -p:Version=${{steps.tag.outputs.tag}} -p:PackageVersion=${{steps.tag.outputs.tag}} --configuration Release
+      working-directory: src/BlazingQuartz
+    - name: Test
+      run: dotnet test --no-build --verbosity normal --configuration Release
+      working-directory: src/BlazingQuartz
+    - name: Publish BlazingQuartzApp
+      run: dotnet publish -c Release --no-restore -o "../../app" -p:Version=${{steps.tag.outputs.tag}} -p:PackageVersion=${{steps.tag.outputs.tag}} "BlazingQuartzApp/BlazingQuartzApp.csproj"
+      working-directory: src/BlazingQuartz
+    - uses: actions/upload-artifact@master
+      with:
+        name: BlazingQuartzApp Artifact
+        path: app/
