@@ -67,4 +67,5 @@ jobs:
       with:
         context: .
         push: true
+        platforms: linux/amd64,linux/arm64,linux/386,linux/arm/v7,linux/arm/v6
         tags: wilchn/blazingquartzapp:latest, wilchn/blazingquartzapp:${{steps.tag.outputs.tag}}
