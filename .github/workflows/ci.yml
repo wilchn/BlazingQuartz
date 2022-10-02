@@ -48,7 +48,7 @@ jobs:
       with:
         strip_v: true
     - name: Download BlazingQuartzApp artifact
-      uses: action/download-artifact@master
+      uses: action/download-artifact@v3
       with:
         name: BlazingQuartzApp
         path: app/
