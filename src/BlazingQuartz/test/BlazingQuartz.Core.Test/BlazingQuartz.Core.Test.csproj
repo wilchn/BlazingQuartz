@@ -42,10 +42,12 @@
     <None Remove="XunitXml.TestLogger" />
     <None Remove="JunitXml.TestLogger" />
     <None Remove="History\" />
+    <None Remove="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
     <Folder Include="History\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BlazingQuartz.Core\BlazingQuartz.Core.csproj" />

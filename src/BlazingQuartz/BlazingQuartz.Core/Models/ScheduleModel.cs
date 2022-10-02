@@ -3,6 +3,8 @@ namespace BlazingQuartz.Core.Models
 {
     public class ScheduleModel
     {
+        const int SHORT_JOBTYPE_NAME_MAX_LENGTH = 25;
+
         public string? JobName { get; set; }
         public string? JobType { get; set; }
         public string? JobDescription { get; set; }
@@ -31,15 +33,24 @@ namespace BlazingQuartz.Core.Models
             TriggerType = TriggerType.Unknown;
         }
 
-        public string? GetJobTypeShortName()
+        public string? GetJobTypeShortName(int suggestedMaxLength = SHORT_JOBTYPE_NAME_MAX_LENGTH)
         {
             if (JobType != null)
             {
+                if (JobType.Length <= suggestedMaxLength)
+                    return JobType;
+
                 var dotIndex = JobType.LastIndexOf('.');
                 if (dotIndex < 0)
                     return JobType;
 
-                return JobType.Substring(dotIndex+1);
+                var className = JobType.Substring(dotIndex+1);
+                var classNameLength = className.Length;
+                if (classNameLength >= suggestedMaxLength)
+                    return className;
+
+                var remainLength = suggestedMaxLength - classNameLength - 3;
+                return $"{JobType[..remainLength]}...{className}";
             }
             return JobType;
         }
