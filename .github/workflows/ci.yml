@@ -35,5 +35,35 @@ jobs:
       working-directory: src/BlazingQuartz
     - uses: actions/upload-artifact@master
       with:
-        name: BlazingQuartzApp Artifact
+        name: BlazingQuartzApp
         path: app/
+        
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get tag
+      id: tag
+      uses: dawidd6/action-get-tag@v1
+      with:
+        strip_v: true
+    - name: Download BlazingQuartzApp artifact
+      uses: action/download-artifact@master
+      with:
+        name: BlazingQuartzApp
+        path: app/
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build and push
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        push: true
+        tags: wilchn/blazingquartzapp:latest, wilchn/blazingquartzapp:${{steps.tag.outputs.tag}}
