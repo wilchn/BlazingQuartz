@@ -23,7 +23,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
 
         private ObservableCollection<ScheduleModel> ScheduledJobs { get; set; } = new();
         private string? SearchJobKeyword;
-        private MudDataGrid<ScheduleModel> _scheduleDataGrid = null!;
+        private MudDataGrid<ScheduleModel>? _scheduleDataGrid;
 
         private bool _openFilter;
 
@@ -285,7 +285,8 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
             {
                 ScheduledJobs.Add(job);
             }
-            _scheduleDataGrid.ExpandAllGroups();
+            if (ScheduledJobs.Any())
+                _scheduleDataGrid?.ExpandAllGroups();
         }
 
         private Func<ScheduleModel, int, string> _scheduleRowStyleFunc => (model, i) =>
@@ -524,6 +525,9 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
 
         private async Task OnDeleteSelectedScheduleJobs()
         {
+            if (_scheduleDataGrid is null)
+                return;
+
             var selectedItems = _scheduleDataGrid.SelectedItems;
 
             if (selectedItems == null || selectedItems.Count == 0)
