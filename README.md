@@ -62,6 +62,16 @@ Then add the following lines to appsettings.json:
 ```
 NOTE: Replace <your_ssl_cert>
 
+Configure the docker container to use the https port. Ex. https on 9091
+```
+docker run -d \
+...
+-p 9090:80 \
+-p 9091:443 \
+-e ASPNETCORE_URLS='https://+;http://+' \
+-e ASPNETCORE_HTTPS_PORT=9091 \
+wilchn/blazingquartzapp:latest
+```
 ### Use other database
 Below steps shows you how to use PostgreSQL database to store execution logs. 
 
