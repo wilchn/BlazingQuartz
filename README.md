@@ -31,7 +31,7 @@ BlazingQuartz is created with [ASP.NET Core Blazor Server](https://blazor.net) a
    * <blazingquartz_path>/logs
    * <blazingquartz_path>/logs
 
-2. Copy [BlazingQuartzDb.db](/blob/master/src/BlazingQuartz/BlazingQuartzApp/BlazingQuartzDb.db) to <blazingquartz_path>
+2. Copy [BlazingQuartzDb.db](/blob/main/src/BlazingQuartz/BlazingQuartzApp/BlazingQuartzDb.db) to <blazingquartz_path>
 
 3. Run below docker command:
     ```
