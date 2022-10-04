@@ -285,7 +285,8 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
             {
                 ScheduledJobs.Add(job);
             }
-            _scheduleDataGrid.ExpandAllGroups();
+            if (ScheduledJobs.Any())
+                _scheduleDataGrid.ExpandAllGroups();
         }
 
         private Func<ScheduleModel, int, string> _scheduleRowStyleFunc => (model, i) =>
