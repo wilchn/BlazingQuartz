@@ -569,7 +569,8 @@ namespace BlazingQuartz.Core.Services
                             x.WithInterval(triggerDetailModel.TriggerInterval,
                                 triggerDetailModel.TriggerIntervalUnit.Value.ToQuartzIntervalUnit());
                         }
-                        x.WithRepeatCount(triggerDetailModel.RepeatCount);
+                        if (triggerDetailModel.RepeatCount > 0)
+                            x.WithRepeatCount(triggerDetailModel.RepeatCount);
                     });
                     break;
                 case TriggerType.Simple:
