@@ -1,0 +1,7 @@
+::deep .httpjobform {
+    &__advanced {
+        & > div.mud-expand-panel-header {
+            padding: 16px 0px 0px 0px;
+        }
+    }
+}
