@@ -15,6 +15,10 @@ namespace BlazingQuartz.Jobs
         public const string PropertyRequestParameters = "requestParams";
         public const string PropertyRequestHeaders = "requestHeaders";
         public const string PropertyIgnoreVerifySsl = "ignoreSsl";
+        /// <summary>
+        /// HTTP request timeout. Negative value to indicate infinite timeout.
+        /// </summary>
+        public const string PropertyRequestTimeoutInSec = "requestTimeout";
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<HttpJob> _logger;
@@ -35,6 +39,12 @@ namespace BlazingQuartz.Jobs
             {
                 var data = context.MergedJobDataMap;
 
+                var timeoutStr = data.GetString(PropertyRequestTimeoutInSec);
+                int? timeoutInSec = null;
+                if (!string.IsNullOrEmpty(timeoutStr))
+                {
+                    timeoutInSec = Convert.ToInt32(timeoutStr);
+                }
                 var dmvUrl = data.GetDataMapValue(PropertyRequestUrl);
                 var url = _dmvResolver.Resolve(dmvUrl);
                 if (string.IsNullOrEmpty(url))
@@ -73,6 +83,19 @@ namespace BlazingQuartz.Jobs
                     httpClient = _httpClientFactory.CreateClient();
                     _logger.LogInformation("[{runInstanceId}]. Created HttpClient.",
                         context.FireInstanceId);
+                }
+
+                // configure time out. Default 100 secs
+                if (timeoutInSec.HasValue)
+                {
+                    if (timeoutInSec > 0)
+                    {
+                        httpClient.Timeout = TimeSpan.FromSeconds(timeoutInSec.Value);
+                    }
+                    else
+                    {
+                        httpClient.Timeout = Timeout.InfiniteTimeSpan;
+                    }
                 }
 
                 if (headers != null)
