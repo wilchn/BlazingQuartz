@@ -160,7 +160,7 @@ namespace BlazingQuartz.Core.Test.Services
             var triggerOnceModel = allSchedules.Where(m => m.TriggerName == trigger1.Name).First();
             triggerOnceModel.JobStatus = JobStatus.NoTrigger;
             await scheduler.Start();
-            await Task.Delay(500);
+            await Task.Delay(1000);
 
             var schedListBeforeDelete = await _schedulerSvc.GetAllJobsAsync().ToListAsync();
             await _schedulerSvc.DeleteSchedule(triggerOnceModel);
