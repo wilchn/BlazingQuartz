@@ -37,13 +37,16 @@ BlazingQuartz is created with [ASP.NET Core Blazor Server](https://blazor.net) a
     ```
     docker run -d \
     --name=BlazingQuartzApp \
+    -e TZ=<your_timezone>
     -v /<blazingquartz_path>/BlazingQuartzDb.db:/app/BlazingQuartzDb.db \
     -v /<blazingquartz_path>/logs:/app/logs \
     -v /<blazingquartz_path>/certs:/app/certs \
     -p 9090:80 \
     wilchn/blazingquartzapp:latest
     ```
-    Note: Replace `<blazingquartz_path>`
+    Note: Replace the following:
+    - `<blazingquartz_path>`
+    - `<your_timezone>` - See list of [acceptable values](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Ex. Asia/Singapore 
 4. Navigate to http://localhost:9090
 
 ## Configuration
@@ -62,6 +65,16 @@ Then add the following lines to appsettings.json:
 ```
 NOTE: Replace <your_ssl_cert>
 
+Configure the docker container to use the https port. Ex. https on 9091
+```
+docker run -d \
+...
+-p 9090:80 \
+-p 9091:443 \
+-e ASPNETCORE_URLS='https://+;http://+' \
+-e ASPNETCORE_HTTPS_PORT=9091 \
+wilchn/blazingquartzapp:latest
+```
 ### Use other database
 Below steps shows you how to use PostgreSQL database to store execution logs. 
 
@@ -108,13 +121,14 @@ NOTE: Below steps assume that you already created the database and have imported
    ```
     docker run -d \
     --name=BlazingQuartzApp \
+    -e TZ=<your_timezone>
     -v /<blazingquartz_path>/appsettings.json:/app/appsettings.json \
     -v /<blazingquartz_path>/logs:/app/logs \
     -v /<blazingquartz_path>/certs:/app/certs \
     -p 9090:80 \
     wilchn/blazingquartzapp:latest
    ```
-   NOTE: Replace <blazingquartz_path>
+   NOTE: Replace <blazingquartz_path> and <your_timezone>
 
 
 ## Advance Details

@@ -126,7 +126,8 @@ public class SchedulerService_ScheduleTest
             DailyDayOfWeek = new bool[7]
             {
                 true, false, true, false, true, true, true
-            }
+            },
+            RepeatCount = -1,
             //TODO calendar name
         };
 

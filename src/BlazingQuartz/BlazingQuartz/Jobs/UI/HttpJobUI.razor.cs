@@ -19,6 +19,7 @@ namespace BlazingQuartz.Jobs.UI
         private DataMapValue DataMapParameters = new DataMapValue(DataMapValueType.InterpolatedString, 1);
         private string? HttpAction { get; set; }
         private bool IgnoreSsl { get; set; }
+        private int? TimeoutInSec { get; set; }
 
         protected override void OnInitialized()
         {
@@ -45,6 +46,11 @@ namespace BlazingQuartz.Jobs.UI
             {
                 IgnoreSsl = Convert.ToBoolean(JobDataMap[HttpJob.PropertyIgnoreVerifySsl]);
             }
+            if (JobDataMap.ContainsKey(HttpJob.PropertyRequestTimeoutInSec))
+            {
+                TimeoutInSec = Convert.ToInt32(JobDataMap[HttpJob.PropertyRequestTimeoutInSec]);
+            }
+
         }
 
         public Task<bool> ApplyChanges()
@@ -92,6 +98,15 @@ namespace BlazingQuartz.Jobs.UI
             else
             {
                 JobDataMap[HttpJob.PropertyIgnoreVerifySsl] = IgnoreSsl.ToString();
+            }
+
+            if (!TimeoutInSec.HasValue)
+            {
+                JobDataMap.Remove(HttpJob.PropertyRequestTimeoutInSec);
+            }
+            else
+            {
+                JobDataMap[HttpJob.PropertyRequestTimeoutInSec] = TimeoutInSec.Value.ToString();
             }
 
             return Task.FromResult<bool>(true);
