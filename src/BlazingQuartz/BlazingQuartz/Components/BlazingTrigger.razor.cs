@@ -67,7 +67,10 @@ namespace BlazingQuartz.Components
             {
                 ExistingTriggerGroups = await SchedulerSvc.GetTriggerGroups();
             }
-            
+
+            if (string.IsNullOrEmpty(value))
+                return ExistingTriggerGroups;
+
             return ExistingTriggerGroups.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
         }
 

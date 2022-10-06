@@ -5,6 +5,7 @@
             <div class="d-flex flex-grow-1 gap-2">
                 <MudTextField @bind-Value="JobDetail.Name"
                               For="@(() => JobDetail.Name)"
+                              Clearable="@(!IsReadOnly)"
                               Required="true"
                               Validation="@(async (string name) => await ValidateJobName(name))"
                               RequiredError="Job name is required"
@@ -12,9 +13,10 @@
                               Variant="Variant.Outlined"
                               Margin="Margin.Dense"
                               ReadOnly="IsReadOnly"
-                              Label="Name" />
-                <MudAutocomplete T="string" Label="Group" @bind-Value="JobDetail.Group"
+                              Label="Job Name" />
+                <MudAutocomplete T="string" Label="Job Group" @bind-Value="JobDetail.Group"
                                  SearchFunc="SearchJobGroup"
+                                 Clearable="@(!IsReadOnly)"
                                  ResetValueOnEmptyText="true"
                                  Required="true"
                                  RequiredError="Group name is required"
