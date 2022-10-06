@@ -1,5 +1,6 @@
 ﻿using System;
 using BlazingQuartz.Core;
+using BlazingQuartz.Core.Helpers;
 using BlazingQuartz.Core.Models;
 using BlazingQuartz.Core.Services;
 
@@ -79,6 +80,18 @@ namespace BlazingQuartz.Models
 
             return null;
         }
+
+        public string? ValidateCronExpression(string? cronExpression)
+        {
+            if (string.IsNullOrEmpty(cronExpression))
+                return "Cron expression is required";
+
+            if (!CronExpressionHelper.IsValidExpression(cronExpression))
+                return "Check cron expression";
+
+            return null;
+        }
+
     }
 }
 

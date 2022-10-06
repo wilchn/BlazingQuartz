@@ -36,6 +36,7 @@
                           OnDebounceIntervalElapsed="OnCronExpressionInputElapsed"
                           @bind-Value="TriggerDetail.CronExpression"
                           For="@(() => TriggerDetail.CronExpression)"
+                          Validation="@((string exp) => Validator.ValidateCronExpression(exp))"
                           Required="true"
                           Margin="Margin.Dense"
                           HelperText="@CronDescription"
