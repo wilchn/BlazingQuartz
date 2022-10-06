@@ -1,0 +1,47 @@
+@using BlazingQuartz.Core.Data.Entities
+
+<MudDialog>
+    <DialogContent>
+        <div class="form">
+            @foreach (var cron in CronSamples)
+            {
+                <div class="py-1">
+                    <MudTextField Value="@GetCronDescription(cron)" 
+                        ReadOnly="true"
+                        Variant="Variant.Outlined"
+                        Margin="Margin.Dense" 
+                        Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.ContentPasteGo"
+                        AdornmentAriaLabel="Use cron expression"
+                        OnAdornmentClick="@(() => OnSelectExpression(cron))"/>
+                </div>
+            }
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = null!;
+
+    private List<string> CronSamples = new()
+    {
+        "0 15 10 ? * *",
+        "0 * 14 * * ?",
+        "0 0/5 10 ? * MON-FRI",
+        "0 15 10 ? * 6L",
+    };
+
+    string GetCronDescription(string cron)
+    {
+        return $"{cron} ({CronExpressionDescriptor.ExpressionDescriptor.GetDescription(cron)})";
+    }
+
+    void OnSelectExpression(string cronExpression)
+    {
+        MudDialog.Close(DialogResult.Ok(cronExpression));
+    }
+
+    void Close() => MudDialog.Cancel();
+}

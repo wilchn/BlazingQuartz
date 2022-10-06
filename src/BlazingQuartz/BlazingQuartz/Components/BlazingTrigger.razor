@@ -40,7 +40,8 @@
                           Margin="Margin.Dense"
                           HelperText="@CronDescription"
                           Label="Cron Expression (Format: seconds minutes hours day-of-month month day-of-week year)"
-                          Variant="Variant.Outlined" Adornment="Adornment.End" />
+                          Variant="Variant.Outlined" Adornment="Adornment.End" 
+                          AdornmentIcon="@Icons.Filled.QuestionMark" OnAdornmentClick="OnShowSampleCron"/>
             <MudAutocomplete T="TimeZoneInfo" Label="Timezone"
                              Required="true"
                              RequiredError="Timezone is required"
