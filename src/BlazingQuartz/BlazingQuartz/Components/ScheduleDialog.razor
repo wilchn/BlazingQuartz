@@ -1,4 +1,5 @@
 ﻿@using BlazingQuartz.Core.Models
+@inject ISchedulerService SchSvc
 
 <MudDialog>
     <DialogContent>
@@ -94,6 +95,15 @@
         }
         else if (SelectedTab == ScheduleDialogTab.Trigger)
         {
+            if (string.IsNullOrEmpty(TriggerDetail.Name) &&
+                !string.IsNullOrEmpty(JobDetail.Name))
+            {
+                // use job name as trigger name when trigger name not yet specified
+                // determine if trigger name can be used
+                var exists = await SchSvc.ContainsTriggerKey(JobDetail.Name, TriggerDetail.Group);
+                if (!exists)
+                    TriggerDetail.Name = JobDetail.Name;
+            }
             _nextText = "Save";
             _nextIcon = null;
         }
