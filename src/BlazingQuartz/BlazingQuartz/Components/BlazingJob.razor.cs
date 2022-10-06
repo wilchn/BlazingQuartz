@@ -57,6 +57,9 @@ namespace BlazingQuartz.Components
             {
                 ExistingJobGroups = await SchedulerSvc.GetJobGroups();
             }
+
+            if (string.IsNullOrEmpty(value))
+                return ExistingJobGroups;
             
             return ExistingJobGroups.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
         }

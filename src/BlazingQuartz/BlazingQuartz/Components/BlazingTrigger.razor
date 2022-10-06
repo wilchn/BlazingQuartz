@@ -16,9 +16,11 @@
                           Immediate="true"
                           Variant="Variant.Outlined"
                           Margin="Margin.Dense"
-                          Label="Name" />
-            <MudAutocomplete T="string" Label="Group" @bind-Value="TriggerDetail.Group"
+                          Clearable="true"
+                          Label="Trigger Name" />
+            <MudAutocomplete T="string" Label="Trigger Group" @bind-Value="TriggerDetail.Group"
                              SearchFunc="SearchTriggerGroup"
+                             Clearable="true"
                              ResetValueOnEmptyText="true"
                              Required="true"
                              RequiredError="Trigger group is required"
