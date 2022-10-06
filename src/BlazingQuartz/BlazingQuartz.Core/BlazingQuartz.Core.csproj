@@ -28,6 +28,7 @@
     <None Remove="Jobs\" />
     <None Remove="EFCore.NamingConventions" />
     <None Remove="Microsoft.Extensions.Http" />
+    <None Remove="Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -36,6 +37,7 @@
     <Folder Include="Extensions\" />
     <Folder Include="History\" />
     <Folder Include="Jobs\" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Quartz" Version="3.5.0" />

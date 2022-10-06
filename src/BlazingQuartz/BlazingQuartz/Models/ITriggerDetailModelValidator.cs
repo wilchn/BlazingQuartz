@@ -8,5 +8,6 @@ namespace BlazingQuartz.Models
         Task<string?> ValidateTriggerName(string name, TriggerDetailModel triggerModel, Key? triggerKey);
         string? ValidateTime(TimeSpan? start, TimeSpan? end, string errorMessage);
         string? ValidateFirstLastDateTime(TriggerDetailModel model, string errorMessage);
+        string? ValidateCronExpression(string? cronExpression);
     }
 }

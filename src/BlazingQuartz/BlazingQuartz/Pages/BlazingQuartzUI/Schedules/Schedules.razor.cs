@@ -313,7 +313,17 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
 
             // create schedule
             (JobDetailModel jobDetail, TriggerDetailModel triggerDetail) = ((JobDetailModel, TriggerDetailModel))result.Data;
-            await SchedulerSvc.CreateSchedule(jobDetail, triggerDetail);
+            
+            try
+            {
+                await SchedulerSvc.CreateSchedule(jobDetail, triggerDetail);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Failed to create new schedule. {ex.Message}", Severity.Error);
+                _logger.LogError(ex, "Failed to create new schedule.");
+                // TODO show schedule dialog again?
+            }
         }
 
         private async Task OnEditScheduleJob(ScheduleModel model)
@@ -362,8 +372,17 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
 
             // update schedule
             (JobDetailModel jobDetail, TriggerDetailModel triggerDetail) = ((JobDetailModel, TriggerDetailModel))result.Data;
-            await SchedulerSvc.UpdateSchedule(origJobKey, origTriggerKey,
-                jobDetail, triggerDetail);
+            try
+            {
+                await SchedulerSvc.UpdateSchedule(origJobKey, origTriggerKey,
+                    jobDetail, triggerDetail);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Failed to update schedule. {ex.Message}", Severity.Error);
+                _logger.LogError(ex, "Failed to update schedule.");
+                // TODO display the dialog again?
+            }
         }
 
         private async Task OnResumeScheduleJob(ScheduleModel model)
