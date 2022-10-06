@@ -475,47 +475,17 @@ namespace BlazingQuartz.Core.Services
                 tbldr.ForJob(jobKey);
             }
 
-            if (triggerDetailModel.StartDate.HasValue)
+            var startTime = triggerDetailModel.StartDateTimeUtc;
+            if (startTime.HasValue)
             {
-                DateTimeOffset startTime;
-
-                if (triggerDetailModel.StartTimeSpan.HasValue)
-                {
-                    var dt = triggerDetailModel.StartDate.Value.Add(triggerDetailModel.StartTimeSpan.Value);
-                    startTime = new DateTimeOffset(dt,
-                        triggerDetailModel.StartTimezone.BaseUtcOffset);
-                }
-                else
-                {
-                    startTime = new DateTimeOffset(triggerDetailModel.StartDate.Value,
-                        triggerDetailModel.StartTimezone.BaseUtcOffset);
-                }
-
-                tbldr = tbldr.StartAt(startTime);
+                tbldr = tbldr.StartAt(startTime.Value);
             }
             else
             {
                 tbldr = tbldr.StartNow();
             }
 
-            if (triggerDetailModel.EndDate.HasValue)
-            {
-                DateTimeOffset endTime;
-
-                if (triggerDetailModel.EndTimeSpan.HasValue)
-                {
-                    var dt = triggerDetailModel.EndDate.Value.Add(triggerDetailModel.EndTimeSpan.Value);
-                    endTime = new DateTimeOffset(dt,
-                        triggerDetailModel.StartTimezone.BaseUtcOffset);
-                }
-                else
-                {
-                    endTime = new DateTimeOffset(triggerDetailModel.EndDate.Value,
-                        triggerDetailModel.StartTimezone.BaseUtcOffset);
-                }
-
-                tbldr = tbldr.EndAt(endTime);
-            }
+            tbldr.EndAt(triggerDetailModel.EndDateTimeUtc);
 
             switch (triggerDetailModel.TriggerType)
             {

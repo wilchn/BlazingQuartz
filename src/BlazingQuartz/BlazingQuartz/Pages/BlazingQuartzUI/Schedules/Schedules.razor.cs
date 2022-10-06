@@ -350,7 +350,11 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                     model?.TriggerGroup ?? Constants.DEFAULT_GROUP);
 
                 if (currentTriggerModel != null)
+                {
                     origTriggerKey = new Key(currentTriggerModel.Name, currentTriggerModel.Group);
+
+                    ResetStartEndDateTimeIfEarlier(ref currentTriggerModel);
+                }
             }
 
             var options = new DialogOptions
@@ -460,6 +464,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                 if (currentTriggerModel != null)
                 {
                     currentTriggerModel.Name = string.Empty;
+                    ResetStartEndDateTimeIfEarlier(ref currentTriggerModel);
                 }
             }
 
@@ -585,6 +590,26 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                     await RefreshJobs();
                     Snackbar.Add($"Failed to deleted {notDeletedCount} schedule(s)", Severity.Warning);
                 }
+            }
+        }
+
+        private void ResetStartEndDateTimeIfEarlier(ref TriggerDetailModel triggerModel)
+        {
+            var startDtime = triggerModel.StartDateTimeUtc;
+            if (startDtime.HasValue && startDtime <= DateTimeOffset.UtcNow)
+            {
+                // clear start date if already past
+                triggerModel.StartTimeSpan = null;
+                triggerModel.StartDate = null;
+                triggerModel.StartTimezone = TimeZoneInfo.Utc;
+            }
+
+            var endTime = triggerModel.EndDateTimeUtc;
+            if (endTime.HasValue && endTime <= DateTimeOffset.UtcNow)
+            {
+                // clear end date if already past
+                triggerModel.EndDate = null;
+                triggerModel.EndTimeSpan = null;
             }
         }
 

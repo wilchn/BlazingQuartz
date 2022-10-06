@@ -12,8 +12,64 @@ namespace BlazingQuartz.Core.Models
         public string? Description { get; set; }
         public TimeSpan? StartTimeSpan { get; set; }
         public DateTime? StartDate { get; set; }
+        /// <summary>
+        /// Combined <see cref="StartDate"/> <see cref="StartTimeSpan"/> <see cref="StartTimezone"/>
+        /// </summary>
+        public DateTimeOffset? StartDateTimeUtc
+        {
+            get
+            {
+                if (StartDate.HasValue)
+                {
+                    DateTimeOffset startTime;
+
+                    if (StartTimeSpan.HasValue)
+                    {
+                        var dt = StartDate.Value.Add(StartTimeSpan.Value);
+                        startTime = new DateTimeOffset(dt,
+                            StartTimezone.BaseUtcOffset);
+                    }
+                    else
+                    {
+                        startTime = new DateTimeOffset(StartDate.Value,
+                            StartTimezone.BaseUtcOffset);
+                    }
+
+                    return startTime;
+                }
+                return null;
+            }
+        }
         public TimeSpan? EndTimeSpan { get; set; }
         public DateTime? EndDate { get; set; }
+        public DateTimeOffset? EndDateTimeUtc
+        {
+            get
+            {
+                if (EndDate.HasValue)
+                {
+                    DateTimeOffset endTime;
+
+                    if (EndTimeSpan.HasValue)
+                    {
+                        var dt = EndDate.Value.Add(EndTimeSpan.Value);
+                        endTime = new DateTimeOffset(dt,
+                            StartTimezone.BaseUtcOffset);
+                    }
+                    else
+                    {
+                        endTime = new DateTimeOffset(EndDate.Value,
+                            StartTimezone.BaseUtcOffset);
+                    }
+
+                    return endTime;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
         
         public string? ModifiedByCalendar { get; set; }
         /// <summary>
