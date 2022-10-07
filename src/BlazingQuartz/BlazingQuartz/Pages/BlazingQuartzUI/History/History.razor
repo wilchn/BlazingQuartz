@@ -106,7 +106,8 @@
 </MudDrawer>
 
 <MudTable ServerData="@(new Func<TableState, Task<TableData<ExecutionLog>>>(LoadExecutionLogs))"
-          Dense="true" Hover="true" @ref="table">
+        Breakpoint="Breakpoint.None"
+        Dense="true" Hover="true" @ref="table">
     <ToolBarContent>
         <MudText Typo="Typo.h4">History</MudText>
         <MudSpacer />

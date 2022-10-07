@@ -67,8 +67,31 @@ namespace BlazingQuartz.Components
             {
                 ExistingTriggerGroups = await SchedulerSvc.GetTriggerGroups();
             }
-            
+
+            if (string.IsNullOrEmpty(value))
+                return ExistingTriggerGroups;
+
             return ExistingTriggerGroups.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        async Task OnShowSampleCron()
+        {
+            var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                DisableBackdropClick = true,
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            };
+
+            var dialog = DialogSvc.Show<CronSamplesDialog>("Sample Cron Expressions", options);
+            var result = await dialog.Result;
+
+            if (!result.Cancelled)
+            {
+                TriggerDetail.CronExpression = (string)result.Data;
+                OnCronExpressionInputElapsed(TriggerDetail.CronExpression);
+            }
         }
 
         async Task<IEnumerable<TimeZoneInfo>> SearchTimeZoneInfo(string value)

@@ -16,9 +16,11 @@
                           Immediate="true"
                           Variant="Variant.Outlined"
                           Margin="Margin.Dense"
-                          Label="Name" />
-            <MudAutocomplete T="string" Label="Group" @bind-Value="TriggerDetail.Group"
+                          Clearable="true"
+                          Label="Trigger Name" />
+            <MudAutocomplete T="string" Label="Trigger Group" @bind-Value="TriggerDetail.Group"
                              SearchFunc="SearchTriggerGroup"
+                             Clearable="true"
                              ResetValueOnEmptyText="true"
                              Required="true"
                              RequiredError="Trigger group is required"
@@ -34,11 +36,13 @@
                           OnDebounceIntervalElapsed="OnCronExpressionInputElapsed"
                           @bind-Value="TriggerDetail.CronExpression"
                           For="@(() => TriggerDetail.CronExpression)"
+                          Validation="@((string exp) => Validator.ValidateCronExpression(exp))"
                           Required="true"
                           Margin="Margin.Dense"
                           HelperText="@CronDescription"
                           Label="Cron Expression (Format: seconds minutes hours day-of-month month day-of-week year)"
-                          Variant="Variant.Outlined" Adornment="Adornment.End" />
+                          Variant="Variant.Outlined" Adornment="Adornment.End" 
+                          AdornmentIcon="@Icons.Filled.QuestionMark" OnAdornmentClick="OnShowSampleCron"/>
             <MudAutocomplete T="TimeZoneInfo" Label="Timezone"
                              Required="true"
                              RequiredError="Timezone is required"
