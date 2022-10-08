@@ -215,6 +215,52 @@ namespace BlazingQuartz.Core.Services
             }
         }
 
+
+        public async Task<JobExecutionStatusSummaryModel> GetJobExecutionStatusSummary(
+            DateTimeOffset? startTimeUtc, DateTimeOffset? endTimeUtc = null)
+        {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                var q = context.ExecutionLogs.Where(l => l.LogType == LogType.ScheduleJob);
+                if (startTimeUtc.HasValue)
+                {
+                    q = q.Where(l => l.DateAddedUtc >= startTimeUtc.Value);
+                }
+                if (endTimeUtc.HasValue)
+                {
+                    q = q.Where(l => l.DateAddedUtc < endTimeUtc.Value);
+                }
+
+                var statusList = q.Select(l => new
+                {
+                    DateAddedUtc = l.DateAddedUtc,
+                    ExecutionStatus = (l.IsException ?? false) ?
+                        // has exception
+                        JobExecutionStatus.Failed :
+                        // vetoed?
+                        ((l.IsVetoed ?? false) ?
+                            JobExecutionStatus.Vetoed :
+                            // is success null?
+                            (l.IsSuccess.HasValue ?
+                                (l.IsSuccess.Value ? JobExecutionStatus.Success : JobExecutionStatus.Failed) :
+                                JobExecutionStatus.Executing))
+                });
+
+                var statusGroup = await statusList.GroupBy(l => l.ExecutionStatus)
+                    .Select(g => new {
+                        EarliestDateAdded = g.Min(l => l.DateAddedUtc),
+                        ExecutionStatus = g.Key,
+                        Count = g.Count()
+                    }).ToListAsync();
+
+                return new JobExecutionStatusSummaryModel
+                {
+                    StartDateTimeUtc = statusGroup.Min(s => s.EarliestDateAdded).DateTime,
+                    Data = statusGroup.Select(s => new KeyValuePair<JobExecutionStatus, int>(s.ExecutionStatus, s.Count))
+                            .ToList()
+                };
+            }
+        }
     }
 }
 

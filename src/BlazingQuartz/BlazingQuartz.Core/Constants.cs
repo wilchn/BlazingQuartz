@@ -91,6 +91,14 @@ namespace BlazingQuartz
         Char,
         Object
     }
+
+    public enum JobExecutionStatus
+    {
+        Success,
+        Failed,
+        Executing,
+        Vetoed
+    }
 }
 
 
