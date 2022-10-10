@@ -1,58 +1,200 @@
 @page "/"
 @page "/overview"
+@using Core.Data.Entities
 
 <PageTitle>Overview</PageTitle>
 
-<h1>Hello, BlazingQuartzUI!</h1>
-
-Welcome to your new app.
-
-<p role="status">Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-
-@code {
-    private int currentCount = 0;
-
-    private void IncrementCount()
-    {
-        currentCount++;
-    }
-}
-
-
-<MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
+<div>
+<MudContainer Class="mt-4 px-8" MaxWidth="MaxWidth.False">
     <MudGrid>
-        <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+        <MudItem xs="12">
+            <MudText Typo="Typo.h4">Overview</MudText>
         </MudItem>
-        <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="2" Style="height: 100%">
+                <MudText Typo="Typo.h5" Class="title">Today</MudText>
+                <MudChart ChartType="ChartType.Donut"  
+                    LegendPosition="Position.Bottom"
+                    ChartOptions="TodaysChartOptions"
+                    InputData="@TodaysLogData" 
+                    InputLabels="@TodaysLogLabel">
+                    <CustomGraphics>
+                            <text class="donut-inner-text" x="50%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Executed</text>
+                            <text class="donut-inner-text" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@TodaysLogData.Sum().ToString()</text>
+                            <text class="donut-inner-text" x="50%" y="65%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Jobs</text>
+                    </CustomGraphics>
+                </MudChart>
+            </MudPaper>
         </MudItem>
-        <MudItem xs="12" sm="12" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="2" Style="height: 100%">
+                <MudText Typo="Typo.h5" Class="title">Yesterday</MudText>
+                <MudChart ChartType="ChartType.Donut"
+                    LegendPosition="Position.Bottom"
+                    ChartOptions="YesterdaysChartOptions"
+                    InputData="@YesterdaysLogData" 
+                    InputLabels="@YesterdaysLogLabel">
+                    <CustomGraphics>
+                        <text class="donut-inner-text" x="50%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Executed</text>
+                        <text class="donut-inner-text" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@YesterdaysLogData.Sum().ToString()</text>
+                        <text class="donut-inner-text" x="50%" y="65%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Jobs</text>
+                    </CustomGraphics>
+                </MudChart>
+            </MudPaper>
         </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudGrid>
-                <MudItem xs="12">
-                    <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
-                </MudItem>
-                <MudItem xs="12">
-                    <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
-                </MudItem>
-            </MudGrid>
+
+        @* show all time logs if more than 1 day*@
+        @if(TotalLogDays > 1)
+        {
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="2" Style="height: 100%">
+                    <MudText Typo="Typo.h5" Class="title">Last @TotalLogDays days</MudText>
+                    <MudChart ChartType="ChartType.Donut"
+                        LegendPosition="Position.Bottom"
+                        ChartOptions="AllChartOptions"
+                        InputData="@AllTimeLogData" 
+                        InputLabels="@AllTimeLogLabel">
+                        <CustomGraphics>
+                            <text class="donut-inner-text" x="50%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Executed</text>
+                            <text class="donut-inner-text" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@AllTimeLogData.Sum().ToString()</text>
+                            <text class="donut-inner-text" x="50%" y="65%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Jobs</text>
+                        </CustomGraphics>
+                    </MudChart>
+                </MudPaper>
+            </MudItem>
+        }
+
+        @* Actions & Schedules *@
+        <MudItem xs="12" sm="6" md="3" Class="d-flex">
+            <div class="d-flex flex-column align-stretch flex-grow-1 gap-3">
+                <MudPaper Elevation="2" Class="flex-grow-1">
+                    <MudText Typo="Typo.h5" Class="title">Actions</MudText>
+                    <div class="actionsform">
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.Stop" Color="Color.Dark">Standby</MudButton>
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.PowerSettingsNew" Color="Color.Error">Shutdown</MudButton>
+
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.Pause" Color="Color.Default">Pause All</MudButton>
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.PlayArrow" Color="Color.Default">Resume All</MudButton>
+                    </div>
+                </MudPaper>
+
+                <MudPaper Elevation="2" Class="flex-grow-1">
+                    <MudText Typo="Typo.h5" Class="title">Schedules</MudText>
+                    <div class="d-flex align-start pl-4">
+                        <MudSimpleTable Class="scheduletab" Elevation="0" Dense="true">
+                            <tbody>
+                                <tr>
+                                    <td class="scheduletab__td scheduletab__td--txtright"><MudText Typo="Typo.h6">@JobCount</MudText></td>
+                                    <td class="scheduletab__td"><MudText Typo="Typo.body2">Jobs</MudText></td>
+                                </tr>
+
+                                <tr>
+                                    <td class="scheduletab__td scheduletab__td--txtright"><MudText Typo="Typo.h6">@TriggerCount</MudText></td>
+                                    <td class="scheduletab__td"><MudText Typo="Typo.body2">Triggers</MudText></td>
+                                </tr>
+
+                                <tr>
+                                    <td class="scheduletab__td scheduletab__td--txtright"><MudText Typo="Typo.h6">@ExecutingCount</MudText></td>
+                                    <td class="scheduletab__td"><MudText Typo="Typo.body2">Executing</MudText></td>
+                                </tr>
+                            </tbody>
+                        </MudSimpleTable>
+                    </div>
+                </MudPaper>
+            </div>
         </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 100%"></MudPaper>
+        <MudItem sm="12" md="6">
+            <MudPaper Elevation="2">
+                <MudText Typo="Typo.h5" Class="title">Information</MudText>
+
+                <MudSimpleTable Dense="true" Hover="true" Bordered="true" Style="overflow-x: auto;" Class="pt-2">
+                    <tbody>
+                        @foreach (var item in SchedulerInfo.Keys)
+                        {
+                            <tr>
+                                <td>@item</td>
+                                <td>@SchedulerInfo[item]</td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            </MudPaper>
         </MudItem>
-        <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
-        </MudItem>
-        <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
-        </MudItem>
-        <MudItem xs="12" sm="12" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+
+        <MudItem sm="12" md="6">
+            <MudPaper Elevation="2">
+                <MudText Typo="Typo.h5" Class="title">Failed Executions</MudText>
+                <MudTable Items="ErrorLogs"
+                        Breakpoint="Breakpoint.None"
+                        Dense="true" Hover="true" @ref="table">
+                    <ColGroup>
+                        <col style="width: 120px;" />
+                        <col />
+                        <col />
+                        <col />
+                        <col style="width: 30%;" />
+                    </ColGroup>
+                    <HeaderContent>
+                        <MudTh>Run Time</MudTh>
+                        <MudTh>Job Name</MudTh>
+                        <MudTh>Job Group</MudTh>
+                        <MudTh>Trigger</MudTh>
+                        <MudTh>Message</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Run">@context.FireTimeUtc?.LocalDateTime</MudTd>
+                        <MudTd DataLabel="Job">@context.JobName</MudTd>
+                        <MudTd DataLabel="Group">@context.JobGroup</MudTd>
+                        <MudTd DataLabel="Trigger">@context.TriggerName</MudTd>
+                        <MudTd DataLabel="Msg">
+                            <div>
+                                <MudText Typo="Typo.body2" Color="Color.Dark">
+                                    @if (context.IsException ?? false)
+                                    {
+                                        @context.GetShortExceptionMessage();
+                                    }
+                                    else
+                                    {
+                                        @context.GetShortResultMessage();
+                                    }
+                                </MudText>
+                                @if (context.IsException ?? false)
+                                {
+                                    <div class="pt-1">
+                                        <MudButton Variant="Variant.Text"
+                                                Class="pa-0 ma-0"
+                                                Style="text-transform:none;"
+                                                Size="Size.Small"
+                                                OnClick="@(() => OnMoreDetails(context, "Error Details"))"
+                                                Color="Color.Primary">Error Details</MudButton>
+                                    </div>
+                                }
+                                else if (context.ShowExecutionDetailButton())
+                                {
+                                    <div class="pt-1">
+                                        <MudButton Variant="Variant.Text"
+                                                Class="pa-0 ma-0"
+                                                Style="text-transform:none;"
+                                                Size="Size.Small"
+                                                OnClick="@(() => OnMoreDetails(context, "Execution Details"))"
+                                                Color="Color.Primary">Execution Details</MudButton>
+                                    </div>
+                                }
+                            </div>
+                        </MudTd>
+                    </RowTemplate>
+                    <NoRecordsContent>
+                        <MudText>No error logs found</MudText>
+                    </NoRecordsContent>
+                    <LoadingContent>
+                        <MudText>Loading...</MudText>
+                    </LoadingContent>
+                </MudTable>
+            </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
+</div>
+
+
+
