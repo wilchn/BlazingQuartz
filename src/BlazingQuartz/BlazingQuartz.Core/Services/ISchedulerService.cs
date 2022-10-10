@@ -20,5 +20,7 @@ namespace BlazingQuartz.Core.Services
         Task<bool> DeleteSchedule(ScheduleModel model);
         Task UpdateSchedule(Key oldJobKey, Key? oldTriggerKey,
             JobDetailModel newJobModel, TriggerDetailModel newTriggerModel);
+        Task<SchedulerMetaData> GetMetadataAsync();
+        Task<IList<KeyValuePair<string, int>>> GetScheduledJobSummary();
     }
 }
