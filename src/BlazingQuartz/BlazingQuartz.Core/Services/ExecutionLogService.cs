@@ -253,6 +253,9 @@ namespace BlazingQuartz.Core.Services
                         Count = g.Count()
                     }).ToListAsync();
 
+                if (!statusGroup.Any())
+                    return new();
+
                 return new JobExecutionStatusSummaryModel
                 {
                     StartDateTimeUtc = statusGroup.Min(s => s.EarliestDateAdded).DateTime,

@@ -165,6 +165,26 @@ namespace BlazingQuartz.Core.Test.Services
             summary.Data.Where(d => d.Key == JobExecutionStatus.Success).Count().Should().Be(1);
             summary.StartDateTimeUtc.Should().Be(DateTime.UtcNow.Date.AddDays(-1));
         }
+
+        [Fact]
+        public async Task GetJobExecutionStatusSummary_SpecifiedDateRangeHasNoData()
+        {
+            var fixture = new Fixture();
+            context.ExecutionLogs.Add(
+                fixture.Build<ExecutionLog>()
+                    .With(l => l.LogType, LogType.ScheduleJob)
+                    .With(l => l.DateAddedUtc, DateTimeOffset.UtcNow.Date)
+                    .With(l => l.IsException, true)
+                    .With(l => l.IsVetoed, true)
+                    .Without(l => l.IsSuccess)
+                 .Create());
+            context.SaveChanges();
+
+            var summary = await sut.GetJobExecutionStatusSummary(DateTimeOffset.UtcNow.Date.AddDays(-1),
+                DateTimeOffset.UtcNow.Date.AddMilliseconds(-1));
+
+            summary.Data.Count.Should().Be(0);
+        }
     }
 }
 
