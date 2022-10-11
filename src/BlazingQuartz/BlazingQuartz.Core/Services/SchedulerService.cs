@@ -66,6 +66,33 @@ namespace BlazingQuartz.Core.Services
                 Where(n => n != Constants.SYSTEM_GROUP).ToList();
         }
 
+        public async Task<IList<KeyValuePair<string, int>>> GetScheduledJobSummary()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            var executingCount = (await scheduler.GetCurrentlyExecutingJobs()).Count;
+            var jobCount = (await scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup())).Count;
+            var triggerCount = (await scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup())).Count;
+            var sysJobCount = (await scheduler.GetJobKeys(
+                GroupMatcher<JobKey>.GroupEquals(Constants.SYSTEM_GROUP))).Count;
+            var sysTriggerCount = (await scheduler.GetTriggerKeys(
+                GroupMatcher<TriggerKey>.GroupEquals(Constants.SYSTEM_GROUP))).Count;
+
+            return new List<KeyValuePair<string, int>>
+            {
+                new KeyValuePair<string, int>("Jobs", jobCount),
+                new KeyValuePair<string, int>("Triggers", triggerCount),
+                new KeyValuePair<string, int>("Executing", executingCount),
+                new KeyValuePair<string, int>("System Jobs", sysJobCount),
+                new KeyValuePair<string, int>("System Triggers", sysTriggerCount)
+            };
+        }
+
+        public async Task<SchedulerMetaData> GetMetadataAsync()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            return await scheduler.GetMetaData();
+        }
+
         private async Task<ScheduleModel> CreateScheduleModel(IJobDetail? jobDetail, ITrigger trigger,
             CancellationToken cancellationToken = default)
         {
@@ -690,6 +717,36 @@ namespace BlazingQuartz.Core.Services
             }
 
             return model;
+        }
+
+        public async Task PauseAllSchedules()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.PauseAll();
+        }
+
+        public async Task ResumeAllSchedules()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.ResumeAll();
+        }
+
+        public async Task ShutdownScheduler()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.Shutdown();
+        }
+
+        public async Task StartScheduler()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.Start();
+        }
+
+        public async Task StandbyScheduler()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.Standby();
         }
 
         #endregion Private methods

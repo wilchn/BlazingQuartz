@@ -1,0 +1,30 @@
+::deep .title {
+    padding-left: 8px;
+    padding-top: 8px;
+    padding-bottom: 6px;
+}
+
+::deep .actionsform {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 12px;
+    row-gap: 12px;
+    padding: 26px 12px 12px 12px;
+    align-items: center;
+    flex-grow: 1;
+}
+
+::deep .scheduletab {
+    overflow-x: auto; 
+
+    padding-top: 14px;
+    padding-left: 4px;
+    &__td {
+        padding: 2px !important;
+        border-bottom: none;
+
+        &--txtright {
+            text-align: right;
+        }
+    }
+}
