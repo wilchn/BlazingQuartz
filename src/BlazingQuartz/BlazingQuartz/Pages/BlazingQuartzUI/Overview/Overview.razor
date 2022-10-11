@@ -5,10 +5,17 @@
 <PageTitle>Overview</PageTitle>
 
 <div>
-<MudContainer Class="mt-4 px-8" MaxWidth="MaxWidth.False">
+<MudContainer Class="mt-4" MaxWidth="MaxWidth.False">
     <MudGrid>
         <MudItem xs="12">
-            <MudText Typo="Typo.h4">Overview</MudText>
+            <div class="d-flex justify-space-between">
+                <MudText Typo="Typo.h4">Overview</MudText>
+                <MudSwitch Checked="AutoRefresh" Label="Auto Refresh"
+                           T="bool"
+                           LabelPosition="LabelPosition.Start"
+                           CheckedChanged="OnCheckAutoRefresh"
+                           Color="Color.Primary" UnCheckedColor="Color.Secondary" />
+            </div>
         </MudItem>
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Elevation="2" Style="height: 100%">
@@ -70,11 +77,33 @@
                 <MudPaper Elevation="2" Class="flex-grow-1">
                     <MudText Typo="Typo.h5" Class="title">Actions</MudText>
                     <div class="actionsform">
-                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.Stop" Color="Color.Dark">Standby</MudButton>
-                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.PowerSettingsNew" Color="Color.Error">Shutdown</MudButton>
+                        @if (IsStartButtonVisible)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Disabled="@IsStartStandbyDisabled"
+                                       OnClick="OnStartScheduler"
+                                       StartIcon="@Icons.Filled.Start" Color="Color.Primary">Start</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Disabled="@IsStartStandbyDisabled"
+                                       OnClick="OnStandbyScheduler"
+                                       StartIcon="@Icons.Filled.Stop" Color="Color.Dark">Standby</MudButton>
+                        }
 
-                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.Pause" Color="Color.Default">Pause All</MudButton>
-                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.PlayArrow" Color="Color.Default">Resume All</MudButton>
+                        <MudButton Variant="Variant.Filled"
+                                   OnClick="OnShutdownScheduler"
+                                   StartIcon="@Icons.Filled.PowerSettingsNew" Color="Color.Error">Shutdown</MudButton>
+
+                        <MudButton Variant="Variant.Filled"
+                                   Disabled="@IsPauseResumeDisabled"
+                                   OnClick="OnPauseAllSchedules"
+                                   StartIcon="@Icons.Filled.Pause" Color="Color.Default">Pause All</MudButton>
+                        <MudButton Variant="Variant.Filled"
+                                   Disabled="@IsPauseResumeDisabled"
+                                   OnClick="OnResumeAllSchedules"
+                                   StartIcon="@Icons.Filled.PlayArrow" Color="Color.Default">Resume All</MudButton>
                     </div>
                 </MudPaper>
 
@@ -113,7 +142,19 @@
                         {
                             <tr>
                                 <td>@item</td>
-                                <td>@SchedulerInfo[item]</td>
+                                <td>
+                                    @if (item.Equals(UptimeKey) && RunningSince.HasValue)
+                                    {
+                                        <MudTooltip Text="@($"Running since {RunningSince?.ToLocalTime()}")">
+                                            @SchedulerInfo[item]
+                                        </MudTooltip>
+                                    }
+                                    else
+                                    {
+                                        @SchedulerInfo[item]
+                                    }
+
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -125,8 +166,10 @@
             <MudPaper Elevation="2">
                 <MudText Typo="Typo.h5" Class="title">Failed Executions</MudText>
                 <MudTable Items="ErrorLogs"
-                        Breakpoint="Breakpoint.None"
-                        Dense="true" Hover="true" @ref="table">
+                          FixedHeader="true"
+                          Height="436px"
+                          Breakpoint="Breakpoint.None"
+                          Dense="true" Hover="true" @ref="table">
                     <ColGroup>
                         <col style="width: 120px;" />
                         <col />
