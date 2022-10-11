@@ -22,5 +22,10 @@ namespace BlazingQuartz.Core.Services
             JobDetailModel newJobModel, TriggerDetailModel newTriggerModel);
         Task<SchedulerMetaData> GetMetadataAsync();
         Task<IList<KeyValuePair<string, int>>> GetScheduledJobSummary();
+        Task PauseAllSchedules();
+        Task ResumeAllSchedules();
+        Task ShutdownScheduler();
+        Task StartScheduler();
+        Task StandbyScheduler();
     }
 }

@@ -719,6 +719,36 @@ namespace BlazingQuartz.Core.Services
             return model;
         }
 
+        public async Task PauseAllSchedules()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.PauseAll();
+        }
+
+        public async Task ResumeAllSchedules()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.ResumeAll();
+        }
+
+        public async Task ShutdownScheduler()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.Shutdown();
+        }
+
+        public async Task StartScheduler()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.Start();
+        }
+
+        public async Task StandbyScheduler()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.Standby();
+        }
+
         #endregion Private methods
     }
 }
