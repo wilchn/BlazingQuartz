@@ -104,7 +104,7 @@ namespace BlazingQuartz.Core.Services
 
                     if (filter.ErrorOnly)
                     {
-                        q = q.Where(l => l.IsException ?? false);
+                        q = q.Where(l => (l.IsException ?? false) || (l.IsSuccess.HasValue && !l.IsSuccess.Value));
                     }
 
                     if (filter.MessageContains != null)
