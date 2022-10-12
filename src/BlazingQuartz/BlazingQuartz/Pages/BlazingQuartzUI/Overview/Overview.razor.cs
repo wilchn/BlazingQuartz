@@ -32,7 +32,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Overview
         private MudTable<ExecutionLog> table = null!;
         private ExecutionLogFilter _errorExecutionLogFilter = new ExecutionLogFilter 
         {
-            //ErrorOnly = true,
+            ErrorOnly = true,
             LogTypes = new HashSet<LogType>{ LogType.ScheduleJob },
         };
         private PageMetadata errorLogPage = new PageMetadata(0, 10);
