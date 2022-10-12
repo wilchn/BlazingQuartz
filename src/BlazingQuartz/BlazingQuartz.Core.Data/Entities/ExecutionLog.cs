@@ -21,7 +21,13 @@ namespace BlazingQuartz.Core.Data.Entities
         public string? TriggerName { get; set; }
         [MaxLength(256)]
         public string? TriggerGroup { get; set; }
+        /// <summary>
+        /// Expected time the job should get triggered
+        /// </summary>
         public DateTimeOffset? ScheduleFireTimeUtc { get; set; }
+        /// <summary>
+        /// Actual time the job got triggered
+        /// </summary>
         public DateTimeOffset? FireTimeUtc { get; set; }
         public TimeSpan? JobRunTime { get; set; }
         public int? RetryCount { get; set; }
