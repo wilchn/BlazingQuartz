@@ -254,7 +254,8 @@
                                 </MudTooltip>
                             }
 
-                            @if (context.Item.JobStatus == JobStatus.NoTrigger)
+                            @if (context.Item.JobStatus == JobStatus.NoTrigger &&
+                                    !context.Item.PreviousTriggerTime.HasValue)
                             {
                                 <MudText Typo="Typo.body1">--</MudText>
                             }

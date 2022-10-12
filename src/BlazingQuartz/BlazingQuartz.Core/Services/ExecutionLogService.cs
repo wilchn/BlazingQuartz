@@ -17,7 +17,8 @@ namespace BlazingQuartz.Core.Services
         public async Task<PagedList<ExecutionLog>> GetLatestExecutionLog(
             string jobName, string jobGroup,
             string? triggerName, string? triggerGroup,
-            PageMetadata? pageMetadata = null, long firstLogId = 0)
+            PageMetadata? pageMetadata = null, long firstLogId = 0,
+            ISet<LogType>? logTypes = null)
         {
             using (var context = _contextFactory.CreateDbContext())
             {
@@ -34,6 +35,11 @@ namespace BlazingQuartz.Core.Services
                 {
                     // to avoid incorrect page data
                     q = q.Where(l => l.LogId <= firstLogId);
+                }
+
+                if (logTypes != null)
+                {
+                    q = q = q.Where(l => logTypes.Contains(l.LogType));
                 }
 
                 var ordered = q.OrderByDescending(l => l.DateAddedUtc).ThenByDescending(l => l.FireTimeUtc);

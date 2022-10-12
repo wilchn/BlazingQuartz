@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using BlazingQuartz.Components;
 using BlazingQuartz.Core;
+using BlazingQuartz.Core.Data;
 using BlazingQuartz.Core.Events;
 using BlazingQuartz.Core.Models;
 using BlazingQuartz.Core.Services;
+using BlazingQuartz.Jobs.Abstractions;
+using BlazingQuartz.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
@@ -17,6 +21,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
     {
         [Inject] private ISchedulerService SchedulerSvc { get; set; } = null!;
         [Inject] private ISchedulerListenerService SchedulerListenerSvc { get; set; } = null!;
+        [Inject] private IExecutionLogService ExecutionLogSvc { get; set; } = null!;
         [Inject] private IDialogService DialogSvc { get; set; } = null!;
         [Inject] private ILogger<Schedules> _logger { get; set; } = null!;
         [Inject] private ISnackbar Snackbar { get; set; } = null!;
@@ -220,8 +225,11 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                     model.PreviousTriggerTime = e.JobExecutionContext.FireTimeUtc;
                     model.NextTriggerTime = e.JobExecutionContext.NextFireTimeUtc;
                     model.JobStatus = JobStatus.Idle;
+                    var isSuccess = e.JobExecutionContext.GetIsSuccess();
                     if (e.JobException != null)
                         model.ExceptionMessage = e.JobException.Message;
+                    else if (isSuccess.HasValue && !isSuccess.Value)
+                        model.ExceptionMessage = e.JobExecutionContext.GetReturnCodeAndResult();
 
                     StateHasChanged();
                 }
@@ -287,6 +295,41 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
             }
             if (ScheduledJobs.Any())
                 _scheduleDataGrid?.ExpandAllGroups();
+
+            await UpdateScheduleModelsLastExecution();
+        }
+
+        private async Task UpdateScheduleModelsLastExecution()
+        {
+            var latestResult = new PageMetadata(0, 1);
+            var scheduleJobType = new HashSet<LogType> { LogType.ScheduleJob };
+
+            foreach (var schModel in ScheduledJobs)
+            {
+                if (string.IsNullOrEmpty(schModel.JobName))
+                    continue;
+
+                var latestLogList = await ExecutionLogSvc.GetLatestExecutionLog(schModel.JobName, schModel.JobGroup,
+                    schModel.TriggerName, schModel.TriggerGroup, latestResult,
+                    logTypes: scheduleJobType);
+
+                if (latestLogList != null && latestLogList.Any())
+                {
+                    var latestLog = latestLogList.First();
+                    if (!schModel.PreviousTriggerTime.HasValue)
+                    {
+                        schModel.PreviousTriggerTime = latestLog.FireTimeUtc;
+                    }
+                    if (latestLog.IsSuccess.HasValue && !latestLog.IsSuccess.Value)
+                    {
+                        schModel.ExceptionMessage = latestLog.GetShortResultMessage();
+                    }
+                    else if (latestLog.IsException ?? false)
+                    {
+                        schModel.ExceptionMessage = latestLog.GetShortExceptionMessage();
+                    }
+                }   
+            }
         }
 
         private Func<ScheduleModel, int, string> _scheduleRowStyleFunc => (model, i) =>

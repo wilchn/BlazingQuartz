@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using Quartz;
 
@@ -65,6 +66,22 @@ namespace BlazingQuartz.Jobs.Abstractions
         public static DataMapValue? GetDataMapValue(this JobDataMap dataMap, string key)
         {
             return DataMapValue.Create(dataMap.GetString(key));
+        }
+
+        public static string? GetReturnCodeAndResult(this IJobExecutionContext context)
+        {
+            var returnCode = context.GetReturnCode();
+            var strBldr = new StringBuilder();
+            if (!string.IsNullOrEmpty(returnCode))
+            {
+                strBldr.Append($"Return {returnCode}. ");
+            }
+            var result = context.Result?.ToString();
+            if (!string.IsNullOrEmpty(result))
+            {
+                strBldr.Append(result);
+            }
+            return strBldr.ToString();
         }
     }
 }
