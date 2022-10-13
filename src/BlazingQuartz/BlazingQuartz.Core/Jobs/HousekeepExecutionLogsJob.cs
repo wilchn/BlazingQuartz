@@ -24,7 +24,7 @@ namespace BlazingQuartz.Core.Jobs
             {
                 var count = await _logStore.DeleteLogsByDays(_options.ExecutionLogsDaysToKeep);
                 context.Result = $"Deleted {count} record(s)";
-                context.JobDetail.JobDataMap[JobDataMapKeys.IsSuccess] = true;
+                context.SetIsSuccess(true);
             }
             catch (Exception ex)
             {

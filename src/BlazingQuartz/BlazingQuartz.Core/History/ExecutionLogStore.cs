@@ -75,6 +75,21 @@ namespace BlazingQuartz.Core.History
 
             return ValueTask.CompletedTask;
         }
+
+        public async Task MarkExecutingJobAsIncomplete(CancellationToken cancellToken = default)
+        {
+            var isSuccessNullJobs = _dbContext.ExecutionLogs.Where(l => !l.IsSuccess.HasValue &&
+                l.LogType == LogType.ScheduleJob);
+
+            foreach (var log in isSuccessNullJobs)
+            {
+                log.IsSuccess = false;
+                log.ErrorMessage = "Incomplete execution.";
+                log.JobRunTime = null;
+            }
+
+            await _dbContext.SaveChangesAsync(cancellToken);
+        }
     }
 }
 
