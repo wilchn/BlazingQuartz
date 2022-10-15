@@ -133,7 +133,14 @@ namespace BlazingQuartz.Components
             _isDaysOfWeekValid = Validator.ValidateDaysOfWeek(TriggerDetail);
             if (_form.IsValid)
                 OnSetIsValid(_isDaysOfWeekValid);
-		}
+
+            // if daily trigger does not have end time, assign end time
+            if (TriggerDetail.TriggerType == TriggerType.Daily &&
+                !TriggerDetail.EndDailyTime.HasValue)
+            {
+                TriggerDetail.EndDailyTime = TriggerDetail.StartDailyTime;
+            }
+        }
 
         async Task OnStartDailyTimeChanged(TimeSpan? time)
         {
