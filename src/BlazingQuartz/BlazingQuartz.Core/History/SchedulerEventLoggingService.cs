@@ -194,19 +194,19 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
 
     internal void _schLisSvc_OnJobExecutionVetoed(object? sender, Events.EventArgs<Quartz.IJobExecutionContext> e)
     {
-        var log = CreateLogEntry(e.Args, defaultIsSuccess: false);
+        var log = CreateScheduleJobLogEntry(e.Args, defaultIsSuccess: false);
         log.IsVetoed = true;
         QueueUpdateTask(log);
     }
 
     internal void _schLisSvc_OnJobWasExecuted(object? sender, Events.JobWasExecutedEventArgs e)
     {
-        QueueUpdateTask(CreateLogEntry(e.JobExecutionContext, e.JobException, true));
+        QueueUpdateTask(CreateScheduleJobLogEntry(e.JobExecutionContext, e.JobException, true));
     }
 
     internal void _schLisSvc_OnJobToBeExecuted(object? sender, Events.EventArgs<Quartz.IJobExecutionContext> e)
     {
-        QueueInsertTask(CreateLogEntry(e.Args));
+        QueueInsertTask(CreateScheduleJobLogEntry(e.Args));
     }
 
     private async Task AddHousekeepingSchedule(IScheduler scheduler)
@@ -274,9 +274,33 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        await MarkIncompleteExecution(stoppingToken);
+
         while (!stoppingToken.IsCancellationRequested)
         {
             await ProcessTaskAsync(stoppingToken);
+        }
+    }
+
+    internal async Task MarkIncompleteExecution(CancellationToken stoppingToken)
+    {
+        try
+        {
+            using (IServiceScope scope = _svcProvider.CreateScope())
+            {
+                var repo =
+                    scope.ServiceProvider.GetRequiredService<IExecutionLogStore>();
+
+                await repo.MarkExecutingJobAsIncomplete();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Prevent throwing if stoppingToken was signaled
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while updating executing status to incomplete status.");
         }
     }
 
@@ -320,7 +344,7 @@ internal class SchedulerEventLoggingService : BackgroundService, ISchedulerEvent
     }
 
 
-    private ExecutionLog CreateLogEntry(IJobExecutionContext context,
+    private ExecutionLog CreateScheduleJobLogEntry(IJobExecutionContext context,
         JobExecutionException? jobException = null,
         bool? defaultIsSuccess = null)
     {

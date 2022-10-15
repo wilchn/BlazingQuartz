@@ -10,6 +10,7 @@ namespace BlazingQuartz.Core.History
         Task AddExecutionLog(ExecutionLog log, CancellationToken cancelToken = default);
         ValueTask UpdateExecutionLog(ExecutionLog log);
         Task SaveChangesAsync(CancellationToken cancelToken = default);
+        Task MarkExecutingJobAsIncomplete(CancellationToken cancellToken = default);
     }
 }
 

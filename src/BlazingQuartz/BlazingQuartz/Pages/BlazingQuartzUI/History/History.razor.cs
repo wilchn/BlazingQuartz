@@ -72,7 +72,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.History
 
         private (string, Color, string) GetLogIconAndColor(ExecutionLog log)
         {
-            if (log.IsException ?? false)
+            if (log.IsException ?? false || (log.IsSuccess.HasValue && !log.IsSuccess.Value))
                 return (Icons.Filled.Error, Color.Error, "Error");
 
             switch (log.LogType)

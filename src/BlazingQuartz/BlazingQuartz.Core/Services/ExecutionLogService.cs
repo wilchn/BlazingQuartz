@@ -17,7 +17,8 @@ namespace BlazingQuartz.Core.Services
         public async Task<PagedList<ExecutionLog>> GetLatestExecutionLog(
             string jobName, string jobGroup,
             string? triggerName, string? triggerGroup,
-            PageMetadata? pageMetadata = null, long firstLogId = 0)
+            PageMetadata? pageMetadata = null, long firstLogId = 0,
+            ISet<LogType>? logTypes = null)
         {
             using (var context = _contextFactory.CreateDbContext())
             {
@@ -34,6 +35,11 @@ namespace BlazingQuartz.Core.Services
                 {
                     // to avoid incorrect page data
                     q = q.Where(l => l.LogId <= firstLogId);
+                }
+
+                if (logTypes != null)
+                {
+                    q = q = q.Where(l => logTypes.Contains(l.LogType));
                 }
 
                 var ordered = q.OrderByDescending(l => l.DateAddedUtc).ThenByDescending(l => l.FireTimeUtc);
@@ -104,7 +110,7 @@ namespace BlazingQuartz.Core.Services
 
                     if (filter.ErrorOnly)
                     {
-                        q = q.Where(l => l.IsException ?? false);
+                        q = q.Where(l => (l.IsException ?? false) || (l.IsSuccess.HasValue && !l.IsSuccess.Value));
                     }
 
                     if (filter.MessageContains != null)
@@ -215,6 +221,55 @@ namespace BlazingQuartz.Core.Services
             }
         }
 
+
+        public async Task<JobExecutionStatusSummaryModel> GetJobExecutionStatusSummary(
+            DateTimeOffset? startTimeUtc, DateTimeOffset? endTimeUtc = null)
+        {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                var q = context.ExecutionLogs.Where(l => l.LogType == LogType.ScheduleJob);
+                if (startTimeUtc.HasValue)
+                {
+                    q = q.Where(l => l.DateAddedUtc >= startTimeUtc.Value);
+                }
+                if (endTimeUtc.HasValue)
+                {
+                    q = q.Where(l => l.DateAddedUtc < endTimeUtc.Value);
+                }
+
+                var statusList = q.Select(l => new
+                {
+                    DateAddedUtc = l.DateAddedUtc,
+                    ExecutionStatus = (l.IsException ?? false) ?
+                        // has exception
+                        JobExecutionStatus.Failed :
+                        // vetoed?
+                        ((l.IsVetoed ?? false) ?
+                            JobExecutionStatus.Vetoed :
+                            // is success null?
+                            (l.IsSuccess.HasValue ?
+                                (l.IsSuccess.Value ? JobExecutionStatus.Success : JobExecutionStatus.Failed) :
+                                JobExecutionStatus.Executing))
+                });
+
+                var statusGroup = await statusList.GroupBy(l => l.ExecutionStatus)
+                    .Select(g => new {
+                        EarliestDateAdded = g.Min(l => l.DateAddedUtc),
+                        ExecutionStatus = g.Key,
+                        Count = g.Count()
+                    }).ToListAsync();
+
+                if (!statusGroup.Any())
+                    return new();
+
+                return new JobExecutionStatusSummaryModel
+                {
+                    StartDateTimeUtc = statusGroup.Min(s => s.EarliestDateAdded).DateTime,
+                    Data = statusGroup.Select(s => new KeyValuePair<JobExecutionStatus, int>(s.ExecutionStatus, s.Count))
+                            .ToList()
+                };
+            }
+        }
     }
 }
 

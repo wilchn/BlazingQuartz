@@ -1,4 +1,5 @@
-﻿using BlazingQuartz.Core.Data.Entities;
+﻿using BlazingQuartz.Core.Data;
+using BlazingQuartz.Core.Data.Entities;
 using BlazingQuartz.Core.Models;
 
 namespace BlazingQuartz.Core.Services
@@ -7,7 +8,8 @@ namespace BlazingQuartz.Core.Services
     {
         Task<PagedList<ExecutionLog>> GetLatestExecutionLog(string jobName, string jobGroup,
             string? triggerName, string? triggerGroup,
-            PageMetadata? pageMetadata = null, long firstLogId = 0);
+            PageMetadata? pageMetadata = null, long firstLogId = 0,
+            ISet<LogType>? logTypes = null);
         Task<PagedList<ExecutionLog>> GetExecutionLogs(
             ExecutionLogFilter? filter = null,
             PageMetadata? pageMetadata = null, long firstLogId = 0);
@@ -15,5 +17,14 @@ namespace BlazingQuartz.Core.Services
         Task<IList<string>> GetJobGroups();
         Task<IList<string>> GetTriggerNames();
         Task<IList<string>> GetTriggerGroups();
+        /// <summary>
+        /// Returns job execution summary. Number of success, failed,
+        /// executing and interrupted jobs of given date range.
+        /// </summary>
+        /// <param name="startTimeUtc"></param>
+        /// <param name="endTimeUtc">inclusive</param>
+        /// <returns></returns>
+        Task<JobExecutionStatusSummaryModel> GetJobExecutionStatusSummary(
+            DateTimeOffset? startTimeUtc, DateTimeOffset? endTimeUtc = null);
     }
 }

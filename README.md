@@ -3,6 +3,8 @@ BlazingQuartz is an easy to use [Blazor](https://blazor.net) web UI to manage [Q
 
 BlazingQuartz is created with [ASP.NET Core Blazor Server](https://blazor.net) and use [MudBlazor](https://mudblazor.com) component library.
 
+![Overview page](img/overview.png)
+
 ## Requirements
 * .NET 6
 * Quartz 3.5+

@@ -34,7 +34,7 @@
 
 
 <div>
-    <MudContainer Class="mt-2 px-8" MaxWidth="MaxWidth.False">
+    <MudContainer Class="mt-2" MaxWidth="MaxWidth.False">
         <MudText Typo="Typo.h4">Schedules</MudText>
         <MudGrid>
             <MudItem xs="6" Class="mb-2 d-flex gap-3 justify-start align-end">
@@ -254,7 +254,8 @@
                                 </MudTooltip>
                             }
 
-                            @if (context.Item.JobStatus == JobStatus.NoTrigger)
+                            @if (context.Item.JobStatus == JobStatus.NoTrigger &&
+                                    !context.Item.PreviousTriggerTime.HasValue)
                             {
                                 <MudText Typo="Typo.body1">--</MudText>
                             }
