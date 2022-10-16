@@ -1,3 +1,5 @@
+@import '../wwwroot/css/variables';
+
 .triggerform {
     display: grid;
     grid-template-columns: 1fr;
@@ -16,5 +18,15 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         column-gap: 8px;
+    }
+}
+
+@media (max-width:$breakpoint-sm) {
+    .triggerform {    
+        &__2col {
+            display: grid;
+            grid-template-columns: 1fr;
+            row-gap: 6px;
+        }
     }
 }
