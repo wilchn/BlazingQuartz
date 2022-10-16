@@ -11,6 +11,7 @@ namespace BlazingQuartz.Components
 {
     public partial class BlazingTrigger : ComponentBase
     {
+        const string CRON_HELP_TEXT = "Cron expression: seconds minutes hours day-of-month month day-of-week year";
 		[Inject] private ISchedulerDefinitionService SchedulerDefSvc { get; set; } = null!;
         [Inject] private ISchedulerService SchedulerSvc { get; set; } = null!;
         [Inject] private ITriggerDetailModelValidator Validator { get; set; } = null!;
@@ -28,7 +29,7 @@ namespace BlazingQuartz.Components
 
         private IEnumerable<string>? ExistingTriggerGroups;
 
-		private string? CronDescription;
+		private string? CronDescription = CRON_HELP_TEXT;
 		private MudForm _form = null!;
         private bool _isDaysOfWeekValid = true;
         private IReadOnlyCollection<string>? _calendars;
@@ -57,7 +58,7 @@ namespace BlazingQuartz.Components
 			}
 			catch
 			{
-				CronDescription = "Check cron expression";
+				CronDescription = CRON_HELP_TEXT;
 			}
 		}
 
@@ -169,7 +170,7 @@ namespace BlazingQuartz.Components
                 MaxWidth = MaxWidth.Small
             };
             var parameters = new DialogParameters { 
-                ["ExistingDataMap"] = new Dictionary<string, object>(TriggerDetail.TriggerDataMap, 
+                ["JobDataMap"] = new Dictionary<string, object>(TriggerDetail.TriggerDataMap, 
                     StringComparer.OrdinalIgnoreCase)
             };
 
