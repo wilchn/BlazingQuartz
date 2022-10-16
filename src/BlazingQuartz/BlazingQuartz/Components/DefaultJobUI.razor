@@ -1,50 +1,53 @@
 <div class="d-flex justify-space-between mt-3 mb-2">
     <MudText Typo="Typo.h6">Job Data Map</MudText>
     <MudButton Variant="Variant.Filled" Color="Color.Primary"
+        Class="align-self-start"
         OnClick="OnAddDataMap"
         Disabled="IsReadOnly"
         StartIcon="@Icons.Filled.Add">Add</MudButton>
 </div>
 
-<MudSimpleTable Hover="true" Dense="true" 
-    Striped="true" Outlined="true"
-    FixedHeader="true" Style="height:280px;">
-    <colgroup>
-        <col />
-        <col />
-        <col style="width: 200px;"/>
-        <col style="width: 60px;" />
-    </colgroup>
-    <thead>
-        <tr>
-            <th>Key</th>
-            <th>Value</th>
-            <th>Type</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var row in @JobDetail.JobDataMap)
-        {
+<div style="height:280px;">
+    <MudSimpleTable Hover="true" Dense="true" 
+        Striped="true" Outlined="true"
+        FixedHeader="true" Style="max-height: 280px; overflow: auto;">
+        <colgroup>
+            <col />
+            <col />
+            <col style="width: 200px;"/>
+            <col style="width: 60px;" />
+        </colgroup>
+        <thead>
             <tr>
-                <td>@row.Key</td>
-                <td>@row.Value.ToString()</td>
-                <td>@row.GetDataMapTypeDescription()</td>
-                <td class="d-flex">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
-                        OnClick="() => OnEditDataMap(row)"
-                        Disabled="IsReadOnly"
-                        aria-label="Edit"></MudIconButton>
-                    <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" Size="Size.Small"
-                        OnClick="() => OnCloneDataMap(row)"
-                        Disabled="IsReadOnly"
-                        aria-label="Copy"></MudIconButton>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" 
-                        OnClick="() => OnDeleteDataMap(row)"
-                        Disabled="IsReadOnly"
-                        aria-label="Delete"></MudIconButton>
-                </td>
+                <th>Key</th>
+                <th>Value</th>
+                <th>Type</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</MudSimpleTable>
+        </thead>
+        <tbody>
+            @foreach (var row in @JobDetail.JobDataMap)
+            {
+                <tr>
+                    <td>@row.Key</td>
+                    <td>@row.Value.ToString()</td>
+                    <td>@row.GetDataMapTypeDescription()</td>
+                    <td class="d-flex">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                            OnClick="() => OnEditDataMap(row)"
+                            Disabled="IsReadOnly"
+                            aria-label="Edit"></MudIconButton>
+                        <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" Size="Size.Small"
+                            OnClick="() => OnCloneDataMap(row)"
+                            Disabled="IsReadOnly"
+                            aria-label="Copy"></MudIconButton>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" 
+                            OnClick="() => OnDeleteDataMap(row)"
+                            Disabled="IsReadOnly"
+                            aria-label="Delete"></MudIconButton>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </MudSimpleTable>
+</div>
