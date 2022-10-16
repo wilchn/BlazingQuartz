@@ -1,3 +1,5 @@
+@import '../wwwroot/css/variables';
+
 .jobform {
     height: 65vh;
     max-height: 630px;
@@ -6,6 +8,12 @@
     padding-top: 4px;
     padding-left: 12px;
     padding-right: 12px;
+
+    &__2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 8px;
+    }
 }
 
 .datamap-container {
@@ -17,3 +25,12 @@
     border-bottom: 1px solid var(--mud-palette-table-lines);
 }
 
+@media (max-width:$breakpoint-sm) {
+    .jobform {    
+        &__2col {
+            display: grid;
+            grid-template-columns: 1fr;
+            row-gap: 6px;
+        }
+    }
+}

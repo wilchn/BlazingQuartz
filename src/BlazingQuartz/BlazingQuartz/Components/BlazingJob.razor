@@ -2,7 +2,7 @@
 <div class="jobform">
     <MudForm @ref="_form" Model="@JobDetail" IsValidChanged="OnSetIsValid">
         <MudStack Spacing="1">
-            <div class="d-flex flex-grow-1 gap-2">
+            <div class="jobform__2col">
                 <MudTextField @bind-Value="JobDetail.Name"
                               For="@(() => JobDetail.Name)"
                               Clearable="@(!IsReadOnly)"
