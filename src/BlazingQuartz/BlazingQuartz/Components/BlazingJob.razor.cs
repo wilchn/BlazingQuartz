@@ -61,7 +61,14 @@ namespace BlazingQuartz.Components
             if (string.IsNullOrEmpty(value))
                 return ExistingJobGroups;
             
-            return ExistingJobGroups.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+            var matches = ExistingJobGroups
+                .Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
+
+            if (!matches.Any(x => x == value))
+                matches.Add(value);
+
+            return matches;
         }
 
         private void OnSetIsValid(bool value)

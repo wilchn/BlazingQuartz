@@ -72,7 +72,14 @@ namespace BlazingQuartz.Components
             if (string.IsNullOrEmpty(value))
                 return ExistingTriggerGroups;
 
-            return ExistingTriggerGroups.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+            var matches = ExistingTriggerGroups
+                .Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
+
+            if (!matches.Any(x => x == value))
+                matches.Add(value);
+
+            return matches;
         }
 
         async Task OnShowSampleCron()
