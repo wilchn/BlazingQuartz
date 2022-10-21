@@ -208,7 +208,10 @@
                     RequiredError="Timezone is required"
                     Margin="Margin.Dense" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem T="TimeZoneInfo" Value="@(TimeZoneInfo.Utc)" />
-                <MudSelectItem T="TimeZoneInfo" Value="@(TimeZoneInfo.Local)" />
+                @if (TimeZoneInfo.Utc != TimeZoneInfo.Local)
+                {
+                    <MudSelectItem T="TimeZoneInfo" Value="@(TimeZoneInfo.Local)" />
+                }
             </MudSelect>
 
             <div class="d-flex gap-2">
