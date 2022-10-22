@@ -17,6 +17,7 @@ namespace BlazingQuartz.Core.Services
         Task<IReadOnlyCollection<string>> GetCalendarNames(CancellationToken cancelToken = default);
         Task PauseTrigger(string triggerName, string? triggerGroup);
         Task ResumeTrigger(string triggerName, string? triggerGroup);
+        Task TriggerJob(string jobName, string jobGroup);
         Task<bool> DeleteSchedule(ScheduleModel model);
         Task UpdateSchedule(Key oldJobKey, Key? oldTriggerKey,
             JobDetailModel newJobModel, TriggerDetailModel newTriggerModel);
