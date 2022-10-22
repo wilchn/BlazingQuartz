@@ -9,3 +9,7 @@
               Label="Message" />
 
 <MudText Typo="Typo.body1">Output: @ResolvedMessage</MudText>
+
+<MudNumericField @bind-Value="DelayInMs" Label="Delay (in ms)"
+                 Margin="Margin.Dense"
+                 Variant="Variant.Outlined"Step="1" />

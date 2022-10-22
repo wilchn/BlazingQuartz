@@ -37,6 +37,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
 
         internal bool IsEditActionDisabled(ScheduleModel model) => (model.JobStatus == JobStatus.NoSchedule ||
             model.JobStatus == JobStatus.Error ||
+            model.JobStatus == JobStatus.Running ||
             model.JobGroup == Constants.SYSTEM_GROUP);
 
         internal bool IsRunActionDisabled(ScheduleModel model) => (model.JobStatus == JobStatus.NoSchedule ||
@@ -45,6 +46,10 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
         internal bool IsPauseActionDisabled(ScheduleModel model) => (model.JobStatus == JobStatus.NoSchedule ||
                                             model.JobStatus == JobStatus.Error ||
                                             model.JobStatus == JobStatus.NoTrigger);
+
+        internal bool IsTriggerNowActionDisabled(ScheduleModel model) => model.JobStatus == JobStatus.NoSchedule ||
+            model.JobStatus == JobStatus.Error ||
+            model.JobStatus == JobStatus.Running;
 
         internal bool IsAddTriggerActionDisabled(ScheduleModel model) => model.JobStatus == JobStatus.NoSchedule ||
             model.JobStatus == JobStatus.Error ||
@@ -55,6 +60,8 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
             model.JobGroup == Constants.SYSTEM_GROUP);
 
         internal bool IsHistoryActionDisabled(ScheduleModel model) => model.JobStatus == JobStatus.NoSchedule;
+
+        internal bool IsDeleteActionDisabled(ScheduleModel model) => model.JobStatus == JobStatus.Running;
 
         // private TableGroupDefinition<ScheduleModel> _groupDefinition = new()
         // {
@@ -621,8 +628,16 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                 return;
             }
 
+            int skipCount = 0;
+
             var deleteTasks = selectedItems.Select(model =>
             {
+                if (model.JobStatus == JobStatus.Running)
+                {
+                    skipCount++;
+                    return Task.FromResult(true);
+                }
+                
                 ScheduledJobs.Remove(model);
                 return SchedulerSvc.DeleteSchedule(model);
             });
@@ -636,8 +651,16 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
             else
             {
                 var deletedCount = results.Where(t => t).Count();
-                var notDeletedCount = results.Count() - deletedCount;
-                Snackbar.Add($"Deleted {deletedCount} schedule(s)", Severity.Info);
+                var notDeletedCount = results.Count() - deletedCount - skipCount;
+
+                if (skipCount > 0)
+                {
+                    Snackbar.Add($"Deleted {deletedCount} schedule(s). Skip {skipCount} executing schedule(s)", Severity.Info);
+                }
+                else
+                {
+                    Snackbar.Add($"Deleted {deletedCount} schedule(s)", Severity.Info);
+                }
 
                 if (notDeletedCount > 0)
                 {
