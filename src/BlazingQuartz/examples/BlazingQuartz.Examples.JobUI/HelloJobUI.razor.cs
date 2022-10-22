@@ -20,6 +20,7 @@ namespace BlazingQuartz.Examples.JobUI
         private DataMapValue DataMapMessage { get; set; } = new(DataMapValueType.InterpolatedString, 1);
 
         private string? ResolvedMessage { get; set; }
+        private int DelayInMs { get; set; }
 
         protected override void OnInitialized()
         {
@@ -27,6 +28,11 @@ namespace BlazingQuartz.Examples.JobUI
             {
                 DataMapMessage = DataMapValue.Create(JobDataMap[HelloJob.PropertyMessage],
                     DataMapValueType.InterpolatedString, 1);
+            }
+
+            if (JobDataMap.ContainsKey(HelloJob.PropertyDelayInMs))
+            {
+                DelayInMs = Convert.ToInt32(JobDataMap[HelloJob.PropertyDelayInMs]);
             }
         }
 
@@ -51,12 +57,15 @@ namespace BlazingQuartz.Examples.JobUI
                 JobDataMap[HelloJob.PropertyMessage] = DataMapMessage.ToString();
             }
 
+            JobDataMap[HelloJob.PropertyDelayInMs] = DelayInMs.ToString();
+
             return Task.FromResult<bool>(true);
         }
 
         public Task ClearChanges()
         {
             JobDataMap.Remove(HelloJob.PropertyMessage);
+            JobDataMap.Remove(HelloJob.PropertyDelayInMs);
             return Task.CompletedTask;
         }
     }
