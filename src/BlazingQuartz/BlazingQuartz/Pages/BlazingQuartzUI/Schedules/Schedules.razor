@@ -302,6 +302,14 @@
                     <MudMenu Icon="@Icons.Material.Filled.MoreHoriz" Size="Size.Small"
                                 Style="display: inline-block;">
                         <MudMenuItem Disabled="@IsAddTriggerActionDisabled(context.Item)"
+                                        OnClick="@(async () => await OnTriggerNow(context.Item))">
+                            <div class="d-flex gap-1">
+                                <MudIcon Icon="@Icons.Filled.PlayCircleOutline" Title="Trigger Now"
+                                            Size="Size.Small" />
+                                <MudText Typo="Typo.body1">Trigger Now</MudText>
+                            </div>
+                        </MudMenuItem>
+                        <MudMenuItem Disabled="@IsAddTriggerActionDisabled(context.Item)"
                                         OnClick="@(async () => await OnAddTrigger(context.Item))">
                             <div class="d-flex gap-1">
                                 <MudIcon Icon="@Icons.Filled.AddAlarm" Title="Add Trigger"

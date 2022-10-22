@@ -313,6 +313,12 @@ namespace BlazingQuartz.Core.Services
             return success;
         }
 
+        public async Task TriggerJob(string jobName, string jobGroup)
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            await scheduler.TriggerJob(new JobKey(jobName, jobGroup));
+        }
+
         #region Private methods
 
         private async IAsyncEnumerable<ScheduleModel> GetScheduleModelsAsync(JobKey jobkey)

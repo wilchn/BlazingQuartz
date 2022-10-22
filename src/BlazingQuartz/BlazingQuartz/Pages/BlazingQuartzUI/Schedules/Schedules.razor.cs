@@ -558,6 +558,17 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
             var dlg = DialogSvc.Show<HistoryDialog>("Execution History", parameters, options);
         }
 
+        private async Task OnTriggerNow(ScheduleModel model)
+        {
+            if (model.JobName == null)
+            {
+                Snackbar.Add("Cannot add trigger. Check if job still exists.", Severity.Error);
+                return;
+            }
+
+            await SchedulerSvc.TriggerJob(model.JobName, model.JobGroup);
+        }
+
         private async Task OnAddTrigger(ScheduleModel model)
         {
             if (model.JobName == null)
