@@ -14,6 +14,7 @@ namespace BlazingQuartz
         Sqlite,
         PostgreSQL,
         InMemory,
+        SqlServer,
         Custom,
     }
 
