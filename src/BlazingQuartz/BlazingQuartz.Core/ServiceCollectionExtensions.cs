@@ -97,7 +97,14 @@ namespace BlazingQuartz.Core
 								x => x.MigrationsAssembly("PostgreSQLMigrations"))
 								.UseSnakeCaseNamingConvention();
 						break;
-					default:
+                    case DataStoreProvider.SqlServer:
+                        ArgumentNullException.ThrowIfNull(connectionString);
+                        dbOptionAction = options =>
+                            options.UseSqlServer(connectionString,
+                                x => x.MigrationsAssembly("SqlServerMigrations"))
+                                .UseSnakeCaseNamingConvention();
+                        break;
+                    default:
 						throw new NotSupportedException("Unsupported data store provider. Configure services.AddDbContextFactory() manually");
 
 				}
