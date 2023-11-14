@@ -7,15 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Quartz" />
-    <None Remove="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    <None Remove="Processors\" />
-    <None Remove="Resolvers\" />
-    <None Remove="Resolvers\V1\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Quartz" Version="3.4.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Quartz" Version="3.5.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Processors\" />
@@ -29,4 +22,7 @@
     </AssemblyAttribute>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Quartz" />
+  </ItemGroup>
 </Project>

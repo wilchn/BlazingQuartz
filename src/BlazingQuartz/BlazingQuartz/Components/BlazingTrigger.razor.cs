@@ -11,55 +11,56 @@ namespace BlazingQuartz.Components
 {
     public partial class BlazingTrigger : ComponentBase
     {
-		[Inject] private ISchedulerDefinitionService SchedulerDefSvc { get; set; } = null!;
+        const string CRON_HELP_TEXT = "Cron expression: seconds minutes hours day-of-month month day-of-week year";
+        [Inject] private ISchedulerDefinitionService SchedulerDefSvc { get; set; } = null!;
         [Inject] private ISchedulerService SchedulerSvc { get; set; } = null!;
         [Inject] private ITriggerDetailModelValidator Validator { get; set; } = null!;
         [Inject] private IDialogService DialogSvc { get; set; } = null!;
 
         [Parameter]
-		[EditorRequired]
-		public TriggerDetailModel TriggerDetail { get; set; } = new();
+        [EditorRequired]
+        public TriggerDetailModel TriggerDetail { get; set; } = new();
 
         [Parameter] public bool IsValid { get; set; }
 
-		[Parameter] public EventCallback<bool> IsValidChanged { get; set; }
+        [Parameter] public EventCallback<bool> IsValidChanged { get; set; }
 
-		private ISet<TriggerType> ExcludedTriggerTypeChoices = new HashSet<TriggerType> { TriggerType.Unknown, TriggerType.Calendar };
+        private ISet<TriggerType> ExcludedTriggerTypeChoices = new HashSet<TriggerType> { TriggerType.Unknown, TriggerType.Calendar };
 
         private IEnumerable<string>? ExistingTriggerGroups;
 
-		private string? CronDescription;
-		private MudForm _form = null!;
+        private string? CronDescription = CRON_HELP_TEXT;
+        private MudForm _form = null!;
         private bool _isDaysOfWeekValid = true;
         private IReadOnlyCollection<string>? _calendars;
         private MudTimePicker _endDailyTimePicker = null!;
         private MudDatePicker _endDatePicker = null!;
         private Key? OriginalTriggerKey { get; set; }
 
-		private Dictionary<TriggerType, string> TriggerTypeIcons = new()
-		{
-			{ TriggerType.Cron, TriggerType.Cron.GetTriggerTypeIcon() },
-			{ TriggerType.Daily, TriggerType.Daily.GetTriggerTypeIcon() },
-			{ TriggerType.Simple, TriggerType.Simple.GetTriggerTypeIcon() },
-			{ TriggerType.Calendar, TriggerType.Calendar.GetTriggerTypeIcon() },
-		};
+        private Dictionary<TriggerType, string> TriggerTypeIcons = new()
+        {
+            { TriggerType.Cron, TriggerType.Cron.GetTriggerTypeIcon() },
+            { TriggerType.Daily, TriggerType.Daily.GetTriggerTypeIcon() },
+            { TriggerType.Simple, TriggerType.Simple.GetTriggerTypeIcon() },
+            { TriggerType.Calendar, TriggerType.Calendar.GetTriggerTypeIcon() },
+        };
 
-		protected override void OnInitialized()
-		{
+        protected override void OnInitialized()
+        {
             OriginalTriggerKey = new(TriggerDetail.Name, TriggerDetail.Group);
         }
 
-		private void OnCronExpressionInputElapsed(string? cronExpression)
-		{
-			try
-			{
-				CronDescription = CronExpressionDescriptor.ExpressionDescriptor.GetDescription(cronExpression);
-			}
-			catch
-			{
-				CronDescription = "Check cron expression";
-			}
-		}
+        private void OnCronExpressionInputElapsed(string? cronExpression)
+        {
+            try
+            {
+                CronDescription = CronExpressionDescriptor.ExpressionDescriptor.GetDescription(cronExpression);
+            }
+            catch
+            {
+                CronDescription = CRON_HELP_TEXT;
+            }
+        }
 
         async Task<IEnumerable<string>> SearchTriggerGroup(string value)
         {
@@ -71,7 +72,14 @@ namespace BlazingQuartz.Components
             if (string.IsNullOrEmpty(value))
                 return ExistingTriggerGroups;
 
-            return ExistingTriggerGroups.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+            var matches = ExistingTriggerGroups
+                .Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
+
+            if (!matches.Any(x => x == value))
+                matches.Add(value);
+
+            return matches;
         }
 
         async Task OnShowSampleCron()
@@ -96,15 +104,15 @@ namespace BlazingQuartz.Components
 
         async Task<IEnumerable<TimeZoneInfo>> SearchTimeZoneInfo(string value)
         {
-			await Task.CompletedTask;
+            await Task.CompletedTask;
 
             var tzList = TimeZoneInfo.GetSystemTimeZones();
 
-			if (string.IsNullOrEmpty(value))
-			{
-				return tzList;
-			}
-            
+            if (string.IsNullOrEmpty(value))
+            {
+                return tzList;
+            }
+
             return tzList.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
         }
 
@@ -126,14 +134,21 @@ namespace BlazingQuartz.Components
             IsValidChanged.InvokeAsync(value).AndForget();
         }
 
-		public async Task Validate()
-		{
+        public async Task Validate()
+        {
             await _form.Validate();
 
             _isDaysOfWeekValid = Validator.ValidateDaysOfWeek(TriggerDetail);
             if (_form.IsValid)
                 OnSetIsValid(_isDaysOfWeekValid);
-		}
+
+            // if daily trigger does not have end time, assign end time
+            if (TriggerDetail.TriggerType == TriggerType.Daily &&
+                !TriggerDetail.EndDailyTime.HasValue)
+            {
+                TriggerDetail.EndDailyTime = TriggerDetail.StartDailyTime;
+            }
+        }
 
         async Task OnStartDailyTimeChanged(TimeSpan? time)
         {
@@ -155,14 +170,16 @@ namespace BlazingQuartz.Components
 
         async Task OnAddDataMap()
         {
-            var options = new DialogOptions {
+            var options = new DialogOptions
+            {
                 CloseOnEscapeKey = true,
                 DisableBackdropClick = true,
                 FullWidth = true,
                 MaxWidth = MaxWidth.Small
             };
-            var parameters = new DialogParameters { 
-                ["ExistingDataMap"] = new Dictionary<string, object>(TriggerDetail.TriggerDataMap, 
+            var parameters = new DialogParameters
+            {
+                ["JobDataMap"] = new Dictionary<string, object>(TriggerDetail.TriggerDataMap,
                     StringComparer.OrdinalIgnoreCase)
             };
 
@@ -225,7 +242,7 @@ namespace BlazingQuartz.Components
             };
             int index = 1;
             var key = item.Key + index++;
-            
+
             while (TriggerDetail.TriggerDataMap.ContainsKey(key))
             {
                 if (index == int.MaxValue)
@@ -233,13 +250,13 @@ namespace BlazingQuartz.Components
                     key = string.Empty;
                     break;
                 }
-                    
+
                 key = item.Key + index++;
             }
             var clonedItem = new KeyValuePair<string, object>(key, item.Value);
             var parameters = new DialogParameters
             {
-                ["ExistingDataMap"] = new Dictionary<string, object>(TriggerDetail.TriggerDataMap, 
+                ["ExistingDataMap"] = new Dictionary<string, object>(TriggerDetail.TriggerDataMap,
                     StringComparer.OrdinalIgnoreCase),
                 ["DataMapItem"] = new DataMapItemModel(clonedItem)
             };
@@ -264,9 +281,9 @@ namespace BlazingQuartz.Components
         async Task OnDeleteDataMap(KeyValuePair<string, object> item)
         {
             bool? yes = await DialogSvc.ShowMessageBox(
-                "Confirm Delete", 
-                $"Do you want to delete '{item.Key}'?", 
-                yesText:"Yes", cancelText:"No");
+                "Confirm Delete",
+                $"Do you want to delete '{item.Key}'?",
+                yesText: "Yes", cancelText: "No");
 
             if (yes == null || !yes.Value)
             {
@@ -275,6 +292,6 @@ namespace BlazingQuartz.Components
 
             TriggerDetail.TriggerDataMap.Remove(item);
         }
-	}
+    }
 }
 

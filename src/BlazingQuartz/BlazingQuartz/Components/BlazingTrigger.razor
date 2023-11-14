@@ -40,7 +40,7 @@
                           Required="true"
                           Margin="Margin.Dense"
                           HelperText="@CronDescription"
-                          Label="Cron Expression (Format: seconds minutes hours day-of-month month day-of-week year)"
+                          Label="Cron Expression"
                           Variant="Variant.Outlined" Adornment="Adornment.End" 
                           AdornmentIcon="@Icons.Filled.QuestionMark" OnAdornmentClick="OnShowSampleCron"/>
             <MudAutocomplete T="TimeZoneInfo" Label="Timezone"
@@ -208,7 +208,10 @@
                     RequiredError="Timezone is required"
                     Margin="Margin.Dense" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem T="TimeZoneInfo" Value="@(TimeZoneInfo.Utc)" />
-                <MudSelectItem T="TimeZoneInfo" Value="@(TimeZoneInfo.Local)" />
+                @if (TimeZoneInfo.Utc != TimeZoneInfo.Local)
+                {
+                    <MudSelectItem T="TimeZoneInfo" Value="@(TimeZoneInfo.Local)" />
+                }
             </MudSelect>
 
             <div class="d-flex gap-2">
@@ -226,8 +229,9 @@
             </div>
         }
 
-        <MudNumericField @bind-Value="TriggerDetail.Priority" Label="Priority (larger value has higher priority)"
+        <MudNumericField @bind-Value="TriggerDetail.Priority" Label="Priority"
                          Margin="Margin.Dense"
+                         HelperText="Larger value has higher priority"
                          Variant="Variant.Outlined" Step="1" />
 
         <MudSelect T="MisfireAction" Label="Misfire Instruction" Variant="Variant.Outlined"
@@ -250,48 +254,51 @@
         <div class="d-flex justify-space-between mt-3 mb-2">
             <MudText Typo="Typo.h6">Trigger Data Map</MudText>
             <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                Class="align-self-start"
                 OnClick="OnAddDataMap"
                 StartIcon="@Icons.Filled.Add">Add</MudButton>
         </div>
 
-        <MudSimpleTable Hover="true" Dense="true" 
-            Striped="true" Outlined="true"
-            FixedHeader="true" Style="height:180px;">
-            <colgroup>
-                <col />
-                <col />
-                <col style="width: 200px;"/>
-                <col style="width: 60px;" />
-            </colgroup>
-            <thead>
-                <tr>
-                    <th>Key</th>
-                    <th>Value</th>
-                    <th>Type</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var row in @TriggerDetail.TriggerDataMap)
-                {
+        <div style="height: 180px;">
+            <MudSimpleTable Hover="true" Dense="true"
+                Striped="true" Outlined="true"
+                FixedHeader="true" Style="max-height: 180px; overflow: auto;">
+                <colgroup>
+                    <col />
+                    <col />
+                    <col style="width: 200px;"/>
+                    <col style="width: 60px;" />
+                </colgroup>
+                <thead>
                     <tr>
-                        <td>@row.Key</td>
-                        <td>@row.Value.ToString()</td>
-                        <td>@row.GetDataMapTypeDescription()</td>
-                        <td class="d-flex">
-                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
-                                OnClick="() => OnEditDataMap(row)"
-                                aria-label="Edit"></MudIconButton>
-                            <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" Size="Size.Small"
-                                OnClick="() => OnCloneDataMap(row)"
-                                aria-label="Copy"></MudIconButton>
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" 
-                                OnClick="() => OnDeleteDataMap(row)"
-                                aria-label="Delete"></MudIconButton>
-                        </td>
+                        <th>Key</th>
+                        <th>Value</th>
+                        <th>Type</th>
+                        <th></th>
                     </tr>
-                }
-            </tbody>
-        </MudSimpleTable>
+                </thead>
+                <tbody>
+                    @foreach (var row in @TriggerDetail.TriggerDataMap)
+                    {
+                        <tr>
+                            <td>@row.Key</td>
+                            <td>@row.Value.ToString()</td>
+                            <td>@row.GetDataMapTypeDescription()</td>
+                            <td class="d-flex">
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                                    OnClick="() => OnEditDataMap(row)"
+                                    aria-label="Edit"></MudIconButton>
+                                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" Size="Size.Small"
+                                    OnClick="() => OnCloneDataMap(row)"
+                                    aria-label="Copy"></MudIconButton>
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" 
+                                    OnClick="() => OnDeleteDataMap(row)"
+                                    aria-label="Delete"></MudIconButton>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        </div>
     </div>
 </MudForm>
