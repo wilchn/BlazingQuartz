@@ -39,7 +39,7 @@ BlazingQuartz is created with [ASP.NET Core Blazor Server](https://blazor.net) a
     ```
     docker run -d \
     --name=BlazingQuartzApp \
-    -e TZ=<your_timezone>
+    -e TZ=<your_timezone> \
     -v /<blazingquartz_path>/BlazingQuartzDb.db:/app/BlazingQuartzDb.db \
     -v /<blazingquartz_path>/logs:/app/logs \
     -v /<blazingquartz_path>/certs:/app/certs \
