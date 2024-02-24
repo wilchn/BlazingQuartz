@@ -39,12 +39,8 @@ namespace BlazingQuartz.Jobs
             {
                 var data = context.MergedJobDataMap;
 
-                var timeoutStr = data.GetString(PropertyRequestTimeoutInSec);
-                int? timeoutInSec = null;
-                if (!string.IsNullOrEmpty(timeoutStr))
-                {
-                    timeoutInSec = Convert.ToInt32(timeoutStr);
-                }
+                int? timeoutInSec = data.TryGetInt(PropertyRequestTimeoutInSec, out var x) ? x : null;
+
                 var dmvUrl = data.GetDataMapValue(PropertyRequestUrl);
                 var url = _dmvResolver.Resolve(dmvUrl);
                 if (string.IsNullOrEmpty(url))
@@ -72,7 +68,7 @@ namespace BlazingQuartz.Jobs
 
                 _logger.LogDebug("[{runInstanceId}]. Creating HttpClient...", context.FireInstanceId);
                 HttpClient httpClient;
-                if (data.GetBoolean(PropertyIgnoreVerifySsl))
+                if (data.TryGetBoolean(PropertyIgnoreVerifySsl, out var IgnoreVerifySsl) && IgnoreVerifySsl)
                 {
                     httpClient = _httpClientFactory.CreateClient(Constants.HttpClientIgnoreVerifySsl);
                     _logger.LogInformation("[{runInstanceId}]. Created ignore SSL validation HttpClient.",
