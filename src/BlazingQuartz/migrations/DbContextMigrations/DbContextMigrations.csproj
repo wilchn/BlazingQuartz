@@ -31,6 +31,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="EFCore.NamingConventions" Version="6.0.0" />
+    <PackageReference Include="EFCore.NamingConventions" Version="8.0.3" />
   </ItemGroup>
 </Project>
