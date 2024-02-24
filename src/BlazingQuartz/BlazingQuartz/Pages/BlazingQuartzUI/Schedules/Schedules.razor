@@ -75,7 +75,7 @@
         </ColGroup>
         <Columns>
             <SelectColumn T="ScheduleModel" ShowInFooter="false" />
-            <Column T="ScheduleModel" Field="JobGroup" Title="Job Group"
+            <PropertyColumn Property="x => x.JobGroup" Title="Job Group"
                     Grouping="true" Hidden="true" ShowColumnOptions="false" GroupBy="@_groupDefinition">
                 <GroupTemplate>
                     <span style="font-weight:bold">
@@ -83,8 +83,9 @@
                         <MudChip Size="Size.Small" Variant="Variant.Outlined">Total: @context.Grouping.Count()</MudChip>
                     </span>
                 </GroupTemplate>
-            </Column>
-            <Column T="ScheduleModel" Title="Status" Filterable="false" Groupable="false"
+            </PropertyColumn>
+            
+            <TemplateColumn Title="Status" Filterable="false" Groupable="false"
                     HeaderStyle="text-align: center;padding: 0px"
                     CellStyle="text-align: center;padding: 0px"
                     Sortable="false"
@@ -148,16 +149,18 @@
                             break;
                     }
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Field="JobName" Title="Job Name"
+            </TemplateColumn>
+            
+            <PropertyColumn Property="x => x.JobName" Title="Job Name"
                     ShowColumnOptions="false">
                 <CellTemplate>
                     <MudTooltip Duration="1000" Text="@context.Item.JobDescription">
                         @context.Item.JobName
                     </MudTooltip>
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Field="TriggerName" Title="Trigger"
+            </PropertyColumn>
+
+            <PropertyColumn Property="x => x.TriggerName" Title="Trigger"
                     ShowColumnOptions="false">
                 <CellTemplate>
                     @if (context.Item.JobStatus == JobStatus.NoTrigger)
@@ -171,8 +174,8 @@
                         </MudTooltip>
                     }
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Field="TriggerType" Title="Schedule">
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.TriggerType" Title="Schedule">
                 <CellTemplate>
                     @if (context.Item.JobStatus == JobStatus.NoTrigger)
                     {
@@ -215,15 +218,15 @@
                         }
                     }
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Field="JobType" Title="Job Type">
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.JobType" Title="Job Type">
                 <CellTemplate>
                     <MudTooltip Duration="1000" Text="@context.Item.JobType">
                         @context.Item.GetJobTypeShortName()
                     </MudTooltip>
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Title="Next Run" Groupable="false" Filterable="false"
+            </PropertyColumn>
+            <TemplateColumn Title="Next Run" Groupable="false" Filterable="false"
                     ShowColumnOptions="false">
                 <CellTemplate>
                     @if (context.Item.JobStatus == JobStatus.NoTrigger)
@@ -235,8 +238,8 @@
                         @context.Item.NextTriggerTime?.LocalDateTime
                     }
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Title="Last Run" Groupable="false" Filterable="false"
+            </TemplateColumn>
+            <TemplateColumn Title="Last Run" Groupable="false" Filterable="false"
                     ShowColumnOptions="false">
                 <CellTemplate>
                     <div class="d-flex gap-1">
@@ -266,8 +269,8 @@
                         }
                     </div>
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Title="Actions" Groupable="false" Filterable="false" ShowColumnOptions="false"
+            </TemplateColumn>
+            <TemplateColumn Title="Actions" Groupable="false" Filterable="false" ShowColumnOptions="false"
                     HeaderStyle="padding-left: 0px;"
                     CellClass="tab__actions"
                     Sortable="false">
@@ -343,7 +346,7 @@
                         </MudMenuItem>
                     </MudMenu>
                 </CellTemplate>
-            </Column>
+            </TemplateColumn>
         </Columns>
         <PagerContent>
             <MudDataGridPager T="ScheduleModel" />
