@@ -82,28 +82,28 @@
                             <MudButton Variant="Variant.Filled"
                                        Disabled="@IsStartStandbyDisabled"
                                        OnClick="OnStartScheduler"
-                                       StartIcon="@Icons.Filled.Start" Color="Color.Primary">Start</MudButton>
+                                       StartIcon="@Icons.Material.Filled.Start" Color="Color.Primary">Start</MudButton>
                         }
                         else
                         {
                             <MudButton Variant="Variant.Filled"
                                        Disabled="@IsStartStandbyDisabled"
                                        OnClick="OnStandbyScheduler"
-                                       StartIcon="@Icons.Filled.Stop" Color="Color.Dark">Standby</MudButton>
+                                       StartIcon="@Icons.Material.Filled.Stop" Color="Color.Dark">Standby</MudButton>
                         }
 
                         <MudButton Variant="Variant.Filled"
                                    OnClick="OnShutdownScheduler"
-                                   StartIcon="@Icons.Filled.PowerSettingsNew" Color="Color.Error">Shutdown</MudButton>
+                                   StartIcon="@Icons.Material.Filled.PowerSettingsNew" Color="Color.Error">Shutdown</MudButton>
 
                         <MudButton Variant="Variant.Filled"
                                    Disabled="@IsPauseResumeDisabled"
                                    OnClick="OnPauseAllSchedules"
-                                   StartIcon="@Icons.Filled.Pause" Color="Color.Default">Pause All</MudButton>
+                                   StartIcon="@Icons.Material.Filled.Pause" Color="Color.Default">Pause All</MudButton>
                         <MudButton Variant="Variant.Filled"
                                    Disabled="@IsPauseResumeDisabled"
                                    OnClick="OnResumeAllSchedules"
-                                   StartIcon="@Icons.Filled.PlayArrow" Color="Color.Default">Resume All</MudButton>
+                                   StartIcon="@Icons.Material.Filled.PlayArrow" Color="Color.Default">Resume All</MudButton>
                     </div>
                 </MudPaper>
 

@@ -95,7 +95,7 @@ namespace BlazingQuartz.Components
             var dialog = DialogSvc.Show<CronSamplesDialog>("Sample Cron Expressions", options);
             var result = await dialog.Result;
 
-            if (!result.Cancelled)
+            if (!result.Canceled)
             {
                 TriggerDetail.CronExpression = (string)result.Data;
                 OnCronExpressionInputElapsed(TriggerDetail.CronExpression);
@@ -186,7 +186,7 @@ namespace BlazingQuartz.Components
             var dialog = DialogSvc.Show<JobDataMapDialog>("Add Data Map", parameters, options);
             var result = await dialog.Result;
 
-            if (!result.Cancelled)
+            if (!result.Canceled)
             {
                 var dataMap = (DataMapItemModel)result.Data;
                 if (dataMap.Key != null && dataMap.Value != null)
@@ -217,7 +217,7 @@ namespace BlazingQuartz.Components
             var dialog = DialogSvc.Show<JobDataMapDialog>("Edit Data Map", parameters, options);
             var result = await dialog.Result;
 
-            if (!result.Cancelled)
+            if (!result.Canceled)
             {
                 var dataMap = (DataMapItemModel)result.Data;
                 if (dataMap.Key != null && dataMap.Value != null)
@@ -264,7 +264,7 @@ namespace BlazingQuartz.Components
             var dialog = DialogSvc.Show<JobDataMapDialog>("Add Data Map", parameters, options);
             var result = await dialog.Result;
 
-            if (!result.Cancelled)
+            if (!result.Canceled)
             {
                 var dataMap = (DataMapItemModel)result.Data;
                 if (dataMap.Key != null && dataMap.Value != null)

@@ -12,7 +12,7 @@ namespace BlazingQuartz
 	public static class ServiceCollectionExtensions
 	{
 		public static IServiceCollection AddBlazingQuartzUI(this IServiceCollection services,
-			IConfiguration? blazingUIConfiguration = null,
+			IConfiguration blazingUIConfiguration,
 			Action<DbContextOptionsBuilder>? dbContextOptions = null,
 			string? connectionString = null)
         {

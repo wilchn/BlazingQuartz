@@ -11,15 +11,15 @@ namespace BlazingQuartz.Extensions
 			switch (triggerType)
 			{
 				case TriggerType.Cron:
-					return Icons.Filled.Schedule;
+					return Icons.Material.Filled.Schedule;
 				case TriggerType.Daily:
-					return Icons.Filled.Alarm;
+					return Icons.Material.Filled.Alarm;
 				case TriggerType.Simple:
-					return Icons.Filled.Repeat;
+					return Icons.Material.Filled.Repeat;
 				case TriggerType.Calendar:
-					return Icons.Filled.CalendarMonth;
+					return Icons.Material.Filled.CalendarMonth;
 				default:
-					return Icons.Filled.Settings;
+					return Icons.Material.Filled.Settings;
 			}
 		}
 

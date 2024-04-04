@@ -65,7 +65,12 @@ namespace BlazingQuartz.Jobs.Abstractions
 
         public static DataMapValue? GetDataMapValue(this JobDataMap dataMap, string key)
         {
-            return DataMapValue.Create(dataMap.GetString(key));
+            if (dataMap.TryGetString(key, out var value))
+            { 
+                return DataMapValue.Create(value); 
+            }
+
+            return null;
         }
 
         public static string? GetReturnCodeAndResult(this IJobExecutionContext context)

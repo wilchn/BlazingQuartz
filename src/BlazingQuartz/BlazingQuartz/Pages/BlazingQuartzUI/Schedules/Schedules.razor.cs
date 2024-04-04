@@ -358,7 +358,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
             var dlg = DialogSvc.Show<ScheduleDialog>("Create Schedule Job", options);
             var result = await dlg.Result;
 
-            if (result == null || result.Cancelled)
+            if (result == null || result.Canceled)
                 return;
 
             // create schedule
@@ -421,7 +421,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
             var dlg = DialogSvc.Show<ScheduleDialog>("Edit Schedule Job", parameters, options);
             var result = await dlg.Result;
 
-            if (result == null || result.Cancelled)
+            if (result == null || result.Canceled)
                 return;
 
             // update schedule
@@ -534,7 +534,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
             var dlg = DialogSvc.Show<ScheduleDialog>("Create Schedule Job", parameters, options);
             var result = await dlg.Result;
 
-            if (result == null || result.Cancelled)
+            if (result == null || result.Canceled)
                 return;
 
             // create schedule
@@ -600,7 +600,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
             var dlg = DialogSvc.Show<ScheduleDialog>("Add New Trigger", parameters, options);
             var result = await dlg.Result;
 
-            if (result == null || result.Cancelled)
+            if (result == null || result.Canceled)
                 return;
 
             // create schedule
