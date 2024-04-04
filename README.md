@@ -43,7 +43,7 @@ BlazingQuartz is created with [ASP.NET Core Blazor Server](https://blazor.net) a
     -v /<blazingquartz_path>/BlazingQuartzDb.db:/app/BlazingQuartzDb.db \
     -v /<blazingquartz_path>/logs:/app/logs \
     -v /<blazingquartz_path>/certs:/app/certs \
-    -p 9090:80 \
+    -p 9090:8080 \
     wilchn/blazingquartzapp:latest
     ```
     Note: Replace the following:
