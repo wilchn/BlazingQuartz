@@ -9,7 +9,7 @@ namespace BlazingQuartz.Core.Services
         Task<PagedList<ExecutionLog>> GetLatestExecutionLog(string jobName, string jobGroup,
             string? triggerName, string? triggerGroup,
             PageMetadata? pageMetadata = null, long firstLogId = 0,
-            ISet<LogType>? logTypes = null);
+            HashSet<LogType>? logTypes = null);
         Task<PagedList<ExecutionLog>> GetExecutionLogs(
             ExecutionLogFilter? filter = null,
             PageMetadata? pageMetadata = null, long firstLogId = 0);
