@@ -1,5 +1,6 @@
 ﻿using BlazingQuartz;
 using Quartz;
+using Quartz.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,17 +22,15 @@ builder.Services.Configure<QuartzOptions>(options =>
     if (!string.IsNullOrEmpty(dataSource))
     {
         var connectionStringName = options[$"quartz.dataSource.{dataSource}.connectionStringName"];
-        var connStr = builder.Configuration.GetConnectionString(connectionStringName);
-        options[$"quartz.dataSource.{dataSource}.connectionString"] = connStr;
+        if (!string.IsNullOrEmpty(connectionStringName))
+        {
+            var connStr = builder.Configuration.GetConnectionString(connectionStringName);
+            options[$"quartz.dataSource.{dataSource}.connectionString"] = connStr;
+        }
     }
 });
 // Add the required Quartz.NET services
-builder.Services.AddQuartz(q =>
-{
-    // Use a Scoped container to create jobs.
-    q.UseMicrosoftDependencyInjectionJobFactory();
-
-});
+builder.Services.AddQuartz();
 // Add the Quartz.NET hosted service
 builder.Services.AddQuartzHostedService(
     q => q.WaitForJobsToComplete = true);

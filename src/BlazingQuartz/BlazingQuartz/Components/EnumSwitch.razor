@@ -8,13 +8,11 @@
         <MudButton Color="Color.Primary" Size="Size" DisableElevation="true"
                    StartIcon="@GetIcon(value)"
                    Variant="@(value == Convert.ToInt32(Value) ? Variant.Filled : Variant.Outlined)"
-                   OnClick="() => Value = (T)Enum.ToObject(Type, value)">@Enum.GetName(Type, value)</MudButton>
+                   OnClick="() => OnSelected(value)">@Enum.GetName(Type, value)</MudButton>
      }
 </MudButtonGroup>
 
 @code {
-    private T _value = default!;
-
     [Parameter]
     public Size Size { get; set; } = Size.Medium;
 
@@ -25,16 +23,7 @@
     public IDictionary<T, string> ValueIcons { get; set; } = new Dictionary<T, string>();
 
     [Parameter]
-    public T Value
-    {
-        get => _value;
-        set
-        {
-            if (_value.Equals(value)) return;
-            _value = value;
-            ValueChanged.InvokeAsync(value);
-        }
-    }
+    public T Value { get; set; } = default!;
 
     [Parameter] public EventCallback<T> ValueChanged { get; set; }
 
@@ -43,5 +32,14 @@
     private string GetIcon(int intEnum)
     {
         return ValueIcons[(T)Enum.ToObject(Type, intEnum)];
+    }
+
+    private async Task OnSelected(int value)
+    {
+        var preValue = Value;
+        Value = (T)Enum.ToObject(Type, value);
+        
+        if (preValue.Equals(Value)) return;
+        await ValueChanged.InvokeAsync(Value);
     }
 }

@@ -33,7 +33,7 @@ namespace BlazingQuartz.Core
 			Action<DbContextOptionsBuilder>? dbContextOptions = null,
 			string? connectionString = null)
         {
-			BlazingQuartzCoreOptions coreOptions = new();
+			BlazingQuartzCoreOptions? coreOptions = null;
 			if (config != null)
             {
 				services.Configure<BlazingQuartzCoreOptions>(config);
@@ -47,7 +47,7 @@ namespace BlazingQuartz.Core
 					});
 			}
 
-			return AddBlazingQuartz(services, coreOptions,
+			return AddBlazingQuartz(services, coreOptions ?? new(),
 				dbContextOptions, connectionString);
 		}
 

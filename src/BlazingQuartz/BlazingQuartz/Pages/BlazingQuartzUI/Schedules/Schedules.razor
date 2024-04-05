@@ -39,17 +39,17 @@
         <MudGrid>
             <MudItem xs="6" Class="mb-2 d-flex gap-3 justify-start align-end">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                           StartIcon="@Icons.Filled.Add"
+                           StartIcon="@Icons.Material.Filled.Add"
                            OnClick="OnNewSchedule">New</MudButton>
                 <MudButton Variant="Variant.Filled" Color="Color.Error"
-                           StartIcon="@Icons.Filled.Delete"
+                           StartIcon="@Icons.Material.Filled.Delete"
                            OnClick="OnDeleteSelectedScheduleJobs">Delete</MudButton>
             </MudItem>
             <MudItem xs="6" Class="mb-2 d-flex justify-end align-center">
                 <MudTextField @bind-Value="SearchJobKeyword" Placeholder="Search" Adornment="Adornment.Start"
                               Class="flex-grow-0"
                               AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small"></MudTextField>
-                <MudIconButton Icon="@Icons.Outlined.FilterAlt"
+                <MudIconButton Icon="@Icons.Material.Outlined.FilterAlt"
                                Class="align-self-end pa-1"
                                Size="Size.Medium" OnClick="OnFilterClicked" />
             </MudItem>
@@ -75,7 +75,7 @@
         </ColGroup>
         <Columns>
             <SelectColumn T="ScheduleModel" ShowInFooter="false" />
-            <Column T="ScheduleModel" Field="JobGroup" Title="Job Group"
+            <PropertyColumn Property="x => x.JobGroup" Title="Job Group"
                     Grouping="true" Hidden="true" ShowColumnOptions="false" GroupBy="@_groupDefinition">
                 <GroupTemplate>
                     <span style="font-weight:bold">
@@ -83,8 +83,9 @@
                         <MudChip Size="Size.Small" Variant="Variant.Outlined">Total: @context.Grouping.Count()</MudChip>
                     </span>
                 </GroupTemplate>
-            </Column>
-            <Column T="ScheduleModel" Title="Status" Filterable="false" Groupable="false"
+            </PropertyColumn>
+            
+            <TemplateColumn Title="Status" Filterable="false" Groupable="false"
                     HeaderStyle="text-align: center;padding: 0px"
                     CellStyle="text-align: center;padding: 0px"
                     Sortable="false"
@@ -99,19 +100,19 @@
                                                     Indeterminate="true" />
                             break;
                         case JobStatus.Idle:
-                            <MudIcon Icon="@Icons.Filled.Circle" Class="green-text"
+                            <MudIcon Icon="@Icons.Material.Filled.Circle" Class="green-text"
                                         Style="vertical-align: middle;"
                                         Title="Idle"
                                         Size="Size.Medium" />
                             break;
                         case JobStatus.Paused:
-                            <MudIcon Icon="@Icons.Filled.Circle" Class="grey-text"
+                            <MudIcon Icon="@Icons.Material.Filled.Circle" Class="grey-text"
                                         Style="vertical-align: middle;"
                                         Title="Paused"
                                         Size="Size.Medium" />
                             break;
                         case JobStatus.NoSchedule:
-                            <MudIcon Icon="@Icons.Filled.AutoDelete" Class="grey-text"
+                            <MudIcon Icon="@Icons.Material.Filled.AutoDelete" Class="grey-text"
                                         Style="vertical-align: middle;"
                                         Title="Schedule completed and job got deleted"
                                         Size="Size.Small" />
@@ -119,7 +120,7 @@
                         case JobStatus.Error:
                             <MudTooltip>
                                 <ChildContent>
-                                    <MudIcon Icon="@Icons.Outlined.ErrorOutline" Size="Size.Small"
+                                    <MudIcon Icon="@Icons.Material.Outlined.ErrorOutline" Size="Size.Small"
                                                 Style="vertical-align: middle;"
                                                 Color="@Color.Error" />
                                 </ChildContent>
@@ -139,7 +140,7 @@
                             </MudTooltip>
                             break;
                         case JobStatus.NoTrigger:
-                            <MudIcon Icon="@Icons.Filled.AlarmOff" Class="grey-text"
+                            <MudIcon Icon="@Icons.Material.Filled.AlarmOff" Class="grey-text"
                                         Style="vertical-align: middle;"
                                         Title="No trigger"
                                         Size="Size.Small" />
@@ -148,16 +149,18 @@
                             break;
                     }
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Field="JobName" Title="Job Name"
+            </TemplateColumn>
+            
+            <PropertyColumn Property="x => x.JobName" Title="Job Name"
                     ShowColumnOptions="false">
                 <CellTemplate>
                     <MudTooltip Duration="1000" Text="@context.Item.JobDescription">
                         @context.Item.JobName
                     </MudTooltip>
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Field="TriggerName" Title="Trigger"
+            </PropertyColumn>
+
+            <PropertyColumn Property="x => x.TriggerName" Title="Trigger"
                     ShowColumnOptions="false">
                 <CellTemplate>
                     @if (context.Item.JobStatus == JobStatus.NoTrigger)
@@ -171,8 +174,8 @@
                         </MudTooltip>
                     }
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Field="TriggerType" Title="Schedule">
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.TriggerType" Title="Schedule">
                 <CellTemplate>
                     @if (context.Item.JobStatus == JobStatus.NoTrigger)
                     {
@@ -215,15 +218,15 @@
                         }
                     }
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Field="JobType" Title="Job Type">
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.JobType" Title="Job Type">
                 <CellTemplate>
                     <MudTooltip Duration="1000" Text="@context.Item.JobType">
                         @context.Item.GetJobTypeShortName()
                     </MudTooltip>
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Title="Next Run" Groupable="false" Filterable="false"
+            </PropertyColumn>
+            <TemplateColumn Title="Next Run" Groupable="false" Filterable="false"
                     ShowColumnOptions="false">
                 <CellTemplate>
                     @if (context.Item.JobStatus == JobStatus.NoTrigger)
@@ -235,8 +238,8 @@
                         @context.Item.NextTriggerTime?.LocalDateTime
                     }
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Title="Last Run" Groupable="false" Filterable="false"
+            </TemplateColumn>
+            <TemplateColumn Title="Last Run" Groupable="false" Filterable="false"
                     ShowColumnOptions="false">
                 <CellTemplate>
                     <div class="d-flex gap-1">
@@ -245,7 +248,7 @@
                         {
                             <MudTooltip>
                                 <ChildContent>
-                                    <MudIcon Icon="@Icons.Filled.Error" Size="Size.Small"
+                                    <MudIcon Icon="@Icons.Material.Filled.Error" Size="Size.Small"
                                                 Color="@Color.Error" />
                                 </ChildContent>
                                 <TooltipContent>
@@ -266,14 +269,14 @@
                         }
                     </div>
                 </CellTemplate>
-            </Column>
-            <Column T="ScheduleModel" Title="Actions" Groupable="false" Filterable="false" ShowColumnOptions="false"
+            </TemplateColumn>
+            <TemplateColumn Title="Actions" Groupable="false" Filterable="false" ShowColumnOptions="false"
                     HeaderStyle="padding-left: 0px;"
                     CellClass="tab__actions"
                     Sortable="false">
                 <CellTemplate>
                     <MudTooltip Duration="1000" Text="Edit">
-                        <MudIconButton Icon="@Icons.Filled.Edit"
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                         Disabled="@IsEditActionDisabled(context.Item)"
                                         OnClick="@(async () => await OnEditScheduleJob(context.Item))"
                                         Size="Size.Small" aria-label="Edit"></MudIconButton>
@@ -283,7 +286,7 @@
                         || context.Item.JobStatus == JobStatus.NoTrigger)
                     {
                         <MudTooltip Duration="1000" Text="Resume Trigger">
-                            <MudIconButton Icon="@Icons.Filled.PlayArrow" Size="Size.Small"
+                            <MudIconButton Icon="@Icons.Material.Filled.PlayArrow" Size="Size.Small"
                                             Disabled="@IsRunActionDisabled(context.Item)"
                                             OnClick="@(async () => await OnResumeScheduleJob(context.Item))"
                                             aria-label="Run"></MudIconButton>
@@ -292,7 +295,7 @@
                     else
                     {
                         <MudTooltip Duration="1000" Text="Pause Trigger">
-                            <MudIconButton Icon="@Icons.Filled.Pause" Size="Size.Small"
+                            <MudIconButton Icon="@Icons.Material.Filled.Pause" Size="Size.Small"
                                             Disabled="@IsPauseActionDisabled(context.Item)"
                                             OnClick="@(async () => await OnPauseScheduleJob(context.Item))"
                                             aria-label="Run"></MudIconButton>
@@ -304,7 +307,7 @@
                         <MudMenuItem Disabled="@IsTriggerNowActionDisabled(context.Item)"
                                         OnClick="@(async () => await OnTriggerNow(context.Item))">
                             <div class="d-flex gap-1">
-                                <MudIcon Icon="@Icons.Filled.PlayCircleOutline" Title="Trigger Now"
+                                <MudIcon Icon="@Icons.Material.Filled.PlayCircleOutline" Title="Trigger Now"
                                             Size="Size.Small" />
                                 <MudText Typo="Typo.body1">Trigger Now</MudText>
                             </div>
@@ -312,7 +315,7 @@
                         <MudMenuItem Disabled="@IsAddTriggerActionDisabled(context.Item)"
                                         OnClick="@(async () => await OnAddTrigger(context.Item))">
                             <div class="d-flex gap-1">
-                                <MudIcon Icon="@Icons.Filled.AddAlarm" Title="Add Trigger"
+                                <MudIcon Icon="@Icons.Material.Filled.AddAlarm" Title="Add Trigger"
                                             Size="Size.Small" />
                                 <MudText Typo="Typo.body1">Add Trigger</MudText>
                             </div>
@@ -328,7 +331,7 @@
                         <MudMenuItem Disabled="@IsHistoryActionDisabled(context.Item)"
                                         OnClick="@(() => OnJobHistory(context.Item))">
                             <div class="d-flex gap-1">
-                                <MudIcon Icon="@Icons.Filled.ListAlt" Title="History"
+                                <MudIcon Icon="@Icons.Material.Filled.ListAlt" Title="History"
                                             Size="Size.Small" />
                                 <MudText Typo="Typo.body1">History</MudText>
                             </div>
@@ -343,7 +346,7 @@
                         </MudMenuItem>
                     </MudMenu>
                 </CellTemplate>
-            </Column>
+            </TemplateColumn>
         </Columns>
         <PagerContent>
             <MudDataGridPager T="ScheduleModel" />

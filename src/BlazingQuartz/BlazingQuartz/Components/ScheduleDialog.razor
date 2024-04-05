@@ -31,7 +31,7 @@
                     Style="width: 100px;"
                     Disabled="@(SelectedTab == ScheduleDialogTab.Job)"
                     Color="Color.Secondary" 
-                    StartIcon="@Icons.Filled.NavigateBefore"
+                    StartIcon="@Icons.Material.Filled.NavigateBefore"
                     Variant="Variant.Filled"
                     OnClick="OnBack">Back</MudButton>
                 <MudButton Color="Color.Primary" 
@@ -57,7 +57,7 @@
 
     private MudButton _backBtn = null!;
     private string _nextText = "Next";
-    private string? _nextIcon = Icons.Filled.NavigateNext;
+    private string? _nextIcon = Icons.Material.Filled.NavigateNext;
 
     private BlazingJob _jobPanel = null!;
     private BlazingTrigger _triggerPanel = null!;
@@ -91,7 +91,7 @@
         if (SelectedTab == ScheduleDialogTab.Job)
         {
             _nextText = "Next";
-            _nextIcon = Icons.Filled.NavigateNext;
+            _nextIcon = Icons.Material.Filled.NavigateNext;
         }
         else if (SelectedTab == ScheduleDialogTab.Trigger)
         {

@@ -18,7 +18,7 @@ namespace BlazingQuartz.Core.Services
             string jobName, string jobGroup,
             string? triggerName, string? triggerGroup,
             PageMetadata? pageMetadata = null, long firstLogId = 0,
-            ISet<LogType>? logTypes = null)
+            HashSet<LogType>? logTypes = null)
         {
             using (var context = _contextFactory.CreateDbContext())
             {
