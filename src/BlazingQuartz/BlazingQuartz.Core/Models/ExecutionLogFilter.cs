@@ -10,7 +10,7 @@ namespace BlazingQuartz.Core.Models
         public string? JobGroup { get; set; }
         public string? TriggerName { get; set; }
         public string? TriggerGroup { get; set; }
-        public ISet<LogType>? LogTypes { get; set; }
+        public HashSet<LogType>? LogTypes { get; set; }
         public string? MessageContains { get; set; }
         /// <summary>
         /// If only StartUtc specified, means anything after this date

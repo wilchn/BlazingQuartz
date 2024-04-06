@@ -73,25 +73,25 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.History
         private (string, Color, string) GetLogIconAndColor(ExecutionLog log)
         {
             if (log.IsException ?? false || (log.IsSuccess.HasValue && !log.IsSuccess.Value))
-                return (Icons.Filled.Error, Color.Error, "Error");
+                return (Icons.Material.Filled.Error, Color.Error, "Error");
 
             switch (log.LogType)
             {
                 case Core.Data.LogType.ScheduleJob:
                     if (log.IsVetoed ?? false)
-                        return (Icons.Filled.HighlightOff, Color.Warning, "Vetoed");
+                        return (Icons.Material.Filled.HighlightOff, Color.Warning, "Vetoed");
 
                     if (log.IsSuccess is null)
                     {
                         // still running
-                        return (Icons.Filled.IncompleteCircle, Color.Secondary, "Executing");
+                        return (Icons.Material.Filled.IncompleteCircle, Color.Secondary, "Executing");
                     }
                     else
-                        return (Icons.Filled.Check, Color.Info, "Success");
+                        return (Icons.Material.Filled.Check, Color.Info, "Success");
                 case Core.Data.LogType.Trigger:
-                    return (Icons.Filled.Alarm, Color.Tertiary, "Trigger");
+                    return (Icons.Material.Filled.Alarm, Color.Tertiary, "Trigger");
                 default:
-                    return (Icons.Outlined.Info, Color.Tertiary, "System Info");
+                    return (Icons.Material.Outlined.Info, Color.Tertiary, "System Info");
             }
         }
 

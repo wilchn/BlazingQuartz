@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get tag
       id: tag
       uses: dawidd6/action-get-tag@v1
@@ -20,7 +20,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: | 
+          7.0.x
+          8.0.x
     - name: Restore dependencies
       run: dotnet restore
       working-directory: src/BlazingQuartz
@@ -33,7 +35,7 @@ jobs:
     - name: Publish BlazingQuartzApp
       run: dotnet publish -c Release --no-restore -o "../../app" -p:Version=${{steps.tag.outputs.tag}} -p:PackageVersion=${{steps.tag.outputs.tag}} "BlazingQuartzApp/BlazingQuartzApp.csproj"
       working-directory: src/BlazingQuartz
-    - uses: actions/upload-artifact@master
+    - uses: actions/upload-artifact@v4
       with:
         name: BlazingQuartzApp
         path: app/
@@ -42,14 +44,14 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get tag
       id: tag
       uses: dawidd6/action-get-tag@v1
       with:
         strip_v: true
     - name: Download BlazingQuartzApp artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: BlazingQuartzApp
         path: app/

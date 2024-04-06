@@ -137,7 +137,7 @@ namespace BlazingQuartz.Core.Services
                             x.IsClass &&
                             !x.IsAbstract &&
                             typeof(IJob).IsAssignableFrom(x) &&
-                            !disallowedJobs.Contains(x.FullName)));
+                            !disallowedJobs.Contains(x.FullName ?? string.Empty)));
                 }
                 catch (Exception ex)
                 {

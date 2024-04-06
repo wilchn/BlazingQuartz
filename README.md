@@ -6,8 +6,8 @@ BlazingQuartz is created with [ASP.NET Core Blazor Server](https://blazor.net) a
 ![Overview page](img/overview.png)
 
 ## Requirements
-* .NET 6
-* Quartz 3.5+
+* .NET 8
+* Quartz 3.8.1+
 
 ## Features
 * Add, modify jobs and triggers
@@ -39,11 +39,12 @@ BlazingQuartz is created with [ASP.NET Core Blazor Server](https://blazor.net) a
     ```
     docker run -d \
     --name=BlazingQuartzApp \
-    -e TZ=<your_timezone>
+    -e TZ=<your_timezone> \
+    -e ASPNETCORE_HTTP_PORTS=8080 \
     -v /<blazingquartz_path>/BlazingQuartzDb.db:/app/BlazingQuartzDb.db \
     -v /<blazingquartz_path>/logs:/app/logs \
     -v /<blazingquartz_path>/certs:/app/certs \
-    -p 9090:80 \
+    -p 9090:8080 \
     wilchn/blazingquartzapp:latest
     ```
     Note: Replace the following:
@@ -71,10 +72,9 @@ Configure the docker container to use the https port. Ex. https on 9091
 ```
 docker run -d \
 ...
--p 9090:80 \
--p 9091:443 \
--e ASPNETCORE_URLS='https://+;http://+' \
--e ASPNETCORE_HTTPS_PORT=9091 \
+-p 9090:8080 \
+-p 9091:8081 \
+-e ASPNETCORE_HTTPS_PORTS=8081 \
 wilchn/blazingquartzapp:latest
 ```
 ### Use other database
@@ -153,3 +153,7 @@ h      | Hour
 m      | Minute
 s      | Second
 ms     | Millisecond
+
+## Upgrading
+
+Refer to [upgrading page](docs/Upgrading.md) to see if any additional steps require to upgrade to newer version.
