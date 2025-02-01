@@ -20,7 +20,7 @@ namespace BlazingQuartz.Components
         {
             var options = new DialogOptions {
                 CloseOnEscapeKey = true,
-                DisableBackdropClick = true,
+                BackdropClick = false,
                 FullWidth = true,
                 MaxWidth = MaxWidth.Small
             };
@@ -28,7 +28,7 @@ namespace BlazingQuartz.Components
                 ["JobDataMap"] = new Dictionary<string, object>(JobDetail.JobDataMap, StringComparer.OrdinalIgnoreCase)
             };
 
-            var dialog = DialogSvc.Show<JobDataMapDialog>("Add Data Map", parameters, options);
+            var dialog = await DialogSvc.ShowAsync<JobDataMapDialog>("Add Data Map", parameters, options);
             var result = await dialog.Result;
 
             if (!result.Canceled)
@@ -48,7 +48,7 @@ namespace BlazingQuartz.Components
             var options = new DialogOptions
             {
                 CloseOnEscapeKey = true,
-                DisableBackdropClick = true,
+                BackdropClick = false,
                 FullWidth = true,
                 MaxWidth = MaxWidth.Small
             };
@@ -59,7 +59,7 @@ namespace BlazingQuartz.Components
                 ["IsEditMode"] = true
             };
 
-            var dialog = DialogSvc.Show<JobDataMapDialog>("Edit Data Map", parameters, options);
+            var dialog = await DialogSvc.ShowAsync<JobDataMapDialog>("Edit Data Map", parameters, options);
             var result = await dialog.Result;
 
             if (!result.Canceled)
@@ -81,7 +81,7 @@ namespace BlazingQuartz.Components
             var options = new DialogOptions
             {
                 CloseOnEscapeKey = true,
-                DisableBackdropClick = true,
+                BackdropClick = false,
                 FullWidth = true,
                 MaxWidth = MaxWidth.Small
             };
@@ -105,7 +105,7 @@ namespace BlazingQuartz.Components
                 ["DataMapItem"] = new DataMapItemModel(clonedItem)
             };
 
-            var dialog = DialogSvc.Show<JobDataMapDialog>("Add Data Map", parameters, options);
+            var dialog = await DialogSvc.ShowAsync<JobDataMapDialog>("Add Data Map", parameters, options);
             var result = await dialog.Result;
 
             if (!result.Canceled)

@@ -7,7 +7,7 @@ BlazingQuartz is created with [ASP.NET Core Blazor Server](https://blazor.net) a
 
 ## Requirements
 * .NET 8
-* Quartz 3.8.1+
+* Quartz 3.13.1+
 
 ## Features
 * Add, modify jobs and triggers

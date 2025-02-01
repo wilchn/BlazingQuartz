@@ -355,7 +355,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                 FullWidth = true,
                 MaxWidth = MaxWidth.Medium
             };
-            var dlg = DialogSvc.Show<ScheduleDialog>("Create Schedule Job", options);
+            var dlg = await DialogSvc.ShowAsync<ScheduleDialog>("Create Schedule Job", options);
             var result = await dlg.Result;
 
             if (result == null || result.Canceled)
@@ -418,7 +418,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                 ["JobDetail"] = currentJobDetail,
                 ["TriggerDetail"] = currentTriggerModel ?? new()
             };
-            var dlg = DialogSvc.Show<ScheduleDialog>("Edit Schedule Job", parameters, options);
+            var dlg = await DialogSvc.ShowAsync<ScheduleDialog>("Edit Schedule Job", parameters, options);
             var result = await dlg.Result;
 
             if (result == null || result.Canceled)
@@ -531,7 +531,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                 ["JobDetail"] = currentJobDetail,
                 ["TriggerDetail"] = currentTriggerModel ?? new()
             };
-            var dlg = DialogSvc.Show<ScheduleDialog>("Create Schedule Job", parameters, options);
+            var dlg = await DialogSvc.ShowAsync<ScheduleDialog>("Create Schedule Job", parameters, options);
             var result = await dlg.Result;
 
             if (result == null || result.Canceled)
@@ -597,7 +597,7 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Schedules
                 ["IsReadOnlyJobDetail"] = true,
                 ["SelectedTab"] = ScheduleDialogTab.Trigger
             };
-            var dlg = DialogSvc.Show<ScheduleDialog>("Add New Trigger", parameters, options);
+            var dlg = await DialogSvc.ShowAsync<ScheduleDialog>("Add New Trigger", parameters, options);
             var result = await dlg.Result;
 
             if (result == null || result.Canceled)

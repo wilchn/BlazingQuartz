@@ -56,13 +56,13 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.Overview
 
         private static ChartOptions executionChartOptions = new ChartOptions
         {
-            ChartPalette = new string[] { Colors.Green.Lighten1, Colors.Red.Lighten1, Colors.Blue.Lighten1, Colors.Grey.Lighten1 },
+            ChartPalette = new string[] { Colors.Green.Lighten1, Colors.Red.Lighten1, Colors.Blue.Lighten1, Colors.Gray.Lighten1 },
         };
 
         private static ChartOptions emptyExecutionChartOptions = new ChartOptions
         {
-            ChartPalette = new string[] { Colors.Grey.Lighten1 },
-            DisableLegend = true
+            ChartPalette = new string[] { Colors.Gray.Lighten1 },
+            ShowLegend = false
         };
 
         private double[] TodaysLogData = EmptyData;

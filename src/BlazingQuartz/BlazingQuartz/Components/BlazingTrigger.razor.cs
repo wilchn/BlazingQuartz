@@ -62,8 +62,9 @@ namespace BlazingQuartz.Components
             }
         }
 
-        async Task<IEnumerable<string>> SearchTriggerGroup(string value)
+        async Task<IEnumerable<string>> SearchTriggerGroup(string value, CancellationToken cancellationToken)
         {
+            // TODO use cancel token to cancel job
             if (ExistingTriggerGroups == null)
             {
                 ExistingTriggerGroups = await SchedulerSvc.GetTriggerGroups();
@@ -87,12 +88,12 @@ namespace BlazingQuartz.Components
             var options = new DialogOptions
             {
                 CloseOnEscapeKey = true,
-                DisableBackdropClick = true,
+                BackdropClick = false,
                 FullWidth = true,
                 MaxWidth = MaxWidth.Small
             };
 
-            var dialog = DialogSvc.Show<CronSamplesDialog>("Sample Cron Expressions", options);
+            var dialog = await DialogSvc.ShowAsync<CronSamplesDialog>("Sample Cron Expressions", options);
             var result = await dialog.Result;
 
             if (!result.Canceled)
@@ -102,7 +103,7 @@ namespace BlazingQuartz.Components
             }
         }
 
-        async Task<IEnumerable<TimeZoneInfo>> SearchTimeZoneInfo(string value)
+        async Task<IEnumerable<TimeZoneInfo>> SearchTimeZoneInfo(string value, CancellationToken cancellationToken)
         {
             await Task.CompletedTask;
 
@@ -116,8 +117,9 @@ namespace BlazingQuartz.Components
             return tzList.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
         }
 
-        async Task<IEnumerable<string>> SearchCalendars(string value)
+        async Task<IEnumerable<string>> SearchCalendars(string value, CancellationToken cancellationToken)
         {
+            // TODO use cancel token to cancel search
             if (_calendars == null)
             {
                 _calendars = await SchedulerSvc.GetCalendarNames();
@@ -126,12 +128,12 @@ namespace BlazingQuartz.Components
             return _calendars.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
         }
 
-        private void OnSetIsValid(bool value)
+        private Task OnSetIsValid(bool value)
         {
             if (IsValid == value)
-                return;
+                return Task.CompletedTask;
             IsValid = value;
-            IsValidChanged.InvokeAsync(value).AndForget();
+            return IsValidChanged.InvokeAsync(value);
         }
 
         public async Task Validate()
@@ -140,7 +142,7 @@ namespace BlazingQuartz.Components
 
             _isDaysOfWeekValid = Validator.ValidateDaysOfWeek(TriggerDetail);
             if (_form.IsValid)
-                OnSetIsValid(_isDaysOfWeekValid);
+                await OnSetIsValid(_isDaysOfWeekValid);
 
             // if daily trigger does not have end time, assign end time
             if (TriggerDetail.TriggerType == TriggerType.Daily &&
@@ -173,7 +175,7 @@ namespace BlazingQuartz.Components
             var options = new DialogOptions
             {
                 CloseOnEscapeKey = true,
-                DisableBackdropClick = true,
+                BackdropClick = false,
                 FullWidth = true,
                 MaxWidth = MaxWidth.Small
             };
@@ -183,7 +185,7 @@ namespace BlazingQuartz.Components
                     StringComparer.OrdinalIgnoreCase)
             };
 
-            var dialog = DialogSvc.Show<JobDataMapDialog>("Add Data Map", parameters, options);
+            var dialog = await DialogSvc.ShowAsync<JobDataMapDialog>("Add Data Map", parameters, options);
             var result = await dialog.Result;
 
             if (!result.Canceled)
@@ -203,7 +205,7 @@ namespace BlazingQuartz.Components
             var options = new DialogOptions
             {
                 CloseOnEscapeKey = true,
-                DisableBackdropClick = true,
+                BackdropClick = false,
                 FullWidth = true,
                 MaxWidth = MaxWidth.Small
             };
@@ -214,7 +216,7 @@ namespace BlazingQuartz.Components
                 ["IsEditMode"] = true
             };
 
-            var dialog = DialogSvc.Show<JobDataMapDialog>("Edit Data Map", parameters, options);
+            var dialog = await DialogSvc.ShowAsync<JobDataMapDialog>("Edit Data Map", parameters, options);
             var result = await dialog.Result;
 
             if (!result.Canceled)
@@ -236,7 +238,7 @@ namespace BlazingQuartz.Components
             var options = new DialogOptions
             {
                 CloseOnEscapeKey = true,
-                DisableBackdropClick = true,
+                BackdropClick = false,
                 FullWidth = true,
                 MaxWidth = MaxWidth.Small
             };
@@ -261,7 +263,7 @@ namespace BlazingQuartz.Components
                 ["DataMapItem"] = new DataMapItemModel(clonedItem)
             };
 
-            var dialog = DialogSvc.Show<JobDataMapDialog>("Add Data Map", parameters, options);
+            var dialog = await DialogSvc.ShowAsync<JobDataMapDialog>("Add Data Map", parameters, options);
             var result = await dialog.Result;
 
             if (!result.Canceled)

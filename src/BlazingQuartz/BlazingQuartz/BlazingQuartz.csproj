@@ -18,11 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.3" />
-    <PackageReference Include="MudBlazor" Version="6.19.1" />
-    <PackageReference Include="CronExpressionDescriptor" Version="2.33.0" />
-    <PackageReference Include="LibSassBuilder" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+    <PackageReference Include="DartSassBuilder" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.11" />
+    <PackageReference Include="MudBlazor" Version="7.15.0" />
+    <PackageReference Include="CronExpressionDescriptor" Version="2.36.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -69,4 +69,14 @@
     <ProjectReference Include="..\BlazingQuartz.Jobs.Abstractions\BlazingQuartz.Jobs.Abstractions.csproj" />
     <ProjectReference Include="..\BlazingQuartz.Jobs\BlazingQuartz.Jobs.csproj" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <!-- outputstyle option -->
+    <DartSassOutputStyle>compressed</DartSassOutputStyle>
+    <DartSassOutputStyle Condition="'$(Configuration)' == 'Debug'">expanded</DartSassOutputStyle>
+    <!-- level option -->
+    <DartSassOutputLevel>verbose</DartSassOutputLevel>
+    <!-- msbuild output level -->
+    <DartSassMessageLevel>High</DartSassMessageLevel>
+  </PropertyGroup>
 </Project>

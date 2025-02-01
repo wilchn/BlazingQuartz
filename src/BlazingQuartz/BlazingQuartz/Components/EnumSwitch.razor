@@ -5,7 +5,7 @@
     {
         if (ExcludedValues.Contains((T)Enum.ToObject(Type, value)))
             continue;
-        <MudButton Color="Color.Primary" Size="Size" DisableElevation="true"
+        <MudButton Color="Color.Primary" Size="Size" DropShadow="false"
                    StartIcon="@GetIcon(value)"
                    Variant="@(value == Convert.ToInt32(Value) ? Variant.Filled : Variant.Outlined)"
                    OnClick="() => OnSelected(value)">@Enum.GetName(Type, value)</MudButton>

@@ -12,9 +12,9 @@
     </MudDrawerHeader>
     <MudDrawerContainer>
         <div class="d-flex flex-column px-4 gap-2">
-            <MudCheckBox Checked="@_filter.IncludeSystemJobs"
+            <MudCheckBox Value="@_filter.IncludeSystemJobs"
                          T="bool"
-                         CheckedChanged="OnIncludeSystemJobsChanged"
+                         ValueChanged="OnIncludeSystemJobsChanged"
                          Label="Show BlazingQuartz jobs" Color="Color.Primary"></MudCheckBox>
         </div>
         <div class="d-flex pa-4 justify-space-between gap-2">

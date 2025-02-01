@@ -30,8 +30,9 @@ namespace BlazingQuartz.Pages.BlazingQuartzUI.History
         private IEnumerable<string> _triggerNames = Enumerable.Empty<string>();
         private IEnumerable<string> _triggerGroups = Enumerable.Empty<string>();
 
-        private async Task<TableData<ExecutionLog>> LoadExecutionLogs(TableState state)
+        private async Task<TableData<ExecutionLog>> LoadExecutionLogs(TableState state, CancellationToken cancellationToken)
         {
+            // TODO use cancellation token to cancel task
             PageMetadata pageMeta;
             if (pagedData == null)
             {

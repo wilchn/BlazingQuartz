@@ -80,14 +80,14 @@
                 <MudSelectItem T="LogType?" Value="LogType.System">System/Scheduler</MudSelectItem>
             </MudSelect>
 
-            <MudCheckBox Checked="@_filter.ErrorOnly"
+            <MudCheckBox Value="@_filter.ErrorOnly"
                          T="bool"
-                         CheckedChanged="OnErrorOnlyChanged"
+                         ValueChanged="OnErrorOnlyChanged"
                          Label="Show error only" Color="Color.Primary"></MudCheckBox>
 
-            <MudCheckBox Checked="@_filter.IncludeSystemJobs"
+            <MudCheckBox Value="@_filter.IncludeSystemJobs"
                          T="bool"
-                         CheckedChanged="OnIncludeSystemJobsChanged"
+                         ValueChanged="OnIncludeSystemJobsChanged"
                          Label="Show BlazingQuartz jobs" Color="Color.Primary"></MudCheckBox>
         </div>
         <div class="d-flex pa-4 justify-space-between gap-2">
@@ -105,7 +105,7 @@
     </MudDrawerContainer>
 </MudDrawer>
 
-<MudTable ServerData="@(new Func<TableState, Task<TableData<ExecutionLog>>>(LoadExecutionLogs))"
+<MudTable ServerData="LoadExecutionLogs"
         Breakpoint="Breakpoint.None"
         Dense="true" Hover="true" @ref="table">
     <ToolBarContent>

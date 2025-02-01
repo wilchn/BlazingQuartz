@@ -4,10 +4,10 @@
 <MudDialog>
     <DialogContent>
         <MudButtonGroup OverrideStyles="false" Class="pb-4">
-            <MudButton Color="Color.Default" Size="Size.Large" DisableElevation="true"
+            <MudButton Color="Color.Default" Size="Size.Large" DropShadow="false"
                     Variant="@(SelectedTab == ScheduleDialogTab.Job ? Variant.Filled : Variant.Text)"
                     OnClick="() => OnSelectedTabChanged(ScheduleDialogTab.Job)">Job Details</MudButton>
-            <MudButton Color="Color.Default" Size="Size.Large" DisableElevation="true"
+            <MudButton Color="Color.Default" Size="Size.Large" DropShadow="false"
                     Variant="@(SelectedTab == ScheduleDialogTab.Trigger ? Variant.Filled : Variant.Text)"
                     OnClick="() => OnSelectedTabChanged(ScheduleDialogTab.Trigger)">Trigger Details</MudButton>
         </MudButtonGroup>

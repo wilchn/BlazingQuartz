@@ -91,19 +91,19 @@
                           ErrorText="Select days to trigger this job"
                           InnerPadding="false">
                     <div class="d-flex">
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Monday]"
+                        <MudCheckBox @bind-Value="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Monday]"
                                      Label="@(DayOfWeek.Monday.ToString())"></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Tuesday]"
+                        <MudCheckBox @bind-Value="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Tuesday]"
                                      Label="@(DayOfWeek.Tuesday.ToString())"></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Wednesday]"
+                        <MudCheckBox @bind-Value="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Wednesday]"
                                      Label="@(DayOfWeek.Wednesday.ToString())"></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Thursday]"
+                        <MudCheckBox @bind-Value="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Thursday]"
                                      Label="@(DayOfWeek.Thursday.ToString())"></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Friday]"
+                        <MudCheckBox @bind-Value="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Friday]"
                                      Label="@(DayOfWeek.Friday.ToString())"></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Saturday]"
+                        <MudCheckBox @bind-Value="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Saturday]"
                                      Label="@(DayOfWeek.Saturday.ToString())"></MudCheckBox>
-                        <MudCheckBox @bind-Checked="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Sunday]"
+                        <MudCheckBox @bind-Value="TriggerDetail.DailyDayOfWeek[(int)DayOfWeek.Sunday]"
                                      Label="@(DayOfWeek.Sunday.ToString())"></MudCheckBox>
                     </div>
                 </MudField>
@@ -122,7 +122,7 @@
                                     CoerceText="true" />
                     <MudIconButton Size="Size.Medium"
                             Class="align-self-center"
-                            Icon="@Icons.Material.Filled.Add" Title="Create Calendar"/>
+                            Icon="@Icons.Material.Filled.Add" title="Create Calendar"/>
                 </div>
 
                 <MudAutocomplete T="TimeZoneInfo" Label="Timezone"
@@ -164,7 +164,7 @@
                                      Min="0"
                                      Disabled="TriggerDetail.RepeatForever"
                                      Variant="Variant.Outlined" Step="1" />
-                    <MudCheckBox @bind-Checked="TriggerDetail.RepeatForever"
+                    <MudCheckBox @bind-Value="TriggerDetail.RepeatForever"
                                  Label="Repeat Forever"></MudCheckBox>
                 </div>
             }
@@ -177,7 +177,7 @@
                            Editable="true"
                            Date="TriggerDetail.StartDate"
                            DateChanged="OnStartDateChanged"
-                           DisableToolbar="true" />
+                           ShowToolbar="false" />
             <MudTimePicker Label="Start Time" AmPm="true" Editable="true"
                            Time="TriggerDetail.StartTimeSpan"
                            TimeChanged="OnStartTimeChanged"
@@ -192,7 +192,7 @@
                            Editable="true"
                            Margin="Margin.Dense"
                            Validation="@((DateTime? time) => Validator.ValidateFirstLastDateTime(TriggerDetail, "End date should be later than start date"))"
-                           @bind-Date="TriggerDetail.EndDate" DisableToolbar="true" />
+                           @bind-Date="TriggerDetail.EndDate" ShowToolbar="false" />
             <MudTimePicker Label="End Time" AmPm="true" Editable="true"
                            Validation="@((TimeSpan? time) => Validator.ValidateFirstLastDateTime(TriggerDetail, "End time should be later than start time"))"
                            @bind-Time="TriggerDetail.EndTimeSpan"
@@ -225,7 +225,7 @@
                                 CoerceText="true" />
                 <MudIconButton Size="Size.Medium"
                         Class="align-self-center"
-                        Icon="@Icons.Material.Filled.Add" Title="Create Calendar"/>
+                        Icon="@Icons.Material.Filled.Add" title="Create Calendar"/>
             </div>
         }
 

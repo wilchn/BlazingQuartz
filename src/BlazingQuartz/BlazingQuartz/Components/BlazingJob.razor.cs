@@ -51,8 +51,9 @@ namespace BlazingQuartz.Components
             OriginalJobKey = new(JobDetail.Name, JobDetail.Group);
         }
 
-        async Task<IEnumerable<string>> SearchJobGroup(string value)
+        async Task<IEnumerable<string>> SearchJobGroup(string value, CancellationToken cancellationToken)
         {
+            // TODO use cancellationToken to cancel search task
             if (ExistingJobGroups == null)
             {
                 ExistingJobGroups = await SchedulerSvc.GetJobGroups();
@@ -71,12 +72,12 @@ namespace BlazingQuartz.Components
             return matches;
         }
 
-        private void OnSetIsValid(bool value)
+        private Task OnSetIsValid(bool value)
         {
             if (IsValid == value)
-                return;
+                return Task.CompletedTask;
             IsValid = value;
-            IsValidChanged.InvokeAsync(value).AndForget();
+            return IsValidChanged.InvokeAsync(value);
         }
 
         public async Task Validate()
@@ -87,7 +88,7 @@ namespace BlazingQuartz.Components
             {
                 if (!await jobUI.ApplyChanges())
                 {
-                    OnSetIsValid(false);
+                    await OnSetIsValid(false);
                     return;
                 }
             }

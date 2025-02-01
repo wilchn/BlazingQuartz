@@ -21,8 +21,8 @@
               Label="Request URL {{$}}" />
 
 <MudExpansionPanels MultiExpansion="true" Dense="true"
-    DisableBorders="true"
-    DisableGutters="true"
+    Outlined="false"
+    Gutters="false"
     Elevation="0">
     <MudExpansionPanel Class="httpjobform__advanced">
         <TitleContent>
@@ -60,7 +60,7 @@
                             T="int?"
                             />
 
-            <MudCheckBox @bind-Checked="IgnoreSsl"
+            <MudCheckBox @bind-Value="IgnoreSsl"
                         ReadOnly="IsReadOnly"
                         Label="Allow insecure SSL connection"
                         aria-label="When checked, it will ignore SSL certificate validation."></MudCheckBox>
